@@ -104,7 +104,8 @@
             <div class="form-group col-flex"><label>Máquina</label><select id="maquinaManual"></select></div>
         </div>
         <div class="form-row">
-            <div class="form-group col-flex"><label>Odómetro</label><input type="number" id="odometroManual" step="any"></div>
+            <!-- Cambio 1: Odómetro a tipo 'text' para permitir letras y números -->
+            <div class="form-group col-flex"><label>Odómetro</label><input type="text" id="odometroManual"></div>
             <div class="form-group col-flex"><label>Lts. Diesel</label><input type="number" id="ltsDieselManual" step="any"></div>
             <div class="form-group" style="flex: 2; align-items: flex-end; justify-content: flex-end;">
                 <button class="success" style="padding: 11px 40px;" onclick="agregarRegistroManual()">+ Agregar Manual</button>
@@ -158,9 +159,6 @@
 </div>
 
 <script>
-    // =====================================================================
-    // URL DE GOOGLE APPS SCRIPT INGRESADA AUTOMÁTICAMENTE
-    // =====================================================================
     const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwQdVjp7MOZ2Q80b77PcAWowwPl3JC6jl6GX2QY5AAcz8LonRYuvCOwdbqkiPdMw3cpOg/exec";
     
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
@@ -254,12 +252,26 @@
         else { alert("⚠️ No se detectaron consumos válidos en este PDF."); }
     }
 
+    // Cambio 3: Función para manejar el evento Tab en los campos de odómetro de la tabla
+    function navegarOdometro(e, index) {
+        if (e.key === 'Tab') {
+            e.preventDefault(); // Evitamos que salte horizontalmente
+            const inputs = document.querySelectorAll('.odo-input');
+            let targetIndex = e.shiftKey ? index - 1 : index + 1;
+            
+            if (targetIndex >= 0 && targetIndex < inputs.length) {
+                inputs[targetIndex].focus();
+            }
+        }
+    }
+
     function renderizarTabla() {
         const registrosHtml = registros.map((r, i) => {
             const condParque = conductores.filter(c => c.parque === r.parque);
             const selConductor = `<select class="table-input" onchange="updateFila(${i}, 'conductor', this.value)"><option value="">Seleccionar...</option>${condParque.map(c => `<option value="${c.nombre}" ${c.nombre===r.conductor?'selected':''}>${c.nombre}</option>`).join('')}</select>`;
-            const inpOdometro = `<input type="number" class="table-input" value="${r.odometro}" onchange="updateFila(${i}, 'odometro', this.value)">`;
-            const alertClass = (!r.conductor || !r.odometro) ? 'row-warning' : '';
+            // Cambio 1 y 3: Se cambia a type="text", se agrega la clase odo-input y el evento onkeydown para el tabulador
+            const inpOdometro = `<input type="text" class="table-input odo-input" value="${r.odometro}" onchange="updateFila(${i}, 'odometro', this.value)" onkeydown="navegarOdometro(event, ${i})">`;
+            const alertClass = (!r.conductor || !r.odometro || r.odometro.toString().trim() === '') ? 'row-warning' : '';
             return `<tr class="${alertClass}"><td>${r.parque}</td><td>${r.anio}</td><td>${r.mes}</td><td>${r.dia}</td><td>${r.codProcedencia}</td><td id="area-cell-${i}">${r.area}</td><td>${r.maquina}</td><td>${selConductor}</td><td>${inpOdometro}</td><td>${r.ltsDiesel}</td><td><button class="danger" onclick="borrarRegistro(${i})">Borrar</button></td></tr>`;
         }).join('');
         
@@ -348,8 +360,39 @@
     function borrarRegistro(index) { registros.splice(index, 1); renderizarTabla(); }
     function limpiarTabla() { if(confirm("¿Estás seguro de borrar todos los registros de la tabla?")) { registros = []; renderizarTabla(); } }
 
+    // Cambio 2: Función para validar que todos los campos de todas las filas estén llenos
+    function validarRegistrosCompletos() {
+        const incompletos = registros.filter(r => 
+            !r.parque || !r.anio || !r.mes || !r.dia || !r.codProcedencia || 
+            !r.area || !r.maquina || !r.conductor || r.conductor.trim() === "" || 
+            !r.odometro || r.odometro.toString().trim() === "" || !r.ltsDiesel
+        );
+        if (incompletos.length > 0) {
+            alert("❌ No se puede exportar. Hay registros incompletos. Todos los datos (incluyendo Odómetro y Conductor) son obligatorios.");
+            return false;
+        }
+        return true;
+    }
+
+    // Cambio 4: Función para ordenar cronológicamente por las fechas de transcripción
+    function ordenarRegistrosPorFecha() {
+        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        registros.sort((a, b) => {
+            if (a.anio !== b.anio) return a.anio - b.anio;
+            if (a.mes !== b.mes) return meses.indexOf(a.mes) - meses.indexOf(b.mes);
+            return a.dia - b.dia;
+        });
+    }
+
     function exportarExcel() {
         if (registros.length === 0) { alert("Agrega al menos una fila."); return; }
+        // Se ejecuta la validación fuerte
+        if (!validarRegistrosCompletos()) return;
+        
+        // Se ordenan los datos cronológicamente antes de bajarlos
+        ordenarRegistrosPorFecha();
+        renderizarTabla();
+
         const dataParaExportar = registros.map(r => ({ "Parque": r.parque, "Año": r.anio, "Mes": r.mes, "Dia": r.dia, "Cod.Procedencia": r.codProcedencia, "Area": r.area, "Maquina": r.maquina, "Conductor": r.conductor, "Odometro": r.odometro, "Lts. Diesel": r.ltsDiesel }));
         const hoja = XLSX.utils.json_to_sheet(dataParaExportar, { header: ["Parque", "Año", "Mes", "Dia", "Cod.Procedencia", "Area", "Maquina", "Conductor", "Odometro", "Lts. Diesel"] });
         const libro = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(libro, hoja, "Planilla Combustible");
@@ -360,11 +403,12 @@
     function enviarAGoogleSheets() {
         if (registros.length === 0) { alert("No hay datos en la tabla para enviar."); return; }
         
-        // Verifica si hay filas incompletas
-        const incompletos = registros.filter(r => !r.conductor || !r.odometro);
-        if (incompletos.length > 0) {
-            if (!confirm(`Hay ${incompletos.length} filas incompletas (sin conductor u odómetro). ¿Estás seguro de que quieres enviarlas así?`)) return;
-        }
+        // Cambio 2: Bloqueo estricto si hay filas incompletas
+        if (!validarRegistrosCompletos()) return;
+
+        // Cambio 4: Se ordenan cronológicamente antes de enviar a Google Sheets
+        ordenarRegistrosPorFecha();
+        renderizarTabla(); // Actualiza la tabla visualmente para reflejar el orden antes de enviar
 
         loadingUI.style.display = "flex";
         loadingText.innerText = "Enviando a la nube...";
@@ -372,7 +416,6 @@
         fetch(GOOGLE_SHEETS_URL, {
             method: 'POST',
             mode: 'no-cors', 
-            // ¡EL ARREGLO ESTÁ AQUÍ! Se cambió application/json por text/plain
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(registros)
         }).then(() => {
