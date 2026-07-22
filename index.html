@@ -68,7 +68,7 @@
         </div>
     </div>
 
-    <!-- ZONA DE EXTRACCIÓN PDF (Ocupa todo el ancho ahora) -->
+    <!-- ZONA DE EXTRACCIÓN PDF -->
     <div class="top-section">
         <div id="dropZone" tabindex="0">
             <div id="loadingOverlay"><div class="spinner"></div><span id="loadingText">Procesando...</span></div>
@@ -122,7 +122,6 @@
                     <th style="width: 100px;">Odómetro (Edit)</th><th>Lts. Diesel</th><th>Acción</th>
                 </tr>
             </thead>
-            <!-- Separamos la vista previa para que NUNCA sea borrada por error -->
             <tbody id="tablaVistaPrevia" style="display: none;">
                 <tr class="row-preview">
                     <td id="vp-parque">PAVII</td><td id="vp-anio"></td><td id="vp-mes"></td><td id="vp-dia"></td>
@@ -131,7 +130,6 @@
                     <td><i>Previa...</i></td>
                 </tr>
             </tbody>
-            <!-- Aquí van los registros reales -->
             <tbody id="tablaCuerpo">
             </tbody>
         </table>
@@ -161,13 +159,12 @@
 
 <script>
     // =====================================================================
-    // IMPORTANTE: PEGA AQUÍ LA URL QUE OBTUVSITE DE GOOGLE APPS SCRIPT
+    // URL DE GOOGLE APPS SCRIPT INGRESADA AUTOMÁTICAMENTE
     // =====================================================================
-    const GOOGLE_SHEETS_URL = "PEGAR_AQUI_TU_URL";
+    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwQdVjp7MOZ2Q80b77PcAWowwPl3JC6jl6GX2QY5AAcz8LonRYuvCOwdbqkiPdMw3cpOg/exec";
     
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-    // Función para mostrar/ocultar el formulario manual
     function toggleIngresoManual() {
         const form = document.getElementById('formIngreso');
         const preview = document.getElementById('tablaVistaPrevia');
@@ -181,7 +178,6 @@
         }
     }
 
-    // --- DATOS GLOBALES ---
     const defaultAreas = ["SEPULTACION", "FORESTACION", "CESPED"];
     const defaultMaquinas = [ "RETROEXCAVADORA JCB", "TRACTOR JD 3036 E", "TRACTOR JD 5075 E", "TRACTOR KUBOTA 9", "TRACTOR KUBOTA 12", "CORTADORA JD 750X", "RETRO JCB 4", "TRACTOR JD 15", "TRACTOR JD 18", "CORTADORA JD 4", "TRACTOR KUBOTA 8", "TRACTOR JD 7", "TRACTOR KUBOTA 13", "TRACTOR KUBOTA 10", "TRACTOR KUBOTA 11", "TRACTOR KUBOTA 14", "TRACTOR JD 6", "TRACTOR JD 17", "TRACTOR KUBOTA 7", "RETRO JCB 1 ", "GENERADOR PAV" ];
     const defaultConductores = [
@@ -245,7 +241,6 @@
         while ((match = regex.exec(texto)) !== null) {
             let anio = parseInt(match[3]); if (anio < 100) anio += 2000;
             
-            // DETECCIÓN INTELIGENTE DE PARQUE SEGÚN PDF
             const textToAnalyze = match[5].toUpperCase();
             let p = "PAV";
             if (textToAnalyze.includes("PAV II") || textToAnalyze.includes("PAVII") || textToAnalyze.includes("PV2")) {
@@ -261,7 +256,6 @@
 
     function renderizarTabla() {
         const registrosHtml = registros.map((r, i) => {
-            // Filtra los conductores SOLO para el parque detectado en esta fila
             const condParque = conductores.filter(c => c.parque === r.parque);
             const selConductor = `<select class="table-input" onchange="updateFila(${i}, 'conductor', this.value)"><option value="">Seleccionar...</option>${condParque.map(c => `<option value="${c.nombre}" ${c.nombre===r.conductor?'selected':''}>${c.nombre}</option>`).join('')}</select>`;
             const inpOdometro = `<input type="number" class="table-input" value="${r.odometro}" onchange="updateFila(${i}, 'odometro', this.value)">`;
@@ -269,21 +263,18 @@
             return `<tr class="${alertClass}"><td>${r.parque}</td><td>${r.anio}</td><td>${r.mes}</td><td>${r.dia}</td><td>${r.codProcedencia}</td><td id="area-cell-${i}">${r.area}</td><td>${r.maquina}</td><td>${selConductor}</td><td>${inpOdometro}</td><td>${r.ltsDiesel}</td><td><button class="danger" onclick="borrarRegistro(${i})">Borrar</button></td></tr>`;
         }).join('');
         
-        // Asigna SOLO al tbody de resultados, respetando la vista previa
         document.getElementById('tablaCuerpo').innerHTML = registrosHtml;
     }
 
     function updateFila(index, field, value) {
         registros[index][field] = value;
         if (field === 'conductor') {
-            // Busca la combinación exacta: Nombre y Parque de ESA fila
             const condObj = conductores.find(c => c.nombre === value && c.parque === registros[index].parque);
             registros[index].area = condObj ? condObj.area : "";
         }
         renderizarTabla(); 
     }
 
-    // --- EVENTOS INICIALES ---
     window.onload = () => { establecerFechaActual(); guardarDatosLocales(); actualizarUI(); document.querySelectorAll('#formIngreso input, #formIngreso select').forEach(input => { input.addEventListener('input', actualizarVistaPrevia); input.addEventListener('change', actualizarVistaPrevia); }); };
     function establecerFechaActual() { const date = new Date(); document.getElementById('anio').value = date.getFullYear(); document.getElementById('dia').value = date.getDate(); const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; document.getElementById('mes').value = meses[date.getMonth()]; }
     function toggleModal(show) { document.getElementById('modalConfig').style.display = show ? 'flex' : 'none'; }
@@ -375,18 +366,14 @@
             if (!confirm(`Hay ${incompletos.length} filas incompletas (sin conductor u odómetro). ¿Estás seguro de que quieres enviarlas así?`)) return;
         }
 
-        if (GOOGLE_SHEETS_URL === "https://script.google.com/macros/s/AKfycbwQdVjp7MOZ2Q80b77PcAWowwPl3JC6jl6GX2QY5AAcz8LonRYuvCOwdbqkiPdMw3cpOg/exec") {
-            alert("⚠️ AÚN NO HAS CONFIGURADO EL ENLACE.\nDebes pegar la URL de Google Apps Script en la línea 307 del código HTML.");
-            return;
-        }
-
         loadingUI.style.display = "flex";
         loadingText.innerText = "Enviando a la nube...";
 
         fetch(GOOGLE_SHEETS_URL, {
             method: 'POST',
-            mode: 'no-cors', // Evita bloqueos de seguridad del navegador
-            headers: { 'Content-Type': 'application/json' },
+            mode: 'no-cors', 
+            // ¡EL ARREGLO ESTÁ AQUÍ! Se cambió application/json por text/plain
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(registros)
         }).then(() => {
             loadingUI.style.display = "none";
