@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planilla de Combustible - Nube</title>
+    <!-- Librerías -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    
+    <style>
+        :root { --primary: #1e3a5f; --secondary: #34495e; --accent: #0277bd; --accent-hover: #01579b; --danger: #e53935; --success: #43a047; --bg: #f0f2f5; --panel-bg: #ffffff; --border: #cfd8dc; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); margin: 0; padding: 20px 10px; color: #333; font-size: 14px; }
+        .container { max-width: 1300px; margin: auto; background: var(--panel-bg); padding: 25px 35px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        
+        .header-container { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; }
+        h1 { color: var(--primary); margin: 0; font-size: 1.8em; }
+        .header-buttons { display: flex; gap: 10px; }
+
+        .top-section { display: flex; gap: 20px; margin-bottom: 25px; align-items: stretch; flex-wrap: wrap; }
+        .parque-selector { flex: 0 0 auto; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #bbdefb; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .parque-selector label { margin: 0; font-size: 1.1em; color: var(--primary); font-weight: bold; }
+        .parque-selector select { width: 200px; font-size: 1.1em; font-weight: bold; color: var(--primary); padding: 8px; border: 1px solid #90caf9; border-radius: 5px; outline: none; }
+        
+        #dropZone { flex: 1; min-width: 300px; border: 2px dashed var(--accent); background-color: #e1f5fe; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--primary); cursor: pointer; transition: all 0.2s; padding: 15px; text-align: center; position: relative;}
+        #dropZone:hover, #dropZone.dragover { background-color: #b3e5fc; border-color: var(--primary); outline: none; }
+        #loadingOverlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); border-radius: 8px; font-weight: bold; align-items: center; justify-content: center; color: var(--accent); font-size: 1.2em; z-index: 10; }
+
+        button { background: var(--accent); color: #fff; border: none; padding: 9px 16px; cursor: pointer; border-radius: 5px; font-weight: bold; transition: 0.2s; font-family: inherit; }
+        button:hover { background: var(--accent-hover); }
+        button.danger { background: var(--danger); padding: 5px 12px; font-size: 0.9em; } button.danger:hover { background: #c62828; }
+        button.success { background: var(--success); font-size: 1em; padding: 10px 20px; } button.success:hover { background: #2e7d32; }
+        button.config-btn { background: var(--secondary); display: flex; align-items: center; gap: 5px;}
+        button.cloud-btn { background: #0f9d58; font-size: 1em; padding: 10px 20px;} button.cloud-btn:hover { background: #0b8043; }
+        
+        /* FORMULARIO OCULTO POR DEFECTO */
+        .form-section { display: none; background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 25px; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .form-row { display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-end; flex-wrap: wrap; } .form-row:last-child { margin-bottom: 0; }
+        .form-group { display: flex; flex-direction: column; } .form-group label { margin-bottom: 6px; font-weight: 600; font-size: 0.85em; color: var(--secondary); }
+        input, select { padding: 9px; border: 1px solid #b0bec5; border-radius: 5px; font-family: inherit; outline: none; box-sizing: border-box; background: #fff; }
+        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(2,119,189,0.2); }
+        
+        .col-fecha { flex: 0 1 80px; } .col-mes { flex: 0 1 130px; } .col-anio { flex: 0 1 90px; } .col-cod { flex: 2; min-width: 200px; } .col-flex { flex: 1; min-width: 150px; }
+        .input-group { display: flex; width: 100%; } .input-group .prefix { background: #eceff1; border: 1px solid #b0bec5; border-right: none; padding: 9px 12px; border-radius: 5px 0 0 5px; color: #546e7a; font-weight: bold; user-select: none; } .input-group input { border-radius: 0 5px 5px 0; flex: 1; }
+
+        .table-responsive { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; } th, td { border: 1px solid var(--border); padding: 8px 10px; text-align: center; vertical-align: middle; } th { background-color: var(--primary); color: white; font-weight: 600; }
+        .row-preview { background-color: #e1f5fe; font-style: italic; color: #0277bd; font-weight: bold; } .row-preview td { border-bottom: 2px solid #29b6f6; }
+        .row-warning { background-color: #fff3e0 !important; } tbody tr:hover:not(.row-preview) { background-color: #f5f5f5; }
+        .table-input { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; } .table-input:focus { border-color: var(--accent); }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #fff; width: 95%; max-width: 1000px; padding: 25px; border-radius: 10px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; } .card { background: #fafafa; padding: 18px; border-radius: 8px; border: 1px solid #e0e0e0; }
+        .flex { display: flex; gap: 8px; } .mt-1 { margin-top: 10px; } .list-container { max-height: 180px; overflow-y: auto; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 5px; border-bottom: 1px solid #f0f0f0; } .list-item:nth-child(even) { background-color: #f9f9f9; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-container">
+        <h1>Control de Combustible</h1>
+        <div class="header-buttons">
+            <button class="config-btn" onclick="toggleIngresoManual()">✍️ Ingreso Manual</button>
+            <button class="config-btn" onclick="toggleModal(true)">⚙️ Configurar Listas</button>
+        </div>
+    </div>
+
+    <!-- SECCIÓN SUPERIOR -->
+    <div class="top-section">
+        <div class="parque-selector">
+            <label>📍 Parque:</label>
+            <select id="parqueGlobal" onchange="cambioParque()">
+                <option value="PAVII">PAVII (Parque 2)</option>
+                <option value="PAV">PAV (Parque 1)</option>
+            </select>
+        </div>
+        
+        <div id="dropZone" tabindex="0">
+            <div id="loadingOverlay">Procesando...</div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span style="font-size: 2.5em;">📄</span>
+                <div style="text-align: left;">
+                    <b style="font-size: 1.2em;">Importar desde Reporte PDF</b><br>
+                    <span style="font-size: 0.95em; color: var(--secondary);">Arrastra tu archivo <b>.pdf</b> aquí para extraer<br>los consumos automáticamente.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMULARIO MANUAL OCULTO -->
+    <div class="form-section" id="formIngreso">
+        <h3 style="margin-top: 0; margin-bottom: 15px; color: var(--secondary); font-size: 1em;">Ingreso Manual</h3>
+        <div class="form-row">
+            <div class="form-group col-fecha"><label>Día</label><input type="number" id="dia" min="1" max="31"></div>
+            <div class="form-group col-mes"><label>Mes</label><select id="mes"><option value="Enero">Enero</option><option value="Febrero">Febrero</option><option value="Marzo">Marzo</option><option value="Abril">Abril</option><option value="Mayo">Mayo</option><option value="Junio">Junio</option><option value="Julio">Julio</option><option value="Agosto">Agosto</option><option value="Septiembre">Septiembre</option><option value="Octubre">Octubre</option><option value="Noviembre">Noviembre</option><option value="Diciembre">Diciembre</option></select></div>
+            <div class="form-group col-anio"><label>Año</label><input type="number" id="anio"></div>
+            <div class="form-group col-cod"><label>Cód. Procedencia</label><div class="input-group"><span class="prefix">DIAAL-AJ-</span><input type="text" id="codProcedenciaNum" placeholder="Ej: 00007238"></div></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-flex"><label>Conductor (Filtrado por Parque)</label><select id="conductor"></select></div>
+            <div class="form-group col-flex"><label>Área</label><select id="area"></select></div>
+            <div class="form-group col-flex"><label>Máquina</label><select id="maquina"></select></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-flex"><label>Odómetro</label><input type="number" id="odometro" step="any"></div>
+            <div class="form-group col-flex"><label>Lts. Diesel</label><input type="number" id="ltsDiesel" step="any"></div>
+            <div class="form-group" style="flex: 2; align-items: flex-end; justify-content: flex-end;">
+                <button class="success" style="padding: 11px 40px;" onclick="agregarRegistroManual()">+ Agregar Manual</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA DE RESULTADOS -->
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Parque</th><th>Año</th><th>Mes</th><th>Día</th><th>Cod.Procedencia</th>
+                    <th>Área</th><th>Máquina</th><th style="width: 200px;">Conductor (Editable)</th>
+                    <th style="width: 100px;">Odómetro (Edit)</th><th>Lts. Diesel</th><th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="tablaCuerpo">
+                <tr class="row-preview" id="vistaPreviaFila">
+                    <td id="vp-parque">PAVII</td><td id="vp-anio"></td><td id="vp-mes"></td><td id="vp-dia"></td>
+                    <td id="vp-cod">DIAAL-AJ-</td><td id="vp-area"></td><td id="vp-maquina"></td>
+                    <td id="vp-conductor"></td><td id="vp-odometro"></td><td id="vp-lts"></td>
+                    <td><i>Previa...</i></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px;">
+        <button class="danger" onclick="limpiarTabla()">Borrar Tabla</button>
+        <button class="success" onclick="exportarExcel()">📥 Bajar Excel</button>
+        <button class="cloud-btn" onclick="enviarAGoogleSheets()">☁️ Enviar a Google Sheets</button>
+    </div>
+</div>
+
+<!-- MODAL CONFIGURACIÓN -->
+<div class="modal-overlay" id="modalConfig">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>⚙️ Configuración de Listas</h2>
+            <button class="danger" onclick="toggleModal(false)">Cerrar</button>
+        </div>
+        <div class="grid-3">
+            <div class="card"><h3 style="margin-top:0; color:var(--primary);">Áreas</h3><div class="form-group flex"><input type="text" id="newArea" placeholder="Nueva área..."><button onclick="addArea()">Agregar</button></div><div class="list-container" id="listAreas"></div></div>
+            <div class="card"><h3 style="margin-top:0; color:var(--primary);">Máquinas</h3><div class="form-group flex"><input type="text" id="newMaquina" placeholder="Nueva máquina..."><button onclick="addMaquina()">Agregar</button></div><div class="list-container" id="listMaquinas"></div></div>
+            <div class="card"><h3 style="margin-top:0; color:var(--primary);">Conductores</h3><div class="form-group"><input type="text" id="newConductor" placeholder="Nombre..."><select id="configCondParque" class="mt-1"><option value="PAVII">PAVII</option><option value="PAV">PAV</option></select><select id="configCondArea" class="mt-1"></select><button class="mt-1" style="width: 100%;" onclick="addConductor()">Agregar Conductor</button></div><div class="list-container" id="listConductores"></div></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- IMPORTANTE: PEGA AQUÍ LA URL QUE OBTUVSITE DE GOOGLE APPS SCRIPT ---
+    const GOOGLE_SHEETS_URL = "PEGAR_AQUI_TU_URL";
+    
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+    // Función para mostrar/ocultar el formulario manual
+    function toggleIngresoManual() {
+        const form = document.getElementById('formIngreso');
+        form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+        if (form.style.display === 'block') actualizarVistaPrevia();
+    }
+
+    // --- DATOS GLOBALES ---
+    const defaultAreas = ["SEPULTACION", "FORESTACION", "CESPED"];
+    const defaultMaquinas = [ "RETROEXCAVADORA JCB", "TRACTOR JD 3036 E", "TRACTOR JD 5075 E", "TRACTOR KUBOTA 9", "TRACTOR KUBOTA 12", "CORTADORA JD 750X", "RETRO JCB 4", "TRACTOR JD 15", "TRACTOR JD 18", "CORTADORA JD 4", "TRACTOR KUBOTA 8", "TRACTOR JD 7", "TRACTOR KUBOTA 13", "TRACTOR KUBOTA 10", "TRACTOR KUBOTA 11", "TRACTOR KUBOTA 14", "TRACTOR JD 6", "TRACTOR JD 17", "TRACTOR KUBOTA 7", "RETRO JCB 1 ", "GENERADOR PAV" ];
+    const defaultConductores = [
+        {nombre: "J.HERNANDEZ", area: "SEPULTACION", parque: "PAVII"}, {nombre: "J.URIBE", area: "FORESTACION", parque: "PAVII"}, {nombre: "L.LOPEZ", area: "SEPULTACION", parque: "PAVII"}, {nombre: "M.CATALAN", area: "CESPED", parque: "PAVII"}, {nombre: "J.DIAZ", area: "FORESTACION", parque: "PAVII"}, {nombre: "SEBASTIAN", area: "FORESTACION", parque: "PAVII"}, {nombre: "JULIEN", area: "SEPULTACION", parque: "PAVII"}, {nombre: "J.ALMARZA", area: "FORESTACION", parque: "PAVII"}, {nombre: "M.PERDOMO", area: "CESPED", parque: "PAVII"}, {nombre: "R.LESSON", area: "CESPED", parque: "PAVII"}, {nombre: "S.GUTIERREZ", area: "FORESTACION", parque: "PAVII"},
+        {nombre: "J.VALENZUELA", area: "SEPULTACION", parque: "PAV"}, {nombre: "PAWER", area: "SEPULTACION", parque: "PAV"}, {nombre: "HECTOR", area: "SEPULTACION", parque: "PAV"}, {nombre: "A.VARGAS", area: "CESPED", parque: "PAV"}, {nombre: "A.BURGUEÑO", area: "SEPULTACION", parque: "PAV"}, {nombre: "PAUL", area: "SEPULTACION", parque: "PAV"}, {nombre: "FRANDY", area: "SEPULTACION", parque: "PAV"}, {nombre: "I.CIFUENTES", area: "FORESTACION", parque: "PAV"}, {nombre: "R.MORALES", area: "SEPULTACION", parque: "PAV"}, {nombre: "ELY", area: "FORESTACION", parque: "PAV"}, {nombre: "L.CUEVA", area: "FORESTACION", parque: "PAV"}, {nombre: "PAOLA", area: "FORESTACION", parque: "PAV"}, {nombre: "MAURICIO", area: "FORESTACION", parque: "PAV"}, {nombre: "TEODORO", area: "SEPULTACION", parque: "PAV"}, {nombre: "WIDNY", area: "SEPULTACION", parque: "PAV"}, {nombre: "B.LOPEZ", area: "FORESTACION", parque: "PAV"}, {nombre: "R.CIFUENTES", area: "SEPULTACION", parque: "PAV"}, {nombre: "C.GONZALEZ", area: "FORESTACION", parque: "PAV"}, {nombre: "A.TORRES", area: "SEPULTACION", parque: "PAV"}, {nombre: "M.MEZA", area: "FORESTACION", parque: "PAV"}, {nombre: "S.REYES", area: "SEPULTACION", parque: "PAV"}, {nombre: "M.GUERRERO", area: "FORESTACION", parque: "PAV"}, {nombre: "JULIO", area: "FORESTACION", parque: "PAV"}, {nombre: "V.SALAS", area: "SEPULTACION", parque: "PAV"}, {nombre: "A.FUENTES", area: "FORESTACION", parque: "PAV"}, {nombre: "J.SANCHEZ", area: "FORESTACION", parque: "PAV"}, {nombre: "CLAUDIO", area: "FORESTACION", parque: "PAV"}, {nombre: "ANGELO", area: "CESPED", parque: "PAV"}
+    ];
+
+    let areas = JSON.parse(localStorage.getItem('areas')) || defaultAreas;
+    let maquinas = JSON.parse(localStorage.getItem('maquinas')) || defaultMaquinas;
+    let conductores = JSON.parse(localStorage.getItem('conductores'));
+    if (!conductores || !conductores[0].parque) conductores = defaultConductores;
+    let registros = [];
+
+    const dropZone = document.getElementById('dropZone');
+    const loadingUI = document.getElementById('loadingOverlay');
+
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault(); dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            const file = e.dataTransfer.files[0];
+            if(file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+                loadingUI.style.display = "flex"; loadingUI.innerText = "Leyendo PDF...";
+                const fileReader = new FileReader();
+                fileReader.onload = async function() {
+                    try {
+                        const typedarray = new Uint8Array(this.result);
+                        const pdf = await pdfjsLib.getDocument({data: typedarray}).promise;
+                        let pdfText = "";
+                        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                            const page = await pdf.getPage(pageNum);
+                            const textContent = await page.getTextContent();
+                            pdfText += textContent.items.map(item => item.str).join(' ') + " \n ";
+                        }
+                        procesarTextoCrudo(pdfText);
+                    } catch (error) { alert("Error al leer: " + error.message); } 
+                    finally { loadingUI.style.display = "none"; }
+                };
+                fileReader.readAsArrayBuffer(file);
+            } else { alert("Por favor, arrastra un archivo PDF válido."); }
+        }
+    });
+
+    function detectarMaquina(t) {
+        t = t.toUpperCase();
+        if(t.includes("3036")) return "TRACTOR JD 3036 E"; if(t.includes("5075")) return "TRACTOR JD 5075 E";
+        if(t.includes("KUBOTA")) { if(/\b9\b/.test(t) || t.includes(" 9 ") || t.includes(" 9-")) return "TRACTOR KUBOTA 9"; if(/\b12\b/.test(t) || t.includes(" 12 ") || t.includes(" 12-")) return "TRACTOR KUBOTA 12"; if(/\b7\b/.test(t) || t.includes(" 7-")) return "TRACTOR KUBOTA 7"; if(/\b8\b/.test(t) || t.includes(" 8-")) return "TRACTOR KUBOTA 8"; if(/\b13\b/.test(t)) return "TRACTOR KUBOTA 13"; if(/\b10\b/.test(t)) return "TRACTOR KUBOTA 10"; if(/\b11\b/.test(t)) return "TRACTOR KUBOTA 11"; if(/\b14\b/.test(t)) return "TRACTOR KUBOTA 14"; }
+        if(t.includes("JD") || t.includes("TRACT")) { if(/\b6\b/.test(t) || t.includes(" 6-") || t.includes("N° 6") || t.includes("Nº 6") || t.includes("N°6")) return "TRACTOR JD 6"; if(/\b17\b/.test(t) || t.includes(" 17-") || t.includes("N° 17") || t.includes("N°17")) return "TRACTOR JD 17"; if(/\b18\b/.test(t) || t.includes(" 18-") || t.includes("N° 18") || t.includes("N°18")) return "TRACTOR JD 18"; if(/\b15\b/.test(t) || t.includes(" 15-")) return "TRACTOR JD 15"; if(/\b7\b/.test(t) || t.includes(" 7-")) return "TRACTOR JD 7"; }
+        if(t.includes("CORTADORA")) { if(t.includes("750")) return "CORTADORA JD 750X"; if(/\b4\b/.test(t)) return "CORTADORA JD 4"; }
+        if(t.includes("RETRO") || t.includes("JBC") || t.includes("JCB")) { if(/\b4\b/.test(t) || t.includes("Nº4") || t.includes("N°4")) return "RETRO JCB 4"; if(/\b1\b/.test(t) || t.includes("Nº1") || t.includes("N°1")) return "RETRO JCB 1 "; return "RETROEXCAVADORA JCB"; }
+        if(t.includes("GENERADOR")) return "GENERADOR PAV"; return "MÁQUINA NO RECONOCIDA";
+    }
+
+    function procesarTextoCrudo(texto) {
+        const regex = /(\d{2})\/(\d{2})\/(\d{2}|\d{4})[\s\S]*?(DIAAL-AJ-\d+)([\s\S]*?)negativo[\s\S]*?-\s*(\d+(?:\.\d+)?)/gi;
+        let match; let contador = 0;
+        const parqueActual = document.getElementById('parqueGlobal').value;
+        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+        while ((match = regex.exec(texto)) !== null) {
+            let anio = parseInt(match[3]); if (anio < 100) anio += 2000;
+            registros.push({ parque: parqueActual, anio: anio, mes: meses[parseInt(match[2]) - 1], dia: parseInt(match[1]), codProcedencia: match[4], maquina: detectarMaquina(match[5]), area: "", conductor: "", odometro: "", ltsDiesel: match[6] });
+            contador++;
+        }
+        if (contador > 0) { renderizarTabla(); alert(`✅ Se extrajeron ${contador} consumos del PDF.\nCompleta 'Conductor' y 'Odómetro' en la tabla.`); } 
+        else { alert("⚠️ No se detectaron consumos válidos en este PDF."); }
+    }
+
+    function renderizarTabla() {
+        const parqueActual = document.getElementById('parqueGlobal').value;
+        const condParque = conductores.filter(c => c.parque === parqueActual);
+        const vistaPreviaHtml = document.getElementById('vistaPreviaFila').outerHTML;
+        const registrosHtml = registros.map((r, i) => {
+            const selConductor = `<select class="table-input" onchange="updateFila(${i}, 'conductor', this.value)"><option value="">Seleccionar...</option>${condParque.map(c => `<option value="${c.nombre}" ${c.nombre===r.conductor?'selected':''}>${c.nombre}</option>`).join('')}</select>`;
+            const inpOdometro = `<input type="number" class="table-input" value="${r.odometro}" onchange="updateFila(${i}, 'odometro', this.value)">`;
+            const alertClass = (!r.conductor || !r.odometro) ? 'row-warning' : '';
+            return `<tr class="${alertClass}"><td>${r.parque}</td><td>${r.anio}</td><td>${r.mes}</td><td>${r.dia}</td><td>${r.codProcedencia}</td><td id="area-cell-${i}">${r.area}</td><td>${r.maquina}</td><td>${selConductor}</td><td>${inpOdometro}</td><td>${r.ltsDiesel}</td><td><button class="danger" onclick="borrarRegistro(${i})">Borrar</button></td></tr>`;
+        }).join('');
+        document.getElementById('tablaCuerpo').innerHTML = (document.getElementById('formIngreso').style.display === 'block' ? vistaPreviaHtml : '') + registrosHtml;
+    }
+
+    function updateFila(index, field, value) {
+        registros[index][field] = value;
+        if (field === 'conductor') {
+            const condObj = conductores.find(c => c.nombre === value && c.parque === document.getElementById('parqueGlobal').value);
+            registros[index].area = condObj ? condObj.area : "";
+        }
+        renderizarTabla(); 
+    }
+
+    window.onload = () => { establecerFechaActual(); guardarDatosLocales(); actualizarUI(); document.querySelectorAll('#formIngreso input, #formIngreso select, #parqueGlobal').forEach(input => { input.addEventListener('input', actualizarVistaPrevia); input.addEventListener('change', actualizarVistaPrevia); }); };
+    function establecerFechaActual() { const date = new Date(); document.getElementById('anio').value = date.getFullYear(); document.getElementById('dia').value = date.getDate(); const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; document.getElementById('mes').value = meses[date.getMonth()]; }
+    function toggleModal(show) { document.getElementById('modalConfig').style.display = show ? 'flex' : 'none'; }
+    function guardarDatosLocales() { localStorage.setItem('areas', JSON.stringify(areas)); localStorage.setItem('maquinas', JSON.stringify(maquinas)); localStorage.setItem('conductores', JSON.stringify(conductores)); }
+    function cambioParque() { document.getElementById('conductor').value = ''; document.getElementById('area').value = ''; actualizarUI(); actualizarVistaPrevia(); renderizarTabla(); }
+
+    function actualizarUI() {
+        maquinas.sort(); conductores.sort((a, b) => a.nombre.localeCompare(b.nombre));
+        document.getElementById('listAreas').innerHTML = areas.map((a, i) => `<div class="list-item"><span>${a}</span><button class="danger" onclick="borrarArea(${i})">X</button></div>`).join('');
+        document.getElementById('listMaquinas').innerHTML = maquinas.map((m, i) => `<div class="list-item"><span>${m}</span><button class="danger" onclick="borrarMaquina(${i})">X</button></div>`).join('');
+        document.getElementById('listConductores').innerHTML = conductores.map((c, i) => `<div class="list-item"><span><b>${c.nombre}</b><br><small style="color:#666">${c.parque} - ${c.area}</small></span><button class="danger" onclick="borrarConductor(${i})">X</button></div>`).join('');
+        const selectAreaOptions = `<option value="">Seleccione...</option>` + areas.map(a => `<option value="${a}">${a}</option>`).join('');
+        document.getElementById('configCondArea').innerHTML = selectAreaOptions; document.getElementById('area').innerHTML = selectAreaOptions;
+        document.getElementById('maquina').innerHTML = `<option value="">Seleccione...</option>` + maquinas.map(m => `<option value="${m}">${m}</option>`).join('');
+        document.getElementById('conductor').innerHTML = `<option value="">Seleccione Conductor...</option>` + conductores.filter(c => c.parque === document.getElementById('parqueGlobal').value).map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('');
+    }
+
+    function addArea() { const val = document.getElementById('newArea').value.trim().toUpperCase(); if (val && !areas.includes(val)) { areas.push(val); guardarDatosLocales(); actualizarUI(); document.getElementById('newArea').value = ''; } }
+    function borrarArea(index) { areas.splice(index, 1); guardarDatosLocales(); actualizarUI(); }
+    function addMaquina() { const val = document.getElementById('newMaquina').value.trim().toUpperCase(); if (val && !maquinas.includes(val)) { maquinas.push(val); guardarDatosLocales(); actualizarUI(); document.getElementById('newMaquina').value = ''; } }
+    function borrarMaquina(index) { maquinas.splice(index, 1); guardarDatosLocales(); actualizarUI(); }
+    function addConductor() {
+        const nombre = document.getElementById('newConductor').value.trim().toUpperCase(); const area = document.getElementById('configCondArea').value; const parque = document.getElementById('configCondParque').value;
+        if (nombre && area && parque) { const index = conductores.findIndex(c => c.nombre === nombre && c.parque === parque); if(index >= 0) { conductores[index].area = area; } else { conductores.push({nombre, area, parque}); } guardarDatosLocales(); actualizarUI(); document.getElementById('newConductor').value = ''; } else { alert("Complete todos los campos del conductor."); }
+    }
+    function borrarConductor(index) { conductores.splice(index, 1); guardarDatosLocales(); actualizarUI(); }
+
+    document.getElementById('conductor').addEventListener('change', function() { const condObj = conductores.find(c => c.nombre === this.value && c.parque === document.getElementById('parqueGlobal').value); if (condObj) { document.getElementById('area').value = condObj.area; actualizarVistaPrevia(); } });
+
+    function actualizarVistaPrevia() {
+        if (document.getElementById('formIngreso').style.display === 'none') return; // No actualiza si está oculto
+        document.getElementById('vp-parque').textContent = document.getElementById('parqueGlobal').value; document.getElementById('vp-anio').textContent = document.getElementById('anio').value; document.getElementById('vp-mes').textContent = document.getElementById('mes').value; document.getElementById('vp-dia').textContent = document.getElementById('dia').value;
+        const codNum = document.getElementById('codProcedenciaNum').value; document.getElementById('vp-cod').textContent = codNum ? "DIAAL-AJ-" + codNum : "DIAAL-AJ-...";
+        document.getElementById('vp-area').textContent = document.getElementById('area').value; document.getElementById('vp-maquina').textContent = document.getElementById('maquina').value; document.getElementById('vp-conductor').textContent = document.getElementById('conductor').value; document.getElementById('vp-odometro').textContent = document.getElementById('odometro').value; document.getElementById('vp-lts').textContent = document.getElementById('ltsDiesel').value;
+    }
+
+    function agregarRegistroManual() {
+        const parque = document.getElementById('parqueGlobal').value; const anio = document.getElementById('anio').value; const mes = document.getElementById('mes').value; const dia = document.getElementById('dia').value;
+        const codNum = document.getElementById('codProcedenciaNum').value.trim(); const codProcedencia = codNum ? "DIAAL-AJ-" + codNum : "";
+        const conductor = document.getElementById('conductor').value; const area = document.getElementById('area').value; const maquina = document.getElementById('maquina').value;
+        const odometro = document.getElementById('odometro').value; const ltsDiesel = document.getElementById('ltsDiesel').value;
+        if (!dia || !conductor || !maquina || !codNum) { alert("Faltan datos clave."); return; }
+        registros.push({ parque, anio, mes, dia, codProcedencia, area, maquina, conductor, odometro, ltsDiesel });
+        renderizarTabla();
+        document.getElementById('conductor').value = ''; document.getElementById('area').value = ''; document.getElementById('maquina').value = ''; document.getElementById('odometro').value = ''; document.getElementById('ltsDiesel').value = ''; document.getElementById('codProcedenciaNum').value = ''; document.getElementById('codProcedenciaNum').focus(); actualizarVistaPrevia();
+    }
+
+    function borrarRegistro(index) { registros.splice(index, 1); renderizarTabla(); }
+    function limpiarTabla() { if(confirm("¿Borrar todos los registros?")) { registros = []; renderizarTabla(); } }
+
+    function exportarExcel() {
+        if (registros.length === 0) { alert("Agrega al menos una fila."); return; }
+        const dataParaExportar = registros.map(r => ({ "Parque": r.parque, "Año": r.anio, "Mes": r.mes, "Dia": r.dia, "Cod.Procedencia": r.codProcedencia, "Area": r.area, "Maquina": r.maquina, "Conductor": r.conductor, "Odometro": r.odometro, "Lts. Diesel": r.ltsDiesel }));
+        const hoja = XLSX.utils.json_to_sheet(dataParaExportar, { header: ["Parque", "Año", "Mes", "Dia", "Cod.Procedencia", "Area", "Maquina", "Conductor", "Odometro", "Lts. Diesel"] });
+        const libro = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(libro, hoja, "Planilla Combustible");
+        XLSX.writeFile(libro, `Combustible_${document.getElementById('parqueGlobal').value}_${document.getElementById('mes').value}.xlsx`);
+    }
+
+    // --- FUNCIÓN PARA ENVIAR A GOOGLE SHEETS ---
+    function enviarAGoogleSheets() {
+        if (registros.length === 0) { alert("No hay datos en la tabla para enviar."); return; }
+        
+        // Verifica si hay filas incompletas
+        const incompletos = registros.filter(r => !r.conductor || !r.odometro);
+        if (incompletos.length > 0) {
+            if (!confirm(`Hay ${incompletos.length} filas incompletas (sin conductor u odómetro). ¿Estás seguro de que quieres enviarlas así?`)) return;
+        }
+
+        if (GOOGLE_SHEETS_URL === "PEGAR_AQUI_TU_URL") {
+            alert("⚠️ Primero debes crear la Web App de Google y pegar la URL en el código HTML (Línea 313).");
+            return;
+        }
+
+        loadingUI.style.display = "flex";
+        loadingUI.innerText = "Enviando a la nube...";
+
+        fetch(GOOGLE_SHEETS_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Evita problemas de bloqueo del navegador por seguridad de dominios cruzados
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(registros)
+        }).then(() => {
+            loadingUI.style.display = "none";
+            alert("✅ ¡Datos enviados a Google Sheets con éxito!");
+            if(confirm("¿Deseas limpiar la tabla ahora?")) {
+                registros = [];
+                renderizarTabla();
+            }
+        }).catch(error => {
+            loadingUI.style.display = "none";
+            alert("Error de conexión: " + error);
+        });
+    }
+</script>
+
+</body>
+</html>
