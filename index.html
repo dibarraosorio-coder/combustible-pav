@@ -9,82 +9,194 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     
     <style>
-        :root { --primary: #1e3a5f; --secondary: #34495e; --accent: #0277bd; --accent-hover: #01579b; --danger: #e53935; --success: #43a047; --bg: #f0f2f5; --panel-bg: #ffffff; --border: #cfd8dc; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); margin: 0; padding: 20px 10px; color: #333; font-size: 14px; }
-        .container { max-width: 1300px; margin: auto; background: var(--panel-bg); padding: 25px 35px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-        
-        .header-container { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; }
-        h1 { color: var(--primary); margin: 0; font-size: 1.8em; }
-        .header-buttons { display: flex; gap: 10px; }
+        :root { 
+            /* Modo Día (Claro) - Base Marfil */
+            --marfil-bg: #F8F6F0;
+            --marfil-card: rgba(253, 251, 247, 0.85);
+            
+            --bg: var(--marfil-bg); 
+            --panel-bg: var(--marfil-card); 
+            --border: rgba(0, 0, 0, 0.08);
+            --text-main: #2C3E50;
+            --text-muted: #64748B;
+            
+            /* Acentos */
+            --accent: #059669; 
+            --danger: #DC2626; 
+            --warning: #D97706; 
+            
+            /* Efectos 3D Bento Box y Glassmorphism */
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --shadow-drop: 8px 8px 24px rgba(0,0,0,0.06), -8px -8px 24px rgba(255,255,255,0.9);
+            --shadow-inner: inset 3px 3px 6px rgba(0,0,0,0.03), inset -3px -3px 6px rgba(255,255,255,0.6);
+            --input-bg: rgba(255, 255, 255, 0.6);
+        }
 
-        .top-section { display: flex; gap: 20px; margin-bottom: 25px; align-items: stretch; flex-wrap: wrap; }
+        [data-theme="dark"] {
+            /* Modo Noche (Oscuro) - Estética Tecnológica Ánforas PAV */
+            --bg: #0B0F19; 
+            --panel-bg: rgba(17, 24, 39, 0.5); 
+            --border: rgba(52, 211, 153, 0.15);
+            
+            /* El marfil se usa como texto principal para elegancia */
+            --text-main: #FDFBF7; 
+            --text-muted: #9CA3AF;
+            
+            /* Acentos Neón Ánforas PAV */
+            --accent: #34D399; /* Verde Neón */
+            --danger: #EF4444; /* Rojo Neón */
+            --warning: #FDE047; /* Amarillo Eléctrico */
+            
+            /* Efectos 3D y Glass Oscuro */
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --shadow-drop: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+            --shadow-inner: inset 0 2px 10px rgba(0,0,0,0.3);
+            --input-bg: rgba(0, 0, 0, 0.2);
+        }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background-color: var(--bg); 
+            margin: 0; 
+            padding: 30px 15px; 
+            color: var(--text-main); 
+            font-size: 14px; 
+            transition: all 0.4s ease;
+            /* Textura de fondo sutil */
+            background-image: radial-gradient(circle at top right, rgba(52, 211, 153, 0.03), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(253, 224, 71, 0.03), transparent 40%);
+        }
+
+        .container { max-width: 1300px; margin: auto; display: flex; flex-direction: column; gap: 25px; }
         
-        #dropZone { flex: 1; border: 2px dashed var(--accent); background-color: #e1f5fe; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--primary); cursor: pointer; transition: all 0.2s; padding: 25px; text-align: center; position: relative;}
-        #dropZone:hover, #dropZone.dragover { background-color: #b3e5fc; border-color: var(--primary); outline: none; }
-        #loadingOverlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); border-radius: 8px; font-weight: bold; align-items: center; justify-content: center; color: var(--accent); font-size: 1.2em; z-index: 10; flex-direction: column; gap: 10px; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        /* Componente Modular Bento Card */
+        .bento-card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: var(--shadow-drop);
+            padding: 25px 35px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .header-container { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 5px; }
+        h1 { color: var(--accent); margin: 0; font-size: 2em; letter-spacing: -0.5px; text-shadow: 0 0 10px rgba(52, 211, 153, 0.2); }
+        .header-buttons { display: flex; gap: 12px; }
+
+        /* Botones Transparentes con Glow (Efecto Ánforas) */
+        button { 
+            background: transparent; 
+            color: var(--text-main); 
+            border: 1px solid var(--border); 
+            padding: 10px 18px; 
+            cursor: pointer; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            backdrop-filter: blur(5px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            font-family: inherit;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        button:hover { transform: translateY(-3px); }
+        
+        button.theme-btn { font-size: 1.3em; padding: 8px 12px; border-radius: 50%; }
+        
+        button.success { border-color: var(--accent); color: var(--accent); }
+        button.success:hover { background: var(--accent); color: var(--bg); box-shadow: 0 0 20px var(--accent); }
+        
+        button.danger { border-color: var(--danger); color: var(--danger); }
+        button.danger:hover { background: var(--danger); color: #fff; box-shadow: 0 0 20px var(--danger); }
+        
+        button.cloud-btn { border-color: var(--warning); color: var(--warning); }
+        button.cloud-btn:hover { background: var(--warning); color: #000; box-shadow: 0 0 20px var(--warning); }
+
+        button.config-btn { border-color: var(--text-muted); color: var(--text-muted); }
+        button.config-btn:hover { background: var(--text-muted); color: var(--bg); box-shadow: 0 0 15px var(--text-muted); }
+
+        /* Zona PDF (Bento) */
+        #dropZone { border: 2px dashed var(--accent); background-color: rgba(52, 211, 153, 0.03); display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; position: relative; overflow: hidden; }
+        #dropZone:hover, #dropZone.dragover { background-color: rgba(52, 211, 153, 0.08); box-shadow: inset 0 0 20px rgba(52, 211, 153, 0.2); }
+        
+        #loadingOverlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--panel-bg); backdrop-filter: blur(8px); border-radius: 24px; font-weight: bold; align-items: center; justify-content: center; color: var(--accent); font-size: 1.2em; z-index: 10; flex-direction: column; gap: 15px; }
+        .spinner { border: 4px solid var(--input-bg); border-top: 4px solid var(--accent); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; box-shadow: 0 0 15px var(--accent); }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        button { background: var(--accent); color: #fff; border: none; padding: 9px 16px; cursor: pointer; border-radius: 5px; font-weight: bold; transition: 0.2s; font-family: inherit; }
-        button:hover { background: var(--accent-hover); }
-        button.danger { background: var(--danger); padding: 5px 12px; font-size: 0.9em; } button.danger:hover { background: #c62828; }
-        button.success { background: var(--success); font-size: 1em; padding: 10px 20px; } button.success:hover { background: #2e7d32; }
-        button.config-btn { background: var(--secondary); display: flex; align-items: center; gap: 5px;}
-        button.cloud-btn { background: #0f9d58; font-size: 1em; padding: 10px 20px;} button.cloud-btn:hover { background: #0b8043; }
         
-        .form-section { display: none; background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 25px; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Inputs con Glass y 3D Inner Shadow */
+        .form-section { display: none; animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         
-        .form-row { display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-end; flex-wrap: wrap; } .form-row:last-child { margin-bottom: 0; }
-        .form-group { display: flex; flex-direction: column; } .form-group label { margin-bottom: 6px; font-weight: 600; font-size: 0.85em; color: var(--secondary); }
-        input, select { padding: 9px; border: 1px solid #b0bec5; border-radius: 5px; font-family: inherit; outline: none; box-sizing: border-box; background: #fff; }
-        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(2,119,189,0.2); }
+        .form-row { display: flex; gap: 18px; margin-bottom: 20px; align-items: flex-end; flex-wrap: wrap; } .form-row:last-child { margin-bottom: 0; }
+        .form-group { display: flex; flex-direction: column; } .form-group label { margin-bottom: 8px; font-weight: 600; font-size: 0.85em; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase;}
         
-        .col-fecha { flex: 0 1 80px; } .col-mes { flex: 0 1 130px; } .col-anio { flex: 0 1 90px; } .col-cod { flex: 2; min-width: 200px; } .col-flex { flex: 1; min-width: 150px; }
-        .input-group { display: flex; width: 100%; } .input-group .prefix { background: #eceff1; border: 1px solid #b0bec5; border-right: none; padding: 9px 12px; border-radius: 5px 0 0 5px; color: #546e7a; font-weight: bold; user-select: none; } .input-group input { border-radius: 0 5px 5px 0; flex: 1; }
+        input, select { padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-family: inherit; outline: none; box-sizing: border-box; background: var(--input-bg); color: var(--text-main); box-shadow: var(--shadow-inner); transition: 0.3s; }
+        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(52, 211, 153, 0.2), var(--shadow-inner); }
+        
+        .col-fecha { flex: 0 1 90px; } .col-mes { flex: 0 1 140px; } .col-anio { flex: 0 1 100px; } .col-cod { flex: 2; min-width: 220px; } .col-flex { flex: 1; min-width: 160px; }
+        
+        .input-group { display: flex; width: 100%; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-inner); border: 1px solid var(--border); } 
+        .input-group .prefix { background: rgba(0,0,0,0.05); padding: 12px 15px; color: var(--text-muted); font-weight: bold; user-select: none; border-right: 1px solid var(--border); } 
+        .input-group input { border: none; border-radius: 0; box-shadow: none; flex: 1; }
+        .input-group input:focus { box-shadow: none; }
 
-        .table-responsive { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
-        table { width: 100%; border-collapse: collapse; white-space: nowrap; } th, td { border: 1px solid var(--border); padding: 8px 10px; text-align: center; vertical-align: middle; } th { background-color: var(--primary); color: white; font-weight: 600; }
-        .row-preview { background-color: #e1f5fe; font-style: italic; color: #0277bd; font-weight: bold; } .row-preview td { border-bottom: 2px solid #29b6f6; }
-        .row-warning { background-color: #fff3e0 !important; } tbody#tablaCuerpo tr:hover { background-color: #f5f5f5; }
-        .table-input { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; } .table-input:focus { border-color: var(--accent); }
+        /* Estética de Tablas */
+        .table-responsive { overflow-x: auto; border-radius: 16px; scrollbar-width: thin; scrollbar-color: var(--accent) var(--bg); padding-bottom: 10px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; white-space: nowrap; } 
+        th, td { padding: 15px 12px; text-align: center; vertical-align: middle; border-bottom: 1px solid var(--border); } 
+        th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; border-bottom: 2px solid var(--accent); }
+        
+        .row-preview { background-color: rgba(52, 211, 153, 0.05); font-style: italic; color: var(--text-main); font-weight: bold; } 
+        .row-warning { background-color: rgba(239, 68, 68, 0.05) !important; position: relative; } 
+        .row-warning::after { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--danger); }
+        tbody#tablaCuerpo tr { transition: 0.2s; }
+        tbody#tablaCuerpo tr:hover { background-color: rgba(255, 255, 255, 0.03); transform: scale(1.002); }
+        
+        .table-input { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; background: var(--input-bg); color: var(--text-main); box-shadow: var(--shadow-inner); transition: 0.3s; } 
+        .table-input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(52, 211, 153, 0.3); }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: #fff; width: 95%; max-width: 1000px; padding: 25px; border-radius: 10px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; } .card { background: #fafafa; padding: 18px; border-radius: 8px; border: 1px solid #e0e0e0; }
-        .flex { display: flex; gap: 8px; } .mt-1 { margin-top: 10px; } .list-container { max-height: 180px; overflow-y: auto; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 5px; border-bottom: 1px solid #f0f0f0; } .list-item:nth-child(even) { background-color: #f9f9f9; }
+        /* Modal Bento Box */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: var(--bg); width: 95%; max-width: 1100px; padding: 35px; border-radius: 24px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid var(--glass-border); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 25px; }
+        
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; } 
+        .card { background: var(--panel-bg); padding: 25px; border-radius: 20px; border: 1px solid var(--border); box-shadow: var(--shadow-drop); }
+        .flex { display: flex; gap: 10px; } .mt-1 { margin-top: 15px; } 
+        .list-container { max-height: 200px; overflow-y: auto; margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px; scrollbar-width: thin; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--border); border-radius: 8px; transition: 0.2s; } 
+        .list-item:hover { background-color: rgba(255,255,255,0.05); transform: translateX(5px); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header-container">
-        <h1>Control de Combustible</h1>
-        <div class="header-buttons">
-            <button class="config-btn" onclick="toggleIngresoManual()">✍️ Ingreso Manual</button>
-            <button class="config-btn" onclick="toggleModal(true)">⚙️ Configurar Listas</button>
+    <div class="bento-card">
+        <div class="header-container">
+            <h1>Control de Combustible</h1>
+            <div class="header-buttons">
+                <button class="theme-btn" onclick="toggleTheme()" title="Alternar Día/Noche">🌓</button>
+                <button class="config-btn" onclick="toggleIngresoManual()">✍️ Ingreso Manual</button>
+                <button class="config-btn" onclick="toggleModal(true)">⚙️ Configurar Listas</button>
+            </div>
         </div>
     </div>
 
     <!-- ZONA DE EXTRACCIÓN PDF -->
-    <div class="top-section">
-        <div id="dropZone" tabindex="0">
-            <div id="loadingOverlay"><div class="spinner"></div><span id="loadingText">Procesando...</span></div>
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <span style="font-size: 3em;">📄</span>
-                <div style="text-align: left;">
-                    <b style="font-size: 1.3em;">Importar desde Reporte PDF</b><br>
-                    <span style="font-size: 1em; color: var(--secondary);">Arrastra tu archivo <b>.pdf</b> aquí para extraer<br>los consumos automáticamente. (Detectará el parque solo).</span>
-                </div>
+    <div class="bento-card" id="dropZone" tabindex="0">
+        <div id="loadingOverlay"><div class="spinner"></div><span id="loadingText">Procesando...</span></div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 25px; flex-direction: column;">
+            <span style="font-size: 4em; filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.3));">📄</span>
+            <div style="text-align: center;">
+                <b style="font-size: 1.5em; color: var(--accent);">Importar Reporte PDF</b><br>
+                <span style="font-size: 1.1em; color: var(--text-muted); margin-top: 5px; display: block;">Arrastra tu archivo <b>.pdf</b> aquí para extraer<br>los consumos automáticamente.</span>
             </div>
         </div>
     </div>
 
     <!-- FORMULARIO MANUAL OCULTO -->
-    <div class="form-section" id="formIngreso">
-        <h3 style="margin-top: 0; margin-bottom: 15px; color: var(--secondary); font-size: 1em;">Ingreso Manual</h3>
+    <div class="bento-card form-section" id="formIngreso">
+        <h3 style="margin-top: 0; margin-bottom: 20px; color: var(--accent); font-size: 1.2em; border-bottom: 1px solid var(--border); padding-bottom: 10px;">Ingreso Manual</h3>
         <div class="form-row">
             <div class="form-group col-fecha">
                 <label>Parque</label>
@@ -96,7 +208,10 @@
             <div class="form-group col-fecha"><label>Día</label><input type="number" id="dia" min="1" max="31"></div>
             <div class="form-group col-mes"><label>Mes</label><select id="mes"><option value="Enero">Enero</option><option value="Febrero">Febrero</option><option value="Marzo">Marzo</option><option value="Abril">Abril</option><option value="Mayo">Mayo</option><option value="Junio">Junio</option><option value="Julio">Julio</option><option value="Agosto">Agosto</option><option value="Septiembre">Septiembre</option><option value="Octubre">Octubre</option><option value="Noviembre">Noviembre</option><option value="Diciembre">Diciembre</option></select></div>
             <div class="form-group col-anio"><label>Año</label><input type="number" id="anio"></div>
-            <div class="form-group col-cod"><label>Cód. Procedencia</label><div class="input-group"><span class="prefix">DIAAL-AJ-</span><input type="text" id="codProcedenciaNum" placeholder="Ej: 00007238"></div></div>
+            <div class="form-group col-cod">
+                <label>Cód. Procedencia</label>
+                <div class="input-group"><span class="prefix">DIAAL-AJ-</span><input type="text" id="codProcedenciaNum" placeholder="Ej: 00007238"></div>
+            </div>
         </div>
         <div class="form-row">
             <div class="form-group col-flex"><label>Conductor (Filtrado)</label><select id="conductorManual"></select></div>
@@ -104,42 +219,43 @@
             <div class="form-group col-flex"><label>Máquina</label><select id="maquinaManual"></select></div>
         </div>
         <div class="form-row">
-            <!-- Cambio 1: Odómetro a tipo 'text' para permitir letras y números -->
             <div class="form-group col-flex"><label>Odómetro</label><input type="text" id="odometroManual"></div>
             <div class="form-group col-flex"><label>Lts. Diesel</label><input type="number" id="ltsDieselManual" step="any"></div>
             <div class="form-group" style="flex: 2; align-items: flex-end; justify-content: flex-end;">
-                <button class="success" style="padding: 11px 40px;" onclick="agregarRegistroManual()">+ Agregar Manual</button>
+                <button class="success" style="padding: 12px 40px; width: 100%;" onclick="agregarRegistroManual()">+ Agregar Manual</button>
             </div>
         </div>
     </div>
 
     <!-- TABLA DE RESULTADOS -->
-    <div class="table-responsive">
-        <table>
-            <thead>
-                <tr>
-                    <th>Parque</th><th>Año</th><th>Mes</th><th>Día</th><th>Cod.Procedencia</th>
-                    <th>Área</th><th>Máquina</th><th style="width: 200px;">Conductor (Editable)</th>
-                    <th style="width: 100px;">Odómetro (Edit)</th><th>Lts. Diesel</th><th>Acción</th>
-                </tr>
-            </thead>
-            <tbody id="tablaVistaPrevia" style="display: none;">
-                <tr class="row-preview">
-                    <td id="vp-parque">PAVII</td><td id="vp-anio"></td><td id="vp-mes"></td><td id="vp-dia"></td>
-                    <td id="vp-cod">DIAAL-AJ-</td><td id="vp-area"></td><td id="vp-maquina"></td>
-                    <td id="vp-conductor"></td><td id="vp-odometro"></td><td id="vp-lts"></td>
-                    <td><i>Previa...</i></td>
-                </tr>
-            </tbody>
-            <tbody id="tablaCuerpo">
-            </tbody>
-        </table>
-    </div>
-    
-    <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px;">
-        <button class="danger" onclick="limpiarTabla()">Borrar Tabla</button>
-        <button class="success" onclick="exportarExcel()">📥 Bajar Excel</button>
-        <button class="cloud-btn" onclick="enviarAGoogleSheets()">☁️ Enviar a Google Sheets</button>
+    <div class="bento-card">
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parque</th><th>Año</th><th>Mes</th><th>Día</th><th>Cod.Procedencia</th>
+                        <th>Área</th><th>Máquina</th><th style="width: 220px;">Conductor (Editable)</th>
+                        <th style="width: 120px;">Odómetro (Edit)</th><th>Lts. Diesel</th><th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaVistaPrevia" style="display: none;">
+                    <tr class="row-preview">
+                        <td id="vp-parque">PAVII</td><td id="vp-anio"></td><td id="vp-mes"></td><td id="vp-dia"></td>
+                        <td id="vp-cod">DIAAL-AJ-</td><td id="vp-area"></td><td id="vp-maquina"></td>
+                        <td id="vp-conductor"></td><td id="vp-odometro"></td><td id="vp-lts"></td>
+                        <td><i>Previa...</i></td>
+                    </tr>
+                </tbody>
+                <tbody id="tablaCuerpo">
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 25px;">
+            <button class="danger" onclick="limpiarTabla()">Borrar Tabla</button>
+            <button class="success" onclick="exportarExcel()">📥 Bajar Excel</button>
+            <button class="cloud-btn" onclick="enviarAGoogleSheets()">☁️ Enviar a Google Sheets</button>
+        </div>
     </div>
 </div>
 
@@ -147,18 +263,29 @@
 <div class="modal-overlay" id="modalConfig">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>⚙️ Configuración de Listas</h2>
+            <h2 style="color: var(--accent); margin:0;">⚙️ Configuración de Listas</h2>
             <button class="danger" onclick="toggleModal(false)">Cerrar</button>
         </div>
         <div class="grid-3">
-            <div class="card"><h3 style="margin-top:0; color:var(--primary);">Áreas</h3><div class="form-group flex"><input type="text" id="newArea" placeholder="Nueva área..."><button onclick="addArea()">Agregar</button></div><div class="list-container" id="listAreas"></div></div>
-            <div class="card"><h3 style="margin-top:0; color:var(--primary);">Máquinas</h3><div class="form-group flex"><input type="text" id="newMaquina" placeholder="Nueva máquina..."><button onclick="addMaquina()">Agregar</button></div><div class="list-container" id="listMaquinas"></div></div>
-            <div class="card"><h3 style="margin-top:0; color:var(--primary);">Conductores</h3><div class="form-group"><input type="text" id="newConductor" placeholder="Nombre..."><select id="configCondParque" class="mt-1"><option value="PAVII">PAVII</option><option value="PAV">PAV</option></select><select id="configCondArea" class="mt-1"></select><button class="mt-1" style="width: 100%;" onclick="addConductor()">Agregar Conductor</button></div><div class="list-container" id="listConductores"></div></div>
+            <div class="card"><h3 style="margin-top:0; color:var(--text-main);">Áreas</h3><div class="form-group flex"><input type="text" id="newArea" placeholder="Nueva área..." style="flex:1;"><button class="success" onclick="addArea()">Agregar</button></div><div class="list-container" id="listAreas"></div></div>
+            <div class="card"><h3 style="margin-top:0; color:var(--text-main);">Máquinas</h3><div class="form-group flex"><input type="text" id="newMaquina" placeholder="Nueva máquina..." style="flex:1;"><button class="success" onclick="addMaquina()">Agregar</button></div><div class="list-container" id="listMaquinas"></div></div>
+            <div class="card"><h3 style="margin-top:0; color:var(--text-main);">Conductores</h3><div class="form-group"><input type="text" id="newConductor" placeholder="Nombre..."><select id="configCondParque" class="mt-1"><option value="PAVII">PAVII</option><option value="PAV">PAV</option></select><select id="configCondArea" class="mt-1"></select><button class="success mt-1" style="width: 100%;" onclick="addConductor()">Agregar Conductor</button></div><div class="list-container" id="listConductores"></div></div>
         </div>
     </div>
 </div>
 
 <script>
+    // Tema Claro (Marfil) / Oscuro (Neón PAV)
+    const savedTheme = localStorage.getItem('theme') || 'dark'; // Por defecto lo inicié en Dark para lucir los neones, pero puedes cambiarlo a 'light'
+    document.body.setAttribute('data-theme', savedTheme);
+
+    function toggleTheme() {
+        const currentTheme = document.body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    }
+
     const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwQdVjp7MOZ2Q80b77PcAWowwPl3JC6jl6GX2QY5AAcz8LonRYuvCOwdbqkiPdMw3cpOg/exec";
     
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
@@ -252,10 +379,9 @@
         else { alert("⚠️ No se detectaron consumos válidos en este PDF."); }
     }
 
-    // Cambio 3: Función para manejar el evento Tab en los campos de odómetro de la tabla
     function navegarOdometro(e, index) {
         if (e.key === 'Tab') {
-            e.preventDefault(); // Evitamos que salte horizontalmente
+            e.preventDefault();
             const inputs = document.querySelectorAll('.odo-input');
             let targetIndex = e.shiftKey ? index - 1 : index + 1;
             
@@ -269,10 +395,9 @@
         const registrosHtml = registros.map((r, i) => {
             const condParque = conductores.filter(c => c.parque === r.parque);
             const selConductor = `<select class="table-input" onchange="updateFila(${i}, 'conductor', this.value)"><option value="">Seleccionar...</option>${condParque.map(c => `<option value="${c.nombre}" ${c.nombre===r.conductor?'selected':''}>${c.nombre}</option>`).join('')}</select>`;
-            // Cambio 1 y 3: Se cambia a type="text", se agrega la clase odo-input y el evento onkeydown para el tabulador
             const inpOdometro = `<input type="text" class="table-input odo-input" value="${r.odometro}" onchange="updateFila(${i}, 'odometro', this.value)" onkeydown="navegarOdometro(event, ${i})">`;
             const alertClass = (!r.conductor || !r.odometro || r.odometro.toString().trim() === '') ? 'row-warning' : '';
-            return `<tr class="${alertClass}"><td>${r.parque}</td><td>${r.anio}</td><td>${r.mes}</td><td>${r.dia}</td><td>${r.codProcedencia}</td><td id="area-cell-${i}">${r.area}</td><td>${r.maquina}</td><td>${selConductor}</td><td>${inpOdometro}</td><td>${r.ltsDiesel}</td><td><button class="danger" onclick="borrarRegistro(${i})">Borrar</button></td></tr>`;
+            return `<tr class="${alertClass}"><td>${r.parque}</td><td>${r.anio}</td><td>${r.mes}</td><td>${r.dia}</td><td>${r.codProcedencia}</td><td id="area-cell-${i}">${r.area}</td><td>${r.maquina}</td><td>${selConductor}</td><td>${inpOdometro}</td><td>${r.ltsDiesel}</td><td><button class="danger" style="font-size: 0.85em; padding: 6px 12px;" onclick="borrarRegistro(${i})">Borrar</button></td></tr>`;
         }).join('');
         
         document.getElementById('tablaCuerpo').innerHTML = registrosHtml;
@@ -301,9 +426,9 @@
 
     function actualizarUI() {
         maquinas.sort(); conductores.sort((a, b) => a.nombre.localeCompare(b.nombre));
-        document.getElementById('listAreas').innerHTML = areas.map((a, i) => `<div class="list-item"><span>${a}</span><button class="danger" onclick="borrarArea(${i})">X</button></div>`).join('');
-        document.getElementById('listMaquinas').innerHTML = maquinas.map((m, i) => `<div class="list-item"><span>${m}</span><button class="danger" onclick="borrarMaquina(${i})">X</button></div>`).join('');
-        document.getElementById('listConductores').innerHTML = conductores.map((c, i) => `<div class="list-item"><span><b>${c.nombre}</b><br><small style="color:#666">${c.parque} - ${c.area}</small></span><button class="danger" onclick="borrarConductor(${i})">X</button></div>`).join('');
+        document.getElementById('listAreas').innerHTML = areas.map((a, i) => `<div class="list-item"><span>${a}</span><button class="danger" style="padding: 4px 10px;" onclick="borrarArea(${i})">X</button></div>`).join('');
+        document.getElementById('listMaquinas').innerHTML = maquinas.map((m, i) => `<div class="list-item"><span>${m}</span><button class="danger" style="padding: 4px 10px;" onclick="borrarMaquina(${i})">X</button></div>`).join('');
+        document.getElementById('listConductores').innerHTML = conductores.map((c, i) => `<div class="list-item"><span><b>${c.nombre}</b><br><small style="color:var(--text-muted)">${c.parque} - ${c.area}</small></span><button class="danger" style="padding: 4px 10px;" onclick="borrarConductor(${i})">X</button></div>`).join('');
         
         const selectAreaOptions = `<option value="">Seleccione...</option>` + areas.map(a => `<option value="${a}">${a}</option>`).join('');
         document.getElementById('configCondArea').innerHTML = selectAreaOptions; 
@@ -360,7 +485,6 @@
     function borrarRegistro(index) { registros.splice(index, 1); renderizarTabla(); }
     function limpiarTabla() { if(confirm("¿Estás seguro de borrar todos los registros de la tabla?")) { registros = []; renderizarTabla(); } }
 
-    // Cambio 2: Función para validar que todos los campos de todas las filas estén llenos
     function validarRegistrosCompletos() {
         const incompletos = registros.filter(r => 
             !r.parque || !r.anio || !r.mes || !r.dia || !r.codProcedencia || 
@@ -374,7 +498,6 @@
         return true;
     }
 
-    // Cambio 4: Función para ordenar cronológicamente por las fechas de transcripción
     function ordenarRegistrosPorFecha() {
         const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         registros.sort((a, b) => {
@@ -386,10 +509,8 @@
 
     function exportarExcel() {
         if (registros.length === 0) { alert("Agrega al menos una fila."); return; }
-        // Se ejecuta la validación fuerte
         if (!validarRegistrosCompletos()) return;
         
-        // Se ordenan los datos cronológicamente antes de bajarlos
         ordenarRegistrosPorFecha();
         renderizarTabla();
 
@@ -399,16 +520,13 @@
         XLSX.writeFile(libro, `Combustible_${document.getElementById('mes').value}.xlsx`);
     }
 
-    // --- FUNCIÓN PARA ENVIAR A GOOGLE SHEETS ---
     function enviarAGoogleSheets() {
         if (registros.length === 0) { alert("No hay datos en la tabla para enviar."); return; }
         
-        // Cambio 2: Bloqueo estricto si hay filas incompletas
         if (!validarRegistrosCompletos()) return;
 
-        // Cambio 4: Se ordenan cronológicamente antes de enviar a Google Sheets
         ordenarRegistrosPorFecha();
-        renderizarTabla(); // Actualiza la tabla visualmente para reflejar el orden antes de enviar
+        renderizarTabla();
 
         loadingUI.style.display = "flex";
         loadingText.innerText = "Enviando a la nube...";
