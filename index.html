@@ -276,7 +276,7 @@
 
 <script>
     // Tema Claro (Marfil) / Oscuro (Neón PAV)
-    const savedTheme = localStorage.getItem('theme') || 'dark'; // Por defecto lo inicié en Dark para lucir los neones, pero puedes cambiarlo a 'light'
+    const savedTheme = localStorage.getItem('theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
 
     function toggleTheme() {
@@ -304,7 +304,13 @@
     }
 
     const defaultAreas = ["SEPULTACION", "FORESTACION", "CESPED"];
-    const defaultMaquinas = [ "RETROEXCAVADORA JCB", "TRACTOR JD 3036 E", "TRACTOR JD 5075 E", "TRACTOR KUBOTA 9", "TRACTOR KUBOTA 12", "CORTADORA JD 750X", "RETRO JCB 4", "TRACTOR JD 15", "TRACTOR JD 18", "CORTADORA JD 4", "TRACTOR KUBOTA 8", "TRACTOR JD 7", "TRACTOR KUBOTA 13", "TRACTOR KUBOTA 10", "TRACTOR KUBOTA 11", "TRACTOR KUBOTA 14", "TRACTOR JD 6", "TRACTOR JD 17", "TRACTOR KUBOTA 7", "RETRO JCB 1 ", "GENERADOR PAV" ];
+    const defaultMaquinas = [ 
+        "RETROEXCAVADORA JCB", "RETRO JCB 1 ", "RETRO JCB 4", 
+        "TRACTOR JD 3036 E", "TRACTOR JD 5075 E", "TRACTOR JD 6", "TRACTOR JD 7", "TRACTOR JD 15", "TRACTOR JD 17", "TRACTOR JD 18", 
+        "TRACTOR KUBOTA 7", "TRACTOR KUBOTA 8", "TRACTOR KUBOTA 9", "TRACTOR KUBOTA 10", "TRACTOR KUBOTA 11", "TRACTOR KUBOTA 12", "TRACTOR KUBOTA 13", "TRACTOR KUBOTA 14", 
+        "CORTADORA JD 4", "CORTADORA JD 750 N° 3", "CORTADORA JD 750 N° 4", "CORTADORA JD 750X", 
+        "GENERADOR PAV" 
+    ];
     const defaultConductores = [
         {nombre: "J.HERNANDEZ", area: "SEPULTACION", parque: "PAVII"}, {nombre: "J.URIBE", area: "FORESTACION", parque: "PAVII"}, {nombre: "L.LOPEZ", area: "SEPULTACION", parque: "PAVII"}, {nombre: "M.CATALAN", area: "CESPED", parque: "PAVII"}, {nombre: "J.DIAZ", area: "FORESTACION", parque: "PAVII"}, {nombre: "SEBASTIAN", area: "FORESTACION", parque: "PAVII"}, {nombre: "JULIEN", area: "SEPULTACION", parque: "PAVII"}, {nombre: "J.ALMARZA", area: "FORESTACION", parque: "PAVII"}, {nombre: "M.PERDOMO", area: "CESPED", parque: "PAVII"}, {nombre: "R.LESSON", area: "CESPED", parque: "PAVII"}, {nombre: "S.GUTIERREZ", area: "FORESTACION", parque: "PAVII"},
         {nombre: "J.VALENZUELA", area: "SEPULTACION", parque: "PAV"}, {nombre: "PAWER", area: "SEPULTACION", parque: "PAV"}, {nombre: "HECTOR", area: "SEPULTACION", parque: "PAV"}, {nombre: "A.VARGAS", area: "CESPED", parque: "PAV"}, {nombre: "A.BURGUEÑO", area: "SEPULTACION", parque: "PAV"}, {nombre: "PAUL", area: "SEPULTACION", parque: "PAV"}, {nombre: "FRANDY", area: "SEPULTACION", parque: "PAV"}, {nombre: "I.CIFUENTES", area: "FORESTACION", parque: "PAV"}, {nombre: "R.MORALES", area: "SEPULTACION", parque: "PAV"}, {nombre: "ELY", area: "FORESTACION", parque: "PAV"}, {nombre: "L.CUEVA", area: "FORESTACION", parque: "PAV"}, {nombre: "PAOLA", area: "FORESTACION", parque: "PAV"}, {nombre: "MAURICIO", area: "FORESTACION", parque: "PAV"}, {nombre: "TEODORO", area: "SEPULTACION", parque: "PAV"}, {nombre: "WIDNY", area: "SEPULTACION", parque: "PAV"}, {nombre: "B.LOPEZ", area: "FORESTACION", parque: "PAV"}, {nombre: "R.CIFUENTES", area: "SEPULTACION", parque: "PAV"}, {nombre: "C.GONZALEZ", area: "FORESTACION", parque: "PAV"}, {nombre: "A.TORRES", area: "SEPULTACION", parque: "PAV"}, {nombre: "M.MEZA", area: "FORESTACION", parque: "PAV"}, {nombre: "S.REYES", area: "SEPULTACION", parque: "PAV"}, {nombre: "M.GUERRERO", area: "FORESTACION", parque: "PAV"}, {nombre: "JULIO", area: "FORESTACION", parque: "PAV"}, {nombre: "V.SALAS", area: "SEPULTACION", parque: "PAV"}, {nombre: "A.FUENTES", area: "FORESTACION", parque: "PAV"}, {nombre: "J.SANCHEZ", area: "FORESTACION", parque: "PAV"}, {nombre: "CLAUDIO", area: "FORESTACION", parque: "PAV"}, {nombre: "ANGELO", area: "CESPED", parque: "PAV"}
@@ -349,13 +355,53 @@
     });
 
     function detectarMaquina(t) {
-        t = t.toUpperCase();
-        if(t.includes("3036")) return "TRACTOR JD 3036 E"; if(t.includes("5075")) return "TRACTOR JD 5075 E";
-        if(t.includes("KUBOTA")) { if(/\b9\b/.test(t) || t.includes(" 9 ") || t.includes(" 9-")) return "TRACTOR KUBOTA 9"; if(/\b12\b/.test(t) || t.includes(" 12 ") || t.includes(" 12-")) return "TRACTOR KUBOTA 12"; if(/\b7\b/.test(t) || t.includes(" 7-")) return "TRACTOR KUBOTA 7"; if(/\b8\b/.test(t) || t.includes(" 8-")) return "TRACTOR KUBOTA 8"; if(/\b13\b/.test(t)) return "TRACTOR KUBOTA 13"; if(/\b10\b/.test(t)) return "TRACTOR KUBOTA 10"; if(/\b11\b/.test(t)) return "TRACTOR KUBOTA 11"; if(/\b14\b/.test(t)) return "TRACTOR KUBOTA 14"; }
-        if(t.includes("JD") || t.includes("TRACT")) { if(/\b6\b/.test(t) || t.includes(" 6-") || t.includes("N° 6") || t.includes("Nº 6") || t.includes("N°6")) return "TRACTOR JD 6"; if(/\b17\b/.test(t) || t.includes(" 17-") || t.includes("N° 17") || t.includes("N°17")) return "TRACTOR JD 17"; if(/\b18\b/.test(t) || t.includes(" 18-") || t.includes("N° 18") || t.includes("N°18")) return "TRACTOR JD 18"; if(/\b15\b/.test(t) || t.includes(" 15-")) return "TRACTOR JD 15"; if(/\b7\b/.test(t) || t.includes(" 7-")) return "TRACTOR JD 7"; }
-        if(t.includes("CORTADORA")) { if(t.includes("750")) return "CORTADORA JD 750X"; if(/\b4\b/.test(t)) return "CORTADORA JD 4"; }
-        if(t.includes("RETRO") || t.includes("JBC") || t.includes("JCB")) { if(/\b4\b/.test(t) || t.includes("Nº4") || t.includes("N°4")) return "RETRO JCB 4"; if(/\b1\b/.test(t) || t.includes("Nº1") || t.includes("N°1")) return "RETRO JCB 1 "; return "RETROEXCAVADORA JCB"; }
-        if(t.includes("GENERADOR")) return "GENERADOR PAV"; return "MÁQUINA NO RECONOCIDA";
+        t = t.toUpperCase().replace(/\s+/g, ' ');
+
+        // Tractores John Deere
+        if (t.includes("3036")) return "TRACTOR JD 3036 E";
+        if (t.includes("5075")) return "TRACTOR JD 5075 E";
+
+        // Cortadoras
+        if (t.includes("CORT")) {
+            if (t.includes("750")) {
+                if (/\b3\b/.test(t) || t.includes("3-") || t.includes("N° 3") || t.includes("Nº 3") || t.includes("N°3") || t.includes("Nº3")) return "CORTADORA JD 750 N° 3";
+                if (/\b4\b/.test(t) || t.includes("4-") || t.includes("N° 4") || t.includes("Nº 4") || t.includes("N°4") || t.includes("Nº4")) return "CORTADORA JD 750 N° 4";
+                return "CORTADORA JD 750X";
+            }
+            if (/\b4\b/.test(t)) return "CORTADORA JD 4";
+        }
+
+        // Kubota
+        if (t.includes("KUBOTA") || t.includes("T. KUBOTA") || t.includes("T.KUBOTA")) {
+            if (/\b11\b/.test(t) || t.includes("11-") || t.includes("N°11") || t.includes("N° 11") || t.includes("Nº11") || t.includes("Nº 11")) return "TRACTOR KUBOTA 11";
+            if (/\b12\b/.test(t) || t.includes("12-") || t.includes("N°12") || t.includes("N° 12") || t.includes("Nº12") || t.includes("Nº 12")) return "TRACTOR KUBOTA 12";
+            if (/\b13\b/.test(t) || t.includes("13-") || t.includes("N°13") || t.includes("N° 13") || t.includes("Nº13") || t.includes("Nº 13")) return "TRACTOR KUBOTA 13";
+            if (/\b14\b/.test(t) || t.includes("14-") || t.includes("N°14") || t.includes("N° 14") || t.includes("Nº14") || t.includes("Nº 14")) return "TRACTOR KUBOTA 14";
+            if (/\b10\b/.test(t) || t.includes("10-") || t.includes("N°10") || t.includes("N° 10") || t.includes("Nº10") || t.includes("Nº 10")) return "TRACTOR KUBOTA 10";
+            if (/\b9\b/.test(t) || t.includes("9-") || t.includes("N°9") || t.includes("N° 9") || t.includes("Nº9") || t.includes("Nº 9")) return "TRACTOR KUBOTA 9";
+            if (/\b8\b/.test(t) || t.includes("8-") || t.includes("N°8") || t.includes("N° 8") || t.includes("Nº8") || t.includes("Nº 8")) return "TRACTOR KUBOTA 8";
+            if (/\b7\b/.test(t) || t.includes("7-") || t.includes("N°7") || t.includes("N° 7") || t.includes("Nº7") || t.includes("Nº 7")) return "TRACTOR KUBOTA 7";
+        }
+
+        // Otros Tractores JD
+        if (t.includes("JD") || t.includes("TRACT")) {
+            if (/\b18\b/.test(t) || t.includes("18-") || t.includes("N° 18") || t.includes("N°18") || t.includes("Nº 18") || t.includes("Nº18")) return "TRACTOR JD 18";
+            if (/\b17\b/.test(t) || t.includes("17-") || t.includes("N° 17") || t.includes("N°17") || t.includes("Nº 17") || t.includes("Nº17")) return "TRACTOR JD 17";
+            if (/\b15\b/.test(t) || t.includes("15-") || t.includes("N° 15") || t.includes("N°15") || t.includes("Nº 15") || t.includes("Nº15")) return "TRACTOR JD 15";
+            if (/\b7\b/.test(t) || t.includes("7-") || t.includes("N° 7") || t.includes("N°7") || t.includes("Nº 7") || t.includes("Nº7")) return "TRACTOR JD 7";
+            if (/\b6\b/.test(t) || t.includes("6-") || t.includes("N° 6") || t.includes("N°6") || t.includes("Nº 6") || t.includes("Nº6")) return "TRACTOR JD 6";
+        }
+
+        // Retroexcavadoras
+        if (t.includes("RETRO") || t.includes("JBC") || t.includes("JCB")) {
+            if (/\b4\b/.test(t) || t.includes("Nº4") || t.includes("N°4") || t.includes("Nº 4") || t.includes("N° 4")) return "RETRO JCB 4";
+            if (/\b1\b/.test(t) || t.includes("Nº1") || t.includes("N°1") || t.includes("Nº 1") || t.includes("N° 1")) return "RETRO JCB 1 ";
+            return "RETROEXCAVADORA JCB";
+        }
+
+        if (t.includes("GENERADOR")) return "GENERADOR PAV";
+
+        return "MÁQUINA NO RECONOCIDA";
     }
 
     function procesarTextoCrudo(texto) {
