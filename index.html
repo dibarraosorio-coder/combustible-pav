@@ -53,7 +53,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         .form-row { display: flex; gap: 18px; margin-bottom: 20px; align-items: flex-end; flex-wrap: wrap; } .form-row:last-child { margin-bottom: 0; }
         .form-group { display: flex; flex-direction: column; } .form-group label { margin-bottom: 8px; font-weight: 600; font-size: 0.85em; color: var(--text-muted); text-transform: uppercase;}
-        input, select { padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-family: inherit; outline: none; box-sizing: border-box; background: var(--input-bg); color: var(--text-main); box-shadow: var(--shadow-inner); transition: 0.3s; }
+        input, select { padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-family: inherit; outline: none; box-sizing: border-box; background: var(--input-bg); color: var(--text-main); box-shadow: var(--shadow-inner); transition: 0.3s; width: 100%; }
         input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(52, 211, 153, 0.2), var(--shadow-inner); }
         .col-fecha { flex: 0 1 90px; } .col-mes { flex: 0 1 140px; } .col-anio { flex: 0 1 100px; } .col-cod { flex: 2; min-width: 220px; } .col-flex { flex: 1; min-width: 160px; }
         .input-group { display: flex; width: 100%; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-inner); border: 1px solid var(--border); } 
@@ -96,7 +96,7 @@
         </div>
     </div>
 
-    <!-- ZONA DE EXTRACCIÓN PDF MODIFICADA -->
+    <!-- ZONA DE EXTRACCIÓN PDF -->
     <div class="bento-card" id="dropZone" tabindex="0">
         <div id="loadingOverlay"><div class="spinner"></div><span id="loadingText">Procesando...</span></div>
         <div style="display: flex; align-items: center; justify-content: center; gap: 25px; flex-direction: column;">
@@ -109,7 +109,7 @@
         <input type="file" id="fileInput" accept="application/pdf" style="display: none;">
     </div>
 
-    <!-- FORMULARIO MANUAL OCULTO -->
+    <!-- FORMULARIO MANUAL -->
     <div class="bento-card form-section" id="formIngreso">
         <h3 style="margin-top: 0; margin-bottom: 20px; color: var(--accent); font-size: 1.2em; border-bottom: 1px solid var(--border); padding-bottom: 10px;">Ingreso Manual</h3>
         <div class="form-row">
@@ -129,9 +129,20 @@
             </div>
         </div>
         <div class="form-row">
-            <div class="form-group col-flex"><label>Conductor (Filtrado)</label><select id="conductorManual"></select></div>
-            <div class="form-group col-flex"><label>Área</label><select id="areaManual"></select></div>
-            <div class="form-group col-flex"><label>Máquina</label><select id="maquinaManual"></select></div>
+            <div class="form-group col-flex">
+                <label>Conductor (Buscador)</label>
+                <input type="text" id="conductorManual" list="dl-conductorManual" placeholder="Escribe para buscar..." autocomplete="off">
+                <datalist id="dl-conductorManual"></datalist>
+            </div>
+            <div class="form-group col-flex">
+                <label>Área</label>
+                <select id="areaManual"></select>
+            </div>
+            <div class="form-group col-flex">
+                <label>Máquina (Buscador)</label>
+                <input type="text" id="maquinaManual" list="dl-maquinaManual" placeholder="Escribe para buscar..." autocomplete="off">
+                <datalist id="dl-maquinaManual"></datalist>
+            </div>
         </div>
         <div class="form-row">
             <div class="form-group col-flex"><label>Odómetro</label><input type="text" id="odometroManual"></div>
@@ -151,7 +162,7 @@
                         <th>Parque</th><th>Año</th><th>Mes</th><th>Día</th><th>Cod.Procedencia</th>
                         <th>Área</th>
                         <th style="width: 220px;">Máquina (Editable)</th>
-                        <th style="width: 200px;">Conductor (Editable)</th>
+                        <th style="width: 220px;">Conductor (Editable)</th>
                         <th style="width: 120px;">Odómetro (Edit)</th>
                         <th>Lts. Diesel</th><th>Acción</th>
                     </tr>
@@ -187,7 +198,6 @@
         <div class="grid-3">
             <div class="card"><h3 style="margin-top:0; color:var(--text-main);">Áreas</h3><div class="form-group flex"><input type="text" id="newArea" placeholder="Nueva área..." style="flex:1;"><button class="success" onclick="addArea()">Agregar</button></div><div class="list-container" id="listAreas"></div></div>
             <div class="card"><h3 style="margin-top:0; color:var(--text-main);">Máquinas</h3><div class="form-group flex"><input type="text" id="newMaquina" placeholder="Nueva máquina..." style="flex:1;"><button class="success" onclick="addMaquina()">Agregar</button></div><div class="list-container" id="listMaquinas"></div></div>
-            <!-- SECCIÓN CONDUCTORES MODIFICADA PARA REFLEJAR LA NUBE -->
             <div class="card">
                 <h3 style="margin-top:0; color:var(--text-main);">Conductores (En Nube)</h3>
                 <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px;">Para agregar o eliminar conductores, edita la pestaña <b>CONDUCTORES</b> en tu Google Sheet y recarga esta página.</p>
@@ -206,7 +216,6 @@
         localStorage.setItem('theme', newTheme);
     }
 
-    // AQUI SE INSERTO TU NUEVA URL DEL SCRIPT
     const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwKCHxyGNpeJ6ItOPUeDEHm1bi5zkIbLVJ7D3LohY_l7h8Q6AoBV--9vmj8iRcl6TjX/exec";
     
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
@@ -229,10 +238,9 @@
 
     let areas = JSON.parse(localStorage.getItem('areas')) || defaultAreas;
     let maquinas = JSON.parse(localStorage.getItem('maquinas')) || defaultMaquinas;
-    let conductores = []; // Ahora iniciará vacío y se llenará desde Google Sheets
+    let conductores = []; 
     let registros = [];
 
-    // --- LÓGICA DE PDF MODIFICADA PARA CLICK Y ARRASTRE ---
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const loadingUI = document.getElementById('loadingOverlay');
@@ -338,19 +346,21 @@
         }
     }
 
-    // --- TABLA MODIFICADA: MÁQUINA AHORA ES EDITABLE ---
     function renderizarTabla() {
         const registrosHtml = registros.map((r, i) => {
             const condParque = conductores.filter(c => c.parque === r.parque);
-            const selConductor = `<select class="table-input" onchange="updateFila(${i}, 'conductor', this.value)"><option value="">Seleccionar...</option>${condParque.map(c => `<option value="${c.nombre}" ${c.nombre===r.conductor?'selected':''}>${c.nombre}</option>`).join('')}</select>`;
             
-            // Selector editable para Máquina
-            let isKnown = maquinas.includes(r.maquina);
-            const selMaquina = `<select class="table-input" onchange="updateFila(${i}, 'maquina', this.value)">
-                <option value="">Seleccionar...</option>
-                ${maquinas.map(m => `<option value="${m}" ${m===r.maquina?'selected':''}>${m}</option>`).join('')}
-                ${!isKnown && r.maquina ? `<option value="${r.maquina}" selected>⚠️ ${r.maquina}</option>` : ''}
-            </select>`;
+            // Selector buscable/editable para Máquina
+            const selMaquina = `<input type="text" list="dl-maq-${i}" class="table-input" value="${r.maquina}" onchange="updateFila(${i}, 'maquina', this.value)" placeholder="Buscar máquina..." autocomplete="off">
+            <datalist id="dl-maq-${i}">
+                ${maquinas.map(m => `<option value="${m}">`).join('')}
+            </datalist>`;
+            
+            // Selector buscable/editable para Conductor
+            const selConductor = `<input type="text" list="dl-cond-${i}" class="table-input" value="${r.conductor}" onchange="updateFila(${i}, 'conductor', this.value)" placeholder="Buscar conductor..." autocomplete="off">
+            <datalist id="dl-cond-${i}">
+                ${condParque.map(c => `<option value="${c.nombre}">`).join('')}
+            </datalist>`;
 
             const inpOdometro = `<input type="text" class="table-input odo-input" value="${r.odometro}" onchange="updateFila(${i}, 'odometro', this.value)" onkeydown="navegarOdometro(event, ${i})">`;
             const alertClass = (!r.conductor || !r.maquina || !r.odometro || r.odometro.toString().trim() === '') ? 'row-warning' : '';
@@ -369,14 +379,13 @@
         renderizarTabla(); 
     }
 
-    // --- CONEXIÓN A GOOGLE SHEETS PARA CARGAR CONDUCTORES ---
     async function cargarConductoresDesdeSheets() {
         try {
             const response = await fetch(GOOGLE_SHEETS_URL);
             if(response.ok) {
                 const data = await response.json();
                 if (data && data.length > 0) {
-                    conductores = data; // Sobrescribe con la lista de la nube
+                    conductores = data;
                     actualizarUI();
                 }
             }
@@ -387,7 +396,7 @@
         establecerFechaActual(); 
         guardarDatosLocales(); 
         actualizarUI(); 
-        cargarConductoresDesdeSheets(); // Llamamos a la nube al iniciar
+        cargarConductoresDesdeSheets(); 
         document.querySelectorAll('#formIngreso input, #formIngreso select').forEach(input => { input.addEventListener('input', actualizarVistaPrevia); input.addEventListener('change', actualizarVistaPrevia); }); 
     };
 
@@ -401,15 +410,15 @@
         document.getElementById('listAreas').innerHTML = areas.map((a, i) => `<div class="list-item"><span>${a}</span><button class="danger" style="padding: 4px 10px;" onclick="borrarArea(${i})">X</button></div>`).join('');
         document.getElementById('listMaquinas').innerHTML = maquinas.map((m, i) => `<div class="list-item"><span>${m}</span><button class="danger" style="padding: 4px 10px;" onclick="borrarMaquina(${i})">X</button></div>`).join('');
         
-        // Conductores (Solo lectura visual ya que vienen de la nube)
         document.getElementById('listConductores').innerHTML = conductores.map(c => `<div class="list-item"><span><b>${c.nombre}</b><br><small style="color:var(--text-muted)">${c.parque} - ${c.area}</small></span><span style="font-size:0.8em; color:var(--accent)">☁️</span></div>`).join('');
         
         const selectAreaOptions = `<option value="">Seleccione...</option>` + areas.map(a => `<option value="${a}">${a}</option>`).join('');
         document.getElementById('areaManual').innerHTML = selectAreaOptions;
-        document.getElementById('maquinaManual').innerHTML = `<option value="">Seleccione...</option>` + maquinas.map(m => `<option value="${m}">${m}</option>`).join('');
         
+        // Llenar datalists del formulario manual
+        document.getElementById('dl-maquinaManual').innerHTML = maquinas.map(m => `<option value="${m}">`).join('');
         const pManual = document.getElementById('parqueManual').value;
-        document.getElementById('conductorManual').innerHTML = `<option value="">Seleccione Conductor...</option>` + conductores.filter(c => c.parque === pManual).map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('');
+        document.getElementById('dl-conductorManual').innerHTML = conductores.filter(c => c.parque === pManual).map(c => `<option value="${c.nombre}">`).join('');
     }
 
     function addArea() { const val = document.getElementById('newArea').value.trim().toUpperCase(); if (val && !areas.includes(val)) { areas.push(val); guardarDatosLocales(); actualizarUI(); document.getElementById('newArea').value = ''; } }
