@@ -4,82 +4,168 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planilla de Combustible - Nube</title>
+    
+    <!-- Librerías de Lógica -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     
+    <!-- Librerías de Diseño (Fuente e Iconos) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
         :root { 
-            --marfil-bg: #F8F6F0; --marfil-card: rgba(253, 251, 247, 0.85);
-            --bg: var(--marfil-bg); --panel-bg: var(--marfil-card); --border: rgba(0, 0, 0, 0.08);
-            --text-main: #2C3E50; --text-muted: #64748B;
-            --accent: #059669; --danger: #DC2626; --warning: #D97706; 
-            --glass-border: rgba(255, 255, 255, 0.8);
-            --shadow-drop: 8px 8px 24px rgba(0,0,0,0.06), -8px -8px 24px rgba(255,255,255,0.9);
-            --shadow-inner: inset 3px 3px 6px rgba(0,0,0,0.03), inset -3px -3px 6px rgba(255,255,255,0.6);
-            --input-bg: rgba(255, 255, 255, 0.6);
+            /* Modo Día - Base Marfil Refinada */
+            --marfil-bg: #F9F8F6; 
+            --marfil-card: rgba(255, 255, 255, 0.85);
+            
+            --bg: var(--marfil-bg); 
+            --panel-bg: var(--marfil-card); 
+            --border: rgba(15, 23, 42, 0.08);
+            --text-main: #1E293B; 
+            --text-muted: #64748B;
+            
+            /* Colores de Acento Profesionales */
+            --accent: #059669; 
+            --accent-hover: #047857;
+            --danger: #EF4444; 
+            --danger-hover: #DC2626;
+            --warning: #F59E0B; 
+            
+            /* Efectos Modernos y Suaves */
+            --glass-border: rgba(255, 255, 255, 0.9);
+            --shadow-drop: 0 10px 40px -10px rgba(0,0,0,0.06);
+            --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.02);
+            --input-bg: rgba(255, 255, 255, 0.9);
         }
+        
         [data-theme="dark"] {
-            --bg: #0B0F19; --panel-bg: rgba(17, 24, 39, 0.5); --border: rgba(52, 211, 153, 0.15);
-            --text-main: #FDFBF7; --text-muted: #9CA3AF;
-            --accent: #34D399; --danger: #EF4444; --warning: #FDE047; 
+            /* Modo Noche - Elegancia Oscura */
+            --bg: #0B0F19; 
+            --panel-bg: rgba(15, 23, 42, 0.6); 
+            --border: rgba(255, 255, 255, 0.08);
+            
+            --text-main: #F8FAFC; 
+            --text-muted: #94A3B8;
+            
+            --accent: #10B981; 
+            --accent-hover: #34D399;
+            --danger: #EF4444; 
+            --danger-hover: #F87171;
+            
             --glass-border: rgba(255, 255, 255, 0.05);
-            --shadow-drop: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
-            --shadow-inner: inset 0 2px 10px rgba(0,0,0,0.3); --input-bg: rgba(0, 0, 0, 0.2);
+            --shadow-drop: 0 10px 40px -10px rgba(0,0,0,0.4);
+            --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.2);
+            --input-bg: rgba(0, 0, 0, 0.25);
         }
+        
         body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); margin: 0; padding: 30px 15px; color: var(--text-main); font-size: 14px; transition: all 0.4s ease;
-            background-image: radial-gradient(circle at top right, rgba(52, 211, 153, 0.03), transparent 40%), radial-gradient(circle at bottom left, rgba(253, 224, 71, 0.03), transparent 40%);
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif; 
+            background-color: var(--bg); 
+            margin: 0; 
+            padding: 30px 15px; 
+            color: var(--text-main); 
+            font-size: 14px; 
+            transition: background-color 0.4s ease, color 0.4s ease;
+            background-image: radial-gradient(circle at top right, rgba(16, 185, 129, 0.03), transparent 40%), radial-gradient(circle at bottom left, rgba(245, 158, 11, 0.03), transparent 40%);
         }
-        .container { max-width: 1300px; margin: auto; display: flex; flex-direction: column; gap: 25px; }
-        .bento-card { background: var(--panel-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: var(--shadow-drop); padding: 25px 35px; transition: 0.3s ease; }
-        .header-container { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 5px; }
-        h1 { color: var(--accent); margin: 0; font-size: 2em; letter-spacing: -0.5px; text-shadow: 0 0 10px rgba(52, 211, 153, 0.2); }
-        .header-buttons { display: flex; gap: 12px; }
-        button { background: transparent; color: var(--text-main); border: 1px solid var(--border); padding: 10px 18px; cursor: pointer; border-radius: 12px; font-weight: 600; backdrop-filter: blur(5px); transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;}
-        button:hover { transform: translateY(-3px); }
-        button.theme-btn { font-size: 1.3em; padding: 8px 12px; border-radius: 50%; }
-        button.success { border-color: var(--accent); color: var(--accent); } button.success:hover { background: var(--accent); color: var(--bg); box-shadow: 0 0 20px var(--accent); }
-        button.danger { border-color: var(--danger); color: var(--danger); } button.danger:hover { background: var(--danger); color: #fff; box-shadow: 0 0 20px var(--danger); }
-        button.cloud-btn { border-color: var(--warning); color: var(--warning); } button.cloud-btn:hover { background: var(--warning); color: #000; box-shadow: 0 0 20px var(--warning); }
-        button.config-btn { border-color: var(--text-muted); color: var(--text-muted); } button.config-btn:hover { background: var(--text-muted); color: var(--bg); box-shadow: 0 0 15px var(--text-muted); }
 
-        #dropZone { border: 2px dashed var(--accent); background-color: rgba(52, 211, 153, 0.03); display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; position: relative; overflow: hidden; transition: 0.2s; }
-        #dropZone:hover, #dropZone.dragover { background-color: rgba(52, 211, 153, 0.08); box-shadow: inset 0 0 20px rgba(52, 211, 153, 0.2); transform: scale(1.01); }
-        #loadingOverlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--panel-bg); backdrop-filter: blur(8px); font-weight: bold; align-items: center; justify-content: center; color: var(--accent); font-size: 1.2em; z-index: 10; flex-direction: column; gap: 15px; }
-        .spinner { border: 4px solid var(--input-bg); border-top: 4px solid var(--accent); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; box-shadow: 0 0 15px var(--accent); }
+        .container { max-width: 1300px; margin: auto; display: flex; flex-direction: column; gap: 24px; }
+        
+        .bento-card { 
+            background: var(--panel-bg); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            border: 1px solid var(--glass-border); 
+            border-radius: 20px; 
+            box-shadow: var(--shadow-drop); 
+            padding: 28px 32px; 
+            transition: all 0.3s ease; 
+        }
+
+        .header-container { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 10px; }
+        h1 { color: var(--text-main); margin: 0; font-size: 1.8em; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+        h1 i { color: var(--accent); }
+        .header-buttons { display: flex; gap: 10px; }
+
+        /* SISTEMA DE BOTONES JERÁRQUICO */
+        .btn {
+            font-family: inherit;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 0.95em;
+            cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent; backdrop-filter: blur(5px);
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn:active { transform: translateY(0); }
+        
+        /* Secundario (Borde) */
+        .btn-outline { background: transparent; color: var(--text-main); border-color: var(--border); }
+        .btn-outline:hover { background: rgba(100, 116, 139, 0.05); border-color: var(--text-muted); }
+        
+        /* Primario (Sólido) */
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+        .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3); }
+        
+        /* Fantasma / Peligro */
+        .btn-ghost-danger { background: transparent; color: var(--danger); border-color: transparent; }
+        .btn-ghost-danger:hover { background: rgba(239, 68, 68, 0.1); }
+
+        .btn-icon-only { padding: 10px; border-radius: 50%; }
+
+        /* Zona PDF */
+        #dropZone { border: 2px dashed var(--border); background-color: rgba(0,0,0, 0.01); display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; position: relative; overflow: hidden; transition: 0.2s; min-height: 160px; }
+        #dropZone:hover, #dropZone.dragover { border-color: var(--accent); background-color: rgba(16, 185, 129, 0.03); transform: scale(1.005); }
+        #loadingOverlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--panel-bg); backdrop-filter: blur(8px); font-weight: 600; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1em; z-index: 10; flex-direction: column; gap: 15px; }
+        .spinner { border: 3px solid var(--input-bg); border-top: 3px solid var(--accent); border-radius: 50%; width: 32px; height: 32px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
+        /* Formulario Manual */
         .form-section { display: none; animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        .form-row { display: flex; gap: 18px; margin-bottom: 20px; align-items: flex-end; flex-wrap: wrap; } .form-row:last-child { margin-bottom: 0; }
-        .form-group { display: flex; flex-direction: column; } .form-group label { margin-bottom: 8px; font-weight: 600; font-size: 0.85em; color: var(--text-muted); text-transform: uppercase;}
-        input, select { padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-family: inherit; outline: none; box-sizing: border-box; background: var(--input-bg); color: var(--text-main); box-shadow: var(--shadow-inner); transition: 0.3s; width: 100%; }
-        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(52, 211, 153, 0.2), var(--shadow-inner); }
+        .form-row { display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-end; flex-wrap: wrap; } .form-row:last-child { margin-bottom: 0; }
+        .form-group { display: flex; flex-direction: column; } 
+        .form-group label { margin-bottom: 6px; font-weight: 600; font-size: 0.8em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;}
+        
+        input, select { padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 0.95em; outline: none; box-sizing: border-box; background: var(--input-bg); color: var(--text-main); box-shadow: var(--shadow-inner); transition: 0.2s; width: 100%; }
+        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15), var(--shadow-inner); }
+        
         .col-fecha { flex: 0 1 90px; } .col-mes { flex: 0 1 140px; } .col-anio { flex: 0 1 100px; } .col-cod { flex: 2; min-width: 220px; } .col-flex { flex: 1; min-width: 160px; }
-        .input-group { display: flex; width: 100%; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-inner); border: 1px solid var(--border); } 
-        .input-group .prefix { background: rgba(0,0,0,0.05); padding: 12px 15px; color: var(--text-muted); font-weight: bold; user-select: none; border-right: 1px solid var(--border); } 
+        
+        .input-group { display: flex; width: 100%; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-inner); border: 1px solid var(--border); } 
+        .input-group .prefix { background: rgba(0,0,0,0.03); padding: 12px 15px; color: var(--text-muted); font-weight: 600; user-select: none; border-right: 1px solid var(--border); font-size: 0.95em; } 
         .input-group input { border: none; border-radius: 0; box-shadow: none; flex: 1; }
         
-        .table-responsive { overflow-x: auto; border-radius: 16px; scrollbar-width: thin; padding-bottom: 10px; }
+        /* Estética de Tabla Avanzada (UX) */
+        .table-responsive { max-height: 500px; overflow-y: auto; overflow-x: auto; border-radius: 12px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; white-space: nowrap; } 
-        th, td { padding: 15px 12px; text-align: center; vertical-align: middle; border-bottom: 1px solid var(--border); } 
-        th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85em; border-bottom: 2px solid var(--accent); }
-        .row-preview { background-color: rgba(52, 211, 153, 0.05); font-style: italic; color: var(--text-main); font-weight: bold; } 
-        .row-warning { background-color: rgba(239, 68, 68, 0.05) !important; position: relative; } 
-        .row-warning::after { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--danger); }
-        tbody#tablaCuerpo tr:hover { background-color: rgba(255, 255, 255, 0.03); transform: scale(1.002); }
-        .table-input { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; background: var(--input-bg); color: var(--text-main); transition: 0.3s; } 
-        .table-input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(52, 211, 153, 0.3); }
+        th, td { padding: 12px 14px; text-align: center; vertical-align: middle; border-bottom: 1px solid var(--border); } 
+        /* Sticky Header */
+        th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75em; letter-spacing: 0.5px; background: var(--bg); position: sticky; top: 0; z-index: 2; border-bottom: 2px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        
+        .row-preview { background-color: rgba(16, 185, 129, 0.05); color: var(--text-muted); font-style: italic; } 
+        .row-warning { background-color: rgba(239, 68, 68, 0.04) !important; position: relative; } 
+        .row-warning::after { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 3px; background: var(--danger); border-radius: 4px 0 0 4px; }
+        tbody#tablaCuerpo tr { transition: background-color 0.2s; }
+        tbody#tablaCuerpo tr:hover { background-color: rgba(100, 116, 139, 0.04); }
+        
+        /* Inputs invisibles dentro de la tabla */
+        .table-input { width: 100%; padding: 8px 10px; border: 1px solid transparent; border-radius: 6px; box-sizing: border-box; background: transparent; color: var(--text-main); transition: 0.2s; font-weight: 500; font-size: 0.95em; box-shadow: none;} 
+        .table-input:hover { background: rgba(100, 116, 139, 0.08); border-color: transparent; }
+        .table-input:focus { background: var(--input-bg); border-color: var(--accent); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: var(--bg); width: 95%; max-width: 1100px; padding: 35px; border-radius: 24px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid var(--glass-border); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 25px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; } 
-        .card { background: var(--panel-bg); padding: 25px; border-radius: 20px; border: 1px solid var(--border); box-shadow: var(--shadow-drop); }
+        /* Modal Bento Box */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); z-index: 1000; justify-content: center; align-items: center; animation: fadeIn 0.2s; }
+        .modal-content { background: var(--bg); width: 95%; max-width: 1100px; padding: 32px; border-radius: 24px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.3); border: 1px solid var(--glass-border); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; } 
+        .card { background: var(--panel-bg); padding: 24px; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-drop); }
         .flex { display: flex; gap: 10px; } .mt-1 { margin-top: 15px; } 
-        .list-container { max-height: 250px; overflow-y: auto; margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px; scrollbar-width: thin; }
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--border); border-radius: 8px; transition: 0.2s; } 
-        .list-item:hover { background-color: rgba(255,255,255,0.05); transform: translateX(5px); }
+        .list-container { max-height: 250px; overflow-y: auto; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; scrollbar-width: thin; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--border); border-radius: 8px; transition: 0.2s; font-size: 0.9em; } 
+        .list-item:hover { background-color: rgba(100, 116, 139, 0.05); }
     </style>
 </head>
 <body>
@@ -87,11 +173,17 @@
 <div class="container">
     <div class="bento-card">
         <div class="header-container">
-            <h1>Control de Combustible</h1>
+            <h1><i data-lucide="fuel"></i> Control de Combustible</h1>
             <div class="header-buttons">
-                <button class="theme-btn" onclick="toggleTheme()" title="Alternar Día/Noche">🌓</button>
-                <button class="config-btn" onclick="toggleIngresoManual()">✍️ Ingreso Manual</button>
-                <button class="config-btn" onclick="toggleModal(true)">⚙️ Configurar Listas</button>
+                <button class="btn btn-outline btn-icon-only" onclick="toggleTheme()" title="Alternar Día/Noche">
+                    <i data-lucide="moon"></i>
+                </button>
+                <button class="btn btn-outline" onclick="toggleIngresoManual()">
+                    <i data-lucide="pen-line" size="18"></i> Ingreso Manual
+                </button>
+                <button class="btn btn-outline" onclick="toggleModal(true)">
+                    <i data-lucide="settings-2" size="18"></i> Configurar Listas
+                </button>
             </div>
         </div>
     </div>
@@ -99,11 +191,11 @@
     <!-- ZONA DE EXTRACCIÓN PDF -->
     <div class="bento-card" id="dropZone" tabindex="0">
         <div id="loadingOverlay"><div class="spinner"></div><span id="loadingText">Procesando...</span></div>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 25px; flex-direction: column;">
-            <span style="font-size: 4em; filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.3));">📄</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-direction: column;">
+            <i data-lucide="file-up" style="width: 54px; height: 54px; color: var(--accent); stroke-width: 1.5;"></i>
             <div style="text-align: center;">
-                <b style="font-size: 1.5em; color: var(--accent);">Arrastrar / Adjuntar Reporte</b><br>
-                <span style="font-size: 1.1em; color: var(--text-muted); margin-top: 5px; display: block;">Arrastra tu archivo <b>.pdf</b> aquí o haz clic para seleccionarlo.</span>
+                <b style="font-size: 1.3em; color: var(--text-main);">Arrastrar / Adjuntar Reporte</b><br>
+                <span style="font-size: 1em; color: var(--text-muted); margin-top: 6px; display: block;">Arrastra tu archivo <b>.pdf</b> aquí o haz clic para seleccionarlo.</span>
             </div>
         </div>
         <input type="file" id="fileInput" accept="application/pdf" style="display: none;">
@@ -111,7 +203,9 @@
 
     <!-- FORMULARIO MANUAL -->
     <div class="bento-card form-section" id="formIngreso">
-        <h3 style="margin-top: 0; margin-bottom: 20px; color: var(--accent); font-size: 1.2em; border-bottom: 1px solid var(--border); padding-bottom: 10px;">Ingreso Manual</h3>
+        <h3 style="margin-top: 0; margin-bottom: 20px; color: var(--text-main); font-size: 1.1em; border-bottom: 1px solid var(--border); padding-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="keyboard" size="18"></i> Ingreso Manual
+        </h3>
         <div class="form-row">
             <div class="form-group col-fecha">
                 <label>Parque</label>
@@ -125,23 +219,23 @@
             <div class="form-group col-anio"><label>Año</label><input type="number" id="anio"></div>
             <div class="form-group col-cod">
                 <label>Cód. Procedencia</label>
-                <div class="input-group"><span class="prefix">DIAAL-AJ-</span><input type="text" id="codProcedenciaNum" placeholder="Ej: 00007238"></div>
+                <div class="input-group"><span class="prefix">DIAAL-AJ-</span><input type="text" id="codProcedenciaNum" placeholder="00007238"></div>
             </div>
         </div>
         <div class="form-row">
             <div class="form-group col-flex">
                 <label>Conductor</label>
-                <input type="text" id="conductorManual" list="dl-conductorManual" placeholder="Escribe para buscar..." autocomplete="off">
+                <input type="text" id="conductorManual" list="dl-conductorManual" placeholder="Buscar..." autocomplete="off">
                 <datalist id="dl-conductorManual"></datalist>
             </div>
             <div class="form-group col-flex">
                 <label>Área</label>
-                <input type="text" id="areaManual" list="dl-areaManual" placeholder="Escribe para buscar..." autocomplete="off">
+                <input type="text" id="areaManual" list="dl-areaManual" placeholder="Buscar..." autocomplete="off">
                 <datalist id="dl-areaManual"></datalist>
             </div>
             <div class="form-group col-flex">
                 <label>Máquina</label>
-                <input type="text" id="maquinaManual" list="dl-maquinaManual" placeholder="Escribe para buscar..." autocomplete="off">
+                <input type="text" id="maquinaManual" list="dl-maquinaManual" placeholder="Buscar..." autocomplete="off">
                 <datalist id="dl-maquinaManual"></datalist>
             </div>
         </div>
@@ -149,7 +243,9 @@
             <div class="form-group col-flex"><label>Odómetro</label><input type="text" id="odometroManual"></div>
             <div class="form-group col-flex"><label>Lts. Diesel</label><input type="number" id="ltsDieselManual" step="any"></div>
             <div class="form-group" style="flex: 2; align-items: flex-end; justify-content: flex-end;">
-                <button class="success" style="padding: 12px 40px; width: 100%;" onclick="agregarRegistroManual()">+ Agregar Manual</button>
+                <button class="btn btn-outline" style="width: 100%; border-color: var(--accent); color: var(--accent);" onclick="agregarRegistroManual()">
+                    <i data-lucide="plus" size="18"></i> Agregar a la tabla
+                </button>
             </div>
         </div>
     </div>
@@ -173,7 +269,7 @@
                         <td id="vp-parque">PAVII</td><td id="vp-anio"></td><td id="vp-mes"></td><td id="vp-dia"></td>
                         <td id="vp-cod">DIAAL-AJ-</td><td id="vp-area"></td><td id="vp-maquina"></td>
                         <td id="vp-conductor"></td><td id="vp-odometro"></td><td id="vp-lts"></td>
-                        <td><i>Previa...</i></td>
+                        <td><i>...</i></td>
                     </tr>
                 </tbody>
                 <tbody id="tablaCuerpo">
@@ -181,10 +277,16 @@
             </table>
         </div>
         
-        <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 25px;">
-            <button class="danger" onclick="limpiarTabla()">Borrar Tabla</button>
-            <button class="success" onclick="exportarExcel()">📥 Bajar Excel</button>
-            <button class="cloud-btn" onclick="enviarAGoogleSheets()">☁️ Enviar a Google Sheets</button>
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+            <button class="btn btn-ghost-danger" onclick="limpiarTabla()">
+                <i data-lucide="trash-2" size="18"></i> Borrar Tabla
+            </button>
+            <button class="btn btn-outline" onclick="exportarExcel()">
+                <i data-lucide="download" size="18"></i> Bajar Excel
+            </button>
+            <button class="btn btn-primary" onclick="enviarAGoogleSheets()">
+                <i data-lucide="cloud-upload" size="18"></i> Enviar a la Nube
+            </button>
         </div>
     </div>
 </div>
@@ -193,25 +295,29 @@
 <div class="modal-overlay" id="modalConfig">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 style="color: var(--accent); margin:0;">⚙️ Configuración de Listas</h2>
-            <button class="danger" onclick="toggleModal(false)">Cerrar</button>
+            <h2 style="color: var(--text-main); margin:0; display:flex; align-items:center; gap:8px;">
+                <i data-lucide="sliders-horizontal" color="var(--accent)"></i> Configuración
+            </h2>
+            <button class="btn btn-ghost-danger" onclick="toggleModal(false)">
+                <i data-lucide="x" size="20"></i> Cerrar
+            </button>
         </div>
         <div class="grid-3">
             <div class="card">
-                <h3 style="margin-top:0; color:var(--text-main);">Áreas (Local)</h3>
-                <div class="form-group flex"><input type="text" id="newArea" placeholder="Nueva área..." style="flex:1;"><button class="success" onclick="addArea()">Agregar</button></div>
+                <h3 style="margin-top:0; color:var(--text-main); font-size:1.1em;">Áreas (Local)</h3>
+                <div class="form-group flex"><input type="text" id="newArea" placeholder="Nueva área..." style="flex:1;"><button class="btn btn-outline" onclick="addArea()"><i data-lucide="plus" size="16"></i></button></div>
                 <div class="list-container" id="listAreas"></div>
             </div>
             
             <div class="card">
-                <h3 style="margin-top:0; color:var(--text-main);">Máquinas (En Nube)</h3>
-                <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px;">Para agregar o eliminar máquinas, edita la pestaña <b>MAQUINAS</b> en tu Google Sheet y recarga esta página.</p>
+                <h3 style="margin-top:0; color:var(--text-main); font-size:1.1em; display:flex; gap:6px; align-items:center;">Máquinas <i data-lucide="cloud" size="16" color="var(--accent)"></i></h3>
+                <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px; line-height: 1.4;">Edita la pestaña <b>MAQUINAS</b> en tu Google Sheet y recarga esta página.</p>
                 <div class="list-container" id="listMaquinas" style="border-top: none; padding-top: 0; margin-top: 0;"></div>
             </div>
             
             <div class="card">
-                <h3 style="margin-top:0; color:var(--text-main);">Conductores (En Nube)</h3>
-                <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px;">Para agregar o eliminar conductores, edita la pestaña <b>CONDUCTORES</b> en tu Google Sheet y recarga esta página.</p>
+                <h3 style="margin-top:0; color:var(--text-main); font-size:1.1em; display:flex; gap:6px; align-items:center;">Conductores <i data-lucide="cloud" size="16" color="var(--accent)"></i></h3>
+                <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px; line-height: 1.4;">Edita la pestaña <b>CONDUCTORES</b> en tu Google Sheet y recarga esta página.</p>
                 <div class="list-container" id="listConductores" style="border-top: none; padding-top: 0; margin-top: 0;"></div>
             </div>
         </div>
@@ -219,8 +325,12 @@
 </div>
 
 <script>
+    // Inicializar Lucide Icons
+    lucide.createIcons();
+
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
+    
     function toggleTheme() {
         const newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         document.body.setAttribute('data-theme', newTheme);
@@ -242,7 +352,6 @@
     const defaultAreas = ["SEPULTACION", "FORESTACION", "CESPED"];
     let areas = JSON.parse(localStorage.getItem('areas')) || defaultAreas;
     
-    // Arrays que se llenarán desde Google Sheets
     let maquinas = []; 
     let conductores = []; 
     let registros = [];
@@ -324,7 +433,6 @@
         }
         if (t.includes("GENERADOR")) return "GENERADOR PAV";
         
-        // Si no detecta, intenta coincidir con alguna máquina nueva descargada
         const maqNube = maquinas.find(m => t.includes(m));
         return maqNube ? maqNube : "MÁQUINA NO RECONOCIDA";
     }
@@ -359,35 +467,31 @@
         const registrosHtml = registros.map((r, i) => {
             const condParque = conductores.filter(c => c.parque === r.parque);
             
-            // Selector buscable/editable para Área
-            const selArea = `<input type="text" list="dl-area-${i}" class="table-input" value="${r.area}" onchange="updateFila(${i}, 'area', this.value)" placeholder="Buscar área..." autocomplete="off">
-            <datalist id="dl-area-${i}">
-                ${areas.map(a => `<option value="${a}">`).join('')}
-            </datalist>`;
+            const selArea = `<input type="text" list="dl-area-${i}" class="table-input" value="${r.area}" onchange="updateFila(${i}, 'area', this.value)" placeholder="..." autocomplete="off">
+            <datalist id="dl-area-${i}">${areas.map(a => `<option value="${a}">`).join('')}</datalist>`;
 
-            // Selector buscable/editable para Máquina
-            const selMaquina = `<input type="text" list="dl-maq-${i}" class="table-input" value="${r.maquina}" onchange="updateFila(${i}, 'maquina', this.value)" placeholder="Buscar máquina..." autocomplete="off">
-            <datalist id="dl-maq-${i}">
-                ${maquinas.map(m => `<option value="${m}">`).join('')}
-            </datalist>`;
+            const selMaquina = `<input type="text" list="dl-maq-${i}" class="table-input" value="${r.maquina}" onchange="updateFila(${i}, 'maquina', this.value)" placeholder="..." autocomplete="off">
+            <datalist id="dl-maq-${i}">${maquinas.map(m => `<option value="${m}">`).join('')}</datalist>`;
             
-            // Selector buscable/editable para Conductor
-            const selConductor = `<input type="text" list="dl-cond-${i}" class="table-input" value="${r.conductor}" onchange="updateFila(${i}, 'conductor', this.value)" placeholder="Buscar conductor..." autocomplete="off">
-            <datalist id="dl-cond-${i}">
-                ${condParque.map(c => `<option value="${c.nombre}">`).join('')}
-            </datalist>`;
+            const selConductor = `<input type="text" list="dl-cond-${i}" class="table-input" value="${r.conductor}" onchange="updateFila(${i}, 'conductor', this.value)" placeholder="..." autocomplete="off">
+            <datalist id="dl-cond-${i}">${condParque.map(c => `<option value="${c.nombre}">`).join('')}</datalist>`;
 
-            const inpOdometro = `<input type="text" class="table-input odo-input" value="${r.odometro}" onchange="updateFila(${i}, 'odometro', this.value)" onkeydown="navegarOdometro(event, ${i})">`;
+            const inpOdometro = `<input type="text" class="table-input odo-input" value="${r.odometro}" onchange="updateFila(${i}, 'odometro', this.value)" onkeydown="navegarOdometro(event, ${i})" placeholder="...">`;
             const alertClass = (!r.conductor || !r.maquina || !r.odometro || r.odometro.toString().trim() === '') ? 'row-warning' : '';
             
-            return `<tr class="${alertClass}"><td>${r.parque}</td><td>${r.anio}</td><td>${r.mes}</td><td>${r.dia}</td><td>${r.codProcedencia}</td><td>${selArea}</td><td>${selMaquina}</td><td>${selConductor}</td><td>${inpOdometro}</td><td>${r.ltsDiesel}</td><td><button class="danger" style="font-size: 0.85em; padding: 6px 12px;" onclick="borrarRegistro(${i})">Borrar</button></td></tr>`;
+            return `<tr class="${alertClass}">
+                <td>${r.parque}</td><td>${r.anio}</td><td>${r.mes}</td><td>${r.dia}</td><td style="font-family: monospace; color: var(--text-muted);">${r.codProcedencia}</td>
+                <td>${selArea}</td><td>${selMaquina}</td><td>${selConductor}</td><td>${inpOdometro}</td>
+                <td style="font-weight: 600;">${r.ltsDiesel}</td>
+                <td><button class="btn btn-ghost-danger btn-icon-only" onclick="borrarRegistro(${i})" title="Borrar Fila"><i data-lucide="x" size="16"></i></button></td>
+            </tr>`;
         }).join('');
         document.getElementById('tablaCuerpo').innerHTML = registrosHtml;
+        lucide.createIcons(); // Refrescar iconos en la tabla generada
     }
 
     function updateFila(index, field, value) {
         registros[index][field] = value;
-        // Si el conductor cambia en la tabla, actualizamos el área automáticamente (si está definida para ese conductor)
         if (field === 'conductor') {
             const condObj = conductores.find(c => c.nombre === value && c.parque === registros[index].parque);
             if (condObj && condObj.area) {
@@ -425,17 +529,17 @@
     function actualizarUI() {
         maquinas.sort(); conductores.sort((a, b) => a.nombre.localeCompare(b.nombre));
         
-        // Modal UI
-        document.getElementById('listAreas').innerHTML = areas.map((a, i) => `<div class="list-item"><span>${a}</span><button class="danger" style="padding: 4px 10px;" onclick="borrarArea(${i})">X</button></div>`).join('');
-        document.getElementById('listMaquinas').innerHTML = maquinas.map(m => `<div class="list-item"><span>${m}</span><span style="font-size:0.8em; color:var(--accent)">☁️</span></div>`).join('');
-        document.getElementById('listConductores').innerHTML = conductores.map(c => `<div class="list-item"><span><b>${c.nombre}</b><br><small style="color:var(--text-muted)">${c.parque} - ${c.area}</small></span><span style="font-size:0.8em; color:var(--accent)">☁️</span></div>`).join('');
+        document.getElementById('listAreas').innerHTML = areas.map((a, i) => `<div class="list-item"><span>${a}</span><button class="btn btn-ghost-danger btn-icon-only" onclick="borrarArea(${i})"><i data-lucide="x" size="14"></i></button></div>`).join('');
+        document.getElementById('listMaquinas').innerHTML = maquinas.map(m => `<div class="list-item"><span>${m}</span><i data-lucide="cloud" size="14" color="var(--text-muted)"></i></div>`).join('');
+        document.getElementById('listConductores').innerHTML = conductores.map(c => `<div class="list-item"><span><b>${c.nombre}</b><br><small style="color:var(--text-muted)">${c.parque} - ${c.area}</small></span><i data-lucide="cloud" size="14" color="var(--text-muted)"></i></div>`).join('');
         
-        // Formulario UI Datalists
         document.getElementById('dl-areaManual').innerHTML = areas.map(a => `<option value="${a}">`).join('');
         document.getElementById('dl-maquinaManual').innerHTML = maquinas.map(m => `<option value="${m}">`).join('');
         
         const pManual = document.getElementById('parqueManual').value;
         document.getElementById('dl-conductorManual').innerHTML = conductores.filter(c => c.parque === pManual).map(c => `<option value="${c.nombre}">`).join('');
+        
+        lucide.createIcons(); // Refrescar iconos en modales y listas
     }
 
     function addArea() { const val = document.getElementById('newArea').value.trim().toUpperCase(); if (val && !areas.includes(val)) { areas.push(val); guardarDatosLocales(); actualizarUI(); document.getElementById('newArea').value = ''; } }
