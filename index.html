@@ -4,166 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planilla de Combustible - Nube</title>
-    <!-- Librerías -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     
     <style>
         :root { 
-            /* Modo Día (Claro) - Base Marfil */
-            --marfil-bg: #F8F6F0;
-            --marfil-card: rgba(253, 251, 247, 0.85);
-            
-            --bg: var(--marfil-bg); 
-            --panel-bg: var(--marfil-card); 
-            --border: rgba(0, 0, 0, 0.08);
-            --text-main: #2C3E50;
-            --text-muted: #64748B;
-            
-            /* Acentos */
-            --accent: #059669; 
-            --danger: #DC2626; 
-            --warning: #D97706; 
-            
-            /* Efectos 3D Bento Box y Glassmorphism */
+            --marfil-bg: #F8F6F0; --marfil-card: rgba(253, 251, 247, 0.85);
+            --bg: var(--marfil-bg); --panel-bg: var(--marfil-card); --border: rgba(0, 0, 0, 0.08);
+            --text-main: #2C3E50; --text-muted: #64748B;
+            --accent: #059669; --danger: #DC2626; --warning: #D97706; 
             --glass-border: rgba(255, 255, 255, 0.8);
             --shadow-drop: 8px 8px 24px rgba(0,0,0,0.06), -8px -8px 24px rgba(255,255,255,0.9);
             --shadow-inner: inset 3px 3px 6px rgba(0,0,0,0.03), inset -3px -3px 6px rgba(255,255,255,0.6);
             --input-bg: rgba(255, 255, 255, 0.6);
         }
-
         [data-theme="dark"] {
-            /* Modo Noche (Oscuro) - Estética Tecnológica Ánforas PAV */
-            --bg: #0B0F19; 
-            --panel-bg: rgba(17, 24, 39, 0.5); 
-            --border: rgba(52, 211, 153, 0.15);
-            
-            /* El marfil se usa como texto principal para elegancia */
-            --text-main: #FDFBF7; 
-            --text-muted: #9CA3AF;
-            
-            /* Acentos Neón Ánforas PAV */
-            --accent: #34D399; /* Verde Neón */
-            --danger: #EF4444; /* Rojo Neón */
-            --warning: #FDE047; /* Amarillo Eléctrico */
-            
-            /* Efectos 3D y Glass Oscuro */
+            --bg: #0B0F19; --panel-bg: rgba(17, 24, 39, 0.5); --border: rgba(52, 211, 153, 0.15);
+            --text-main: #FDFBF7; --text-muted: #9CA3AF;
+            --accent: #34D399; --danger: #EF4444; --warning: #FDE047; 
             --glass-border: rgba(255, 255, 255, 0.05);
             --shadow-drop: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
-            --shadow-inner: inset 0 2px 10px rgba(0,0,0,0.3);
-            --input-bg: rgba(0, 0, 0, 0.2);
+            --shadow-inner: inset 0 2px 10px rgba(0,0,0,0.3); --input-bg: rgba(0, 0, 0, 0.2);
         }
-
         body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            background-color: var(--bg); 
-            margin: 0; 
-            padding: 30px 15px; 
-            color: var(--text-main); 
-            font-size: 14px; 
-            transition: all 0.4s ease;
-            /* Textura de fondo sutil */
-            background-image: radial-gradient(circle at top right, rgba(52, 211, 153, 0.03), transparent 40%),
-                              radial-gradient(circle at bottom left, rgba(253, 224, 71, 0.03), transparent 40%);
+            font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); margin: 0; padding: 30px 15px; color: var(--text-main); font-size: 14px; transition: all 0.4s ease;
+            background-image: radial-gradient(circle at top right, rgba(52, 211, 153, 0.03), transparent 40%), radial-gradient(circle at bottom left, rgba(253, 224, 71, 0.03), transparent 40%);
         }
-
         .container { max-width: 1300px; margin: auto; display: flex; flex-direction: column; gap: 25px; }
-        
-        /* Componente Modular Bento Card */
-        .bento-card {
-            background: var(--panel-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            box-shadow: var(--shadow-drop);
-            padding: 25px 35px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
+        .bento-card { background: var(--panel-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: var(--shadow-drop); padding: 25px 35px; transition: 0.3s ease; }
         .header-container { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 5px; }
         h1 { color: var(--accent); margin: 0; font-size: 2em; letter-spacing: -0.5px; text-shadow: 0 0 10px rgba(52, 211, 153, 0.2); }
         .header-buttons { display: flex; gap: 12px; }
-
-        /* Botones Transparentes con Glow (Efecto Ánforas) */
-        button { 
-            background: transparent; 
-            color: var(--text-main); 
-            border: 1px solid var(--border); 
-            padding: 10px 18px; 
-            cursor: pointer; 
-            border-radius: 12px; 
-            font-weight: 600; 
-            backdrop-filter: blur(5px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            font-family: inherit;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
+        button { background: transparent; color: var(--text-main); border: 1px solid var(--border); padding: 10px 18px; cursor: pointer; border-radius: 12px; font-weight: 600; backdrop-filter: blur(5px); transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;}
         button:hover { transform: translateY(-3px); }
-        
         button.theme-btn { font-size: 1.3em; padding: 8px 12px; border-radius: 50%; }
-        
-        button.success { border-color: var(--accent); color: var(--accent); }
-        button.success:hover { background: var(--accent); color: var(--bg); box-shadow: 0 0 20px var(--accent); }
-        
-        button.danger { border-color: var(--danger); color: var(--danger); }
-        button.danger:hover { background: var(--danger); color: #fff; box-shadow: 0 0 20px var(--danger); }
-        
-        button.cloud-btn { border-color: var(--warning); color: var(--warning); }
-        button.cloud-btn:hover { background: var(--warning); color: #000; box-shadow: 0 0 20px var(--warning); }
+        button.success { border-color: var(--accent); color: var(--accent); } button.success:hover { background: var(--accent); color: var(--bg); box-shadow: 0 0 20px var(--accent); }
+        button.danger { border-color: var(--danger); color: var(--danger); } button.danger:hover { background: var(--danger); color: #fff; box-shadow: 0 0 20px var(--danger); }
+        button.cloud-btn { border-color: var(--warning); color: var(--warning); } button.cloud-btn:hover { background: var(--warning); color: #000; box-shadow: 0 0 20px var(--warning); }
+        button.config-btn { border-color: var(--text-muted); color: var(--text-muted); } button.config-btn:hover { background: var(--text-muted); color: var(--bg); box-shadow: 0 0 15px var(--text-muted); }
 
-        button.config-btn { border-color: var(--text-muted); color: var(--text-muted); }
-        button.config-btn:hover { background: var(--text-muted); color: var(--bg); box-shadow: 0 0 15px var(--text-muted); }
-
-        /* Zona PDF (Bento) */
-        #dropZone { border: 2px dashed var(--accent); background-color: rgba(52, 211, 153, 0.03); display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; position: relative; overflow: hidden; }
-        #dropZone:hover, #dropZone.dragover { background-color: rgba(52, 211, 153, 0.08); box-shadow: inset 0 0 20px rgba(52, 211, 153, 0.2); }
-        
-        #loadingOverlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--panel-bg); backdrop-filter: blur(8px); border-radius: 24px; font-weight: bold; align-items: center; justify-content: center; color: var(--accent); font-size: 1.2em; z-index: 10; flex-direction: column; gap: 15px; }
+        #dropZone { border: 2px dashed var(--accent); background-color: rgba(52, 211, 153, 0.03); display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; position: relative; overflow: hidden; transition: 0.2s; }
+        #dropZone:hover, #dropZone.dragover { background-color: rgba(52, 211, 153, 0.08); box-shadow: inset 0 0 20px rgba(52, 211, 153, 0.2); transform: scale(1.01); }
+        #loadingOverlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--panel-bg); backdrop-filter: blur(8px); font-weight: bold; align-items: center; justify-content: center; color: var(--accent); font-size: 1.2em; z-index: 10; flex-direction: column; gap: 15px; }
         .spinner { border: 4px solid var(--input-bg); border-top: 4px solid var(--accent); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; box-shadow: 0 0 15px var(--accent); }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Inputs con Glass y 3D Inner Shadow */
         .form-section { display: none; animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        
         .form-row { display: flex; gap: 18px; margin-bottom: 20px; align-items: flex-end; flex-wrap: wrap; } .form-row:last-child { margin-bottom: 0; }
-        .form-group { display: flex; flex-direction: column; } .form-group label { margin-bottom: 8px; font-weight: 600; font-size: 0.85em; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase;}
-        
+        .form-group { display: flex; flex-direction: column; } .form-group label { margin-bottom: 8px; font-weight: 600; font-size: 0.85em; color: var(--text-muted); text-transform: uppercase;}
         input, select { padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-family: inherit; outline: none; box-sizing: border-box; background: var(--input-bg); color: var(--text-main); box-shadow: var(--shadow-inner); transition: 0.3s; }
         input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(52, 211, 153, 0.2), var(--shadow-inner); }
-        
         .col-fecha { flex: 0 1 90px; } .col-mes { flex: 0 1 140px; } .col-anio { flex: 0 1 100px; } .col-cod { flex: 2; min-width: 220px; } .col-flex { flex: 1; min-width: 160px; }
-        
         .input-group { display: flex; width: 100%; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-inner); border: 1px solid var(--border); } 
         .input-group .prefix { background: rgba(0,0,0,0.05); padding: 12px 15px; color: var(--text-muted); font-weight: bold; user-select: none; border-right: 1px solid var(--border); } 
         .input-group input { border: none; border-radius: 0; box-shadow: none; flex: 1; }
-        .input-group input:focus { box-shadow: none; }
-
-        /* Estética de Tablas */
-        .table-responsive { overflow-x: auto; border-radius: 16px; scrollbar-width: thin; scrollbar-color: var(--accent) var(--bg); padding-bottom: 10px; }
+        
+        .table-responsive { overflow-x: auto; border-radius: 16px; scrollbar-width: thin; padding-bottom: 10px; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; white-space: nowrap; } 
         th, td { padding: 15px 12px; text-align: center; vertical-align: middle; border-bottom: 1px solid var(--border); } 
-        th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; border-bottom: 2px solid var(--accent); }
-        
+        th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85em; border-bottom: 2px solid var(--accent); }
         .row-preview { background-color: rgba(52, 211, 153, 0.05); font-style: italic; color: var(--text-main); font-weight: bold; } 
         .row-warning { background-color: rgba(239, 68, 68, 0.05) !important; position: relative; } 
         .row-warning::after { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--danger); }
-        tbody#tablaCuerpo tr { transition: 0.2s; }
         tbody#tablaCuerpo tr:hover { background-color: rgba(255, 255, 255, 0.03); transform: scale(1.002); }
-        
-        .table-input { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; background: var(--input-bg); color: var(--text-main); box-shadow: var(--shadow-inner); transition: 0.3s; } 
+        .table-input { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; background: var(--input-bg); color: var(--text-main); transition: 0.3s; } 
         .table-input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(52, 211, 153, 0.3); }
 
-        /* Modal Bento Box */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: var(--bg); width: 95%; max-width: 1100px; padding: 35px; border-radius: 24px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid var(--glass-border); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 25px; }
-        
         .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; } 
         .card { background: var(--panel-bg); padding: 25px; border-radius: 20px; border: 1px solid var(--border); box-shadow: var(--shadow-drop); }
         .flex { display: flex; gap: 10px; } .mt-1 { margin-top: 15px; } 
-        .list-container { max-height: 200px; overflow-y: auto; margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px; scrollbar-width: thin; }
+        .list-container { max-height: 250px; overflow-y: auto; margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px; scrollbar-width: thin; }
         .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--border); border-radius: 8px; transition: 0.2s; } 
         .list-item:hover { background-color: rgba(255,255,255,0.05); transform: translateX(5px); }
     </style>
@@ -182,16 +96,17 @@
         </div>
     </div>
 
-    <!-- ZONA DE EXTRACCIÓN PDF -->
+    <!-- ZONA DE EXTRACCIÓN PDF MODIFICADA -->
     <div class="bento-card" id="dropZone" tabindex="0">
         <div id="loadingOverlay"><div class="spinner"></div><span id="loadingText">Procesando...</span></div>
         <div style="display: flex; align-items: center; justify-content: center; gap: 25px; flex-direction: column;">
             <span style="font-size: 4em; filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.3));">📄</span>
             <div style="text-align: center;">
-                <b style="font-size: 1.5em; color: var(--accent);">Importar Reporte PDF</b><br>
-                <span style="font-size: 1.1em; color: var(--text-muted); margin-top: 5px; display: block;">Arrastra tu archivo <b>.pdf</b> aquí para extraer<br>los consumos automáticamente.</span>
+                <b style="font-size: 1.5em; color: var(--accent);">Arrastrar / Adjuntar Reporte</b><br>
+                <span style="font-size: 1.1em; color: var(--text-muted); margin-top: 5px; display: block;">Arrastra tu archivo <b>.pdf</b> aquí o haz clic para seleccionarlo.</span>
             </div>
         </div>
+        <input type="file" id="fileInput" accept="application/pdf" style="display: none;">
     </div>
 
     <!-- FORMULARIO MANUAL OCULTO -->
@@ -234,8 +149,11 @@
                 <thead>
                     <tr>
                         <th>Parque</th><th>Año</th><th>Mes</th><th>Día</th><th>Cod.Procedencia</th>
-                        <th>Área</th><th>Máquina</th><th style="width: 220px;">Conductor (Editable)</th>
-                        <th style="width: 120px;">Odómetro (Edit)</th><th>Lts. Diesel</th><th>Acción</th>
+                        <th>Área</th>
+                        <th style="width: 220px;">Máquina (Editable)</th>
+                        <th style="width: 200px;">Conductor (Editable)</th>
+                        <th style="width: 120px;">Odómetro (Edit)</th>
+                        <th>Lts. Diesel</th><th>Acción</th>
                     </tr>
                 </thead>
                 <tbody id="tablaVistaPrevia" style="display: none;">
@@ -269,25 +187,27 @@
         <div class="grid-3">
             <div class="card"><h3 style="margin-top:0; color:var(--text-main);">Áreas</h3><div class="form-group flex"><input type="text" id="newArea" placeholder="Nueva área..." style="flex:1;"><button class="success" onclick="addArea()">Agregar</button></div><div class="list-container" id="listAreas"></div></div>
             <div class="card"><h3 style="margin-top:0; color:var(--text-main);">Máquinas</h3><div class="form-group flex"><input type="text" id="newMaquina" placeholder="Nueva máquina..." style="flex:1;"><button class="success" onclick="addMaquina()">Agregar</button></div><div class="list-container" id="listMaquinas"></div></div>
-            <div class="card"><h3 style="margin-top:0; color:var(--text-main);">Conductores</h3><div class="form-group"><input type="text" id="newConductor" placeholder="Nombre..."><select id="configCondParque" class="mt-1"><option value="PAVII">PAVII</option><option value="PAV">PAV</option></select><select id="configCondArea" class="mt-1"></select><button class="success mt-1" style="width: 100%;" onclick="addConductor()">Agregar Conductor</button></div><div class="list-container" id="listConductores"></div></div>
+            <!-- SECCIÓN CONDUCTORES MODIFICADA PARA REFLEJAR LA NUBE -->
+            <div class="card">
+                <h3 style="margin-top:0; color:var(--text-main);">Conductores (En Nube)</h3>
+                <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px;">Para agregar o eliminar conductores, edita la pestaña <b>CONDUCTORES</b> en tu Google Sheet y recarga esta página.</p>
+                <div class="list-container" id="listConductores" style="border-top: none; padding-top: 0; margin-top: 0;"></div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    // Tema Claro (Marfil) / Oscuro (Neón PAV)
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
-
     function toggleTheme() {
-        const currentTheme = document.body.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        const newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         document.body.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
     }
 
     // AQUI SE INSERTO TU NUEVA URL DEL SCRIPT
-    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwqIxrp8PWT0YyKVsMOpaVdMb1_wlIHJ5HWLIoy7bg9qdNb6RgMBkazZDlyU7EBmxJR/exec";
+    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwKCHxyGNpeJ6ItOPUeDEHm1bi5zkIbLVJ7D3LohY_l7h8Q6AoBV--9vmj8iRcl6TjX/exec";
     
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
@@ -295,13 +215,8 @@
         const form = document.getElementById('formIngreso');
         const preview = document.getElementById('tablaVistaPrevia');
         if (form.style.display === 'none' || form.style.display === '') {
-            form.style.display = 'block';
-            preview.style.display = 'table-row-group';
-            actualizarVistaPrevia();
-        } else {
-            form.style.display = 'none';
-            preview.style.display = 'none';
-        }
+            form.style.display = 'block'; preview.style.display = 'table-row-group'; actualizarVistaPrevia();
+        } else { form.style.display = 'none'; preview.style.display = 'none'; }
     }
 
     const defaultAreas = ["SEPULTACION", "FORESTACION", "CESPED"];
@@ -309,60 +224,60 @@
         "RETROEXCAVADORA JCB", "RETRO JCB 1 ", "RETRO JCB 4", 
         "TRACTOR JD 3036 E", "TRACTOR JD 5075 E", "TRACTOR JD 6", "TRACTOR JD 7", "TRACTOR JD 15", "TRACTOR JD 17", "TRACTOR JD 18", 
         "TRACTOR KUBOTA 7", "TRACTOR KUBOTA 8", "TRACTOR KUBOTA 9", "TRACTOR KUBOTA 10", "TRACTOR KUBOTA 11", "TRACTOR KUBOTA 12", "TRACTOR KUBOTA 13", "TRACTOR KUBOTA 14", 
-        "CORTADORA JD 4", "CORTADORA JD 750 N° 3", "CORTADORA JD 750 N° 4", "CORTADORA JD 750X", 
-        "GENERADOR PAV" 
-    ];
-    const defaultConductores = [
-        {nombre: "J.HERNANDEZ", area: "SEPULTACION", parque: "PAVII"}, {nombre: "J.URIBE", area: "FORESTACION", parque: "PAVII"}, {nombre: "L.LOPEZ", area: "SEPULTACION", parque: "PAVII"}, {nombre: "M.CATALAN", area: "CESPED", parque: "PAVII"}, {nombre: "J.DIAZ", area: "FORESTACION", parque: "PAVII"}, {nombre: "SEBASTIAN", area: "FORESTACION", parque: "PAVII"}, {nombre: "JULIEN", area: "SEPULTACION", parque: "PAVII"}, {nombre: "J.ALMARZA", area: "FORESTACION", parque: "PAVII"}, {nombre: "M.PERDOMO", area: "CESPED", parque: "PAVII"}, {nombre: "R.LESSON", area: "CESPED", parque: "PAVII"}, {nombre: "S.GUTIERREZ", area: "FORESTACION", parque: "PAVII"},
-        {nombre: "J.VALENZUELA", area: "SEPULTACION", parque: "PAV"}, {nombre: "PAWER", area: "SEPULTACION", parque: "PAV"}, {nombre: "HECTOR", area: "SEPULTACION", parque: "PAV"}, {nombre: "A.VARGAS", area: "CESPED", parque: "PAV"}, {nombre: "A.BURGUEÑO", area: "SEPULTACION", parque: "PAV"}, {nombre: "PAUL", area: "SEPULTACION", parque: "PAV"}, {nombre: "FRANDY", area: "SEPULTACION", parque: "PAV"}, {nombre: "I.CIFUENTES", area: "FORESTACION", parque: "PAV"}, {nombre: "R.MORALES", area: "SEPULTACION", parque: "PAV"}, {nombre: "ELY", area: "FORESTACION", parque: "PAV"}, {nombre: "L.CUEVA", area: "FORESTACION", parque: "PAV"}, {nombre: "PAOLA", area: "FORESTACION", parque: "PAV"}, {nombre: "MAURICIO", area: "FORESTACION", parque: "PAV"}, {nombre: "TEODORO", area: "SEPULTACION", parque: "PAV"}, {nombre: "WIDNY", area: "SEPULTACION", parque: "PAV"}, {nombre: "B.LOPEZ", area: "FORESTACION", parque: "PAV"}, {nombre: "R.CIFUENTES", area: "SEPULTACION", parque: "PAV"}, {nombre: "C.GONZALEZ", area: "FORESTACION", parque: "PAV"}, {nombre: "A.TORRES", area: "SEPULTACION", parque: "PAV"}, {nombre: "M.MEZA", area: "FORESTACION", parque: "PAV"}, {nombre: "S.REYES", area: "SEPULTACION", parque: "PAV"}, {nombre: "M.GUERRERO", area: "FORESTACION", parque: "PAV"}, {nombre: "JULIO", area: "FORESTACION", parque: "PAV"}, {nombre: "V.SALAS", area: "SEPULTACION", parque: "PAV"}, {nombre: "A.FUENTES", area: "FORESTACION", parque: "PAV"}, {nombre: "J.SANCHEZ", area: "FORESTACION", parque: "PAV"}, {nombre: "CLAUDIO", area: "FORESTACION", parque: "PAV"}, {nombre: "ANGELO", area: "CESPED", parque: "PAV"}
+        "CORTADORA JD 4", "CORTADORA JD 750 N° 3", "CORTADORA JD 750 N° 4", "CORTADORA JD 750X", "GENERADOR PAV" 
     ];
 
     let areas = JSON.parse(localStorage.getItem('areas')) || defaultAreas;
     let maquinas = JSON.parse(localStorage.getItem('maquinas')) || defaultMaquinas;
-    let conductores = JSON.parse(localStorage.getItem('conductores'));
-    if (!conductores || !conductores[0].parque) conductores = defaultConductores;
+    let conductores = []; // Ahora iniciará vacío y se llenará desde Google Sheets
     let registros = [];
 
+    // --- LÓGICA DE PDF MODIFICADA PARA CLICK Y ARRASTRE ---
     const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
     const loadingUI = document.getElementById('loadingOverlay');
     const loadingText = document.getElementById('loadingText');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) procesarArchivoPDF(e.target.files[0]);
+        fileInput.value = ''; 
+    });
 
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
     dropZone.addEventListener('drop', (e) => {
         e.preventDefault(); dropZone.classList.remove('dragover');
-        if (e.dataTransfer.files.length > 0) {
-            const file = e.dataTransfer.files[0];
-            if(file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
-                loadingUI.style.display = "flex"; loadingText.innerText = "Leyendo PDF...";
-                const fileReader = new FileReader();
-                fileReader.onload = async function() {
-                    try {
-                        const typedarray = new Uint8Array(this.result);
-                        const pdf = await pdfjsLib.getDocument({data: typedarray}).promise;
-                        let pdfText = "";
-                        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                            const page = await pdf.getPage(pageNum);
-                            const textContent = await page.getTextContent();
-                            pdfText += textContent.items.map(item => item.str).join(' ') + " \n ";
-                        }
-                        procesarTextoCrudo(pdfText);
-                    } catch (error) { alert("Error al leer: " + error.message); } 
-                    finally { loadingUI.style.display = "none"; }
-                };
-                fileReader.readAsArrayBuffer(file);
-            } else { alert("Por favor, arrastra un archivo PDF válido."); }
-        }
+        if (e.dataTransfer.files.length > 0) procesarArchivoPDF(e.dataTransfer.files[0]);
     });
+
+    function procesarArchivoPDF(file) {
+        if(file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+            loadingUI.style.display = "flex"; loadingText.innerText = "Leyendo PDF...";
+            const fileReader = new FileReader();
+            fileReader.onload = async function() {
+                try {
+                    const typedarray = new Uint8Array(this.result);
+                    const pdf = await pdfjsLib.getDocument({data: typedarray}).promise;
+                    let pdfText = "";
+                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                        const page = await pdf.getPage(pageNum);
+                        const textContent = await page.getTextContent();
+                        pdfText += textContent.items.map(item => item.str).join(' ') + " \n ";
+                    }
+                    procesarTextoCrudo(pdfText);
+                } catch (error) { alert("Error al leer: " + error.message); } 
+                finally { loadingUI.style.display = "none"; }
+            };
+            fileReader.readAsArrayBuffer(file);
+        } else { alert("Por favor, selecciona un archivo PDF válido."); }
+    }
 
     function detectarMaquina(t) {
         t = t.toUpperCase().replace(/\s+/g, ' ');
-
-        // Tractores John Deere
         if (t.includes("3036")) return "TRACTOR JD 3036 E";
         if (t.includes("5075")) return "TRACTOR JD 5075 E";
-
-        // Cortadoras
         if (t.includes("CORT")) {
             if (t.includes("750")) {
                 if (/\b3\b/.test(t) || t.includes("3-") || t.includes("N° 3") || t.includes("Nº 3") || t.includes("N°3") || t.includes("Nº3")) return "CORTADORA JD 750 N° 3";
@@ -371,8 +286,6 @@
             }
             if (/\b4\b/.test(t)) return "CORTADORA JD 4";
         }
-
-        // Kubota
         if (t.includes("KUBOTA") || t.includes("T. KUBOTA") || t.includes("T.KUBOTA")) {
             if (/\b11\b/.test(t) || t.includes("11-") || t.includes("N°11") || t.includes("N° 11") || t.includes("Nº11") || t.includes("Nº 11")) return "TRACTOR KUBOTA 11";
             if (/\b12\b/.test(t) || t.includes("12-") || t.includes("N°12") || t.includes("N° 12") || t.includes("Nº12") || t.includes("Nº 12")) return "TRACTOR KUBOTA 12";
@@ -383,8 +296,6 @@
             if (/\b8\b/.test(t) || t.includes("8-") || t.includes("N°8") || t.includes("N° 8") || t.includes("Nº8") || t.includes("Nº 8")) return "TRACTOR KUBOTA 8";
             if (/\b7\b/.test(t) || t.includes("7-") || t.includes("N°7") || t.includes("N° 7") || t.includes("Nº7") || t.includes("Nº 7")) return "TRACTOR KUBOTA 7";
         }
-
-        // Otros Tractores JD
         if (t.includes("JD") || t.includes("TRACT")) {
             if (/\b18\b/.test(t) || t.includes("18-") || t.includes("N° 18") || t.includes("N°18") || t.includes("Nº 18") || t.includes("Nº18")) return "TRACTOR JD 18";
             if (/\b17\b/.test(t) || t.includes("17-") || t.includes("N° 17") || t.includes("N°17") || t.includes("Nº 17") || t.includes("Nº17")) return "TRACTOR JD 17";
@@ -392,16 +303,12 @@
             if (/\b7\b/.test(t) || t.includes("7-") || t.includes("N° 7") || t.includes("N°7") || t.includes("Nº 7") || t.includes("Nº7")) return "TRACTOR JD 7";
             if (/\b6\b/.test(t) || t.includes("6-") || t.includes("N° 6") || t.includes("N°6") || t.includes("Nº 6") || t.includes("Nº6")) return "TRACTOR JD 6";
         }
-
-        // Retroexcavadoras
         if (t.includes("RETRO") || t.includes("JBC") || t.includes("JCB")) {
             if (/\b4\b/.test(t) || t.includes("Nº4") || t.includes("N°4") || t.includes("Nº 4") || t.includes("N° 4")) return "RETRO JCB 4";
             if (/\b1\b/.test(t) || t.includes("Nº1") || t.includes("N°1") || t.includes("Nº 1") || t.includes("N° 1")) return "RETRO JCB 1 ";
             return "RETROEXCAVADORA JCB";
         }
-
         if (t.includes("GENERADOR")) return "GENERADOR PAV";
-
         return "MÁQUINA NO RECONOCIDA";
     }
 
@@ -412,17 +319,13 @@
 
         while ((match = regex.exec(texto)) !== null) {
             let anio = parseInt(match[3]); if (anio < 100) anio += 2000;
-            
             const textToAnalyze = match[5].toUpperCase();
-            let p = "PAV";
-            if (textToAnalyze.includes("PAV II") || textToAnalyze.includes("PAVII") || textToAnalyze.includes("PV2")) {
-                p = "PAVII";
-            }
+            let p = (textToAnalyze.includes("PAV II") || textToAnalyze.includes("PAVII") || textToAnalyze.includes("PV2")) ? "PAVII" : "PAV";
 
             registros.push({ parque: p, anio: anio, mes: meses[parseInt(match[2]) - 1], dia: parseInt(match[1]), codProcedencia: match[4], maquina: detectarMaquina(match[5]), area: "", conductor: "", odometro: "", ltsDiesel: match[6] });
             contador++;
         }
-        if (contador > 0) { renderizarTabla(); alert(`✅ Se extrajeron ${contador} consumos del PDF.\nCompleta 'Conductor' y 'Odómetro' en la tabla.`); } 
+        if (contador > 0) { renderizarTabla(); alert(`✅ Se extrajeron ${contador} consumos del PDF.`); } 
         else { alert("⚠️ No se detectaron consumos válidos en este PDF."); }
     }
 
@@ -431,22 +334,29 @@
             e.preventDefault();
             const inputs = document.querySelectorAll('.odo-input');
             let targetIndex = e.shiftKey ? index - 1 : index + 1;
-            
-            if (targetIndex >= 0 && targetIndex < inputs.length) {
-                inputs[targetIndex].focus();
-            }
+            if (targetIndex >= 0 && targetIndex < inputs.length) inputs[targetIndex].focus();
         }
     }
 
+    // --- TABLA MODIFICADA: MÁQUINA AHORA ES EDITABLE ---
     function renderizarTabla() {
         const registrosHtml = registros.map((r, i) => {
             const condParque = conductores.filter(c => c.parque === r.parque);
             const selConductor = `<select class="table-input" onchange="updateFila(${i}, 'conductor', this.value)"><option value="">Seleccionar...</option>${condParque.map(c => `<option value="${c.nombre}" ${c.nombre===r.conductor?'selected':''}>${c.nombre}</option>`).join('')}</select>`;
+            
+            // Selector editable para Máquina
+            let isKnown = maquinas.includes(r.maquina);
+            const selMaquina = `<select class="table-input" onchange="updateFila(${i}, 'maquina', this.value)">
+                <option value="">Seleccionar...</option>
+                ${maquinas.map(m => `<option value="${m}" ${m===r.maquina?'selected':''}>${m}</option>`).join('')}
+                ${!isKnown && r.maquina ? `<option value="${r.maquina}" selected>⚠️ ${r.maquina}</option>` : ''}
+            </select>`;
+
             const inpOdometro = `<input type="text" class="table-input odo-input" value="${r.odometro}" onchange="updateFila(${i}, 'odometro', this.value)" onkeydown="navegarOdometro(event, ${i})">`;
-            const alertClass = (!r.conductor || !r.odometro || r.odometro.toString().trim() === '') ? 'row-warning' : '';
-            return `<tr class="${alertClass}"><td>${r.parque}</td><td>${r.anio}</td><td>${r.mes}</td><td>${r.dia}</td><td>${r.codProcedencia}</td><td id="area-cell-${i}">${r.area}</td><td>${r.maquina}</td><td>${selConductor}</td><td>${inpOdometro}</td><td>${r.ltsDiesel}</td><td><button class="danger" style="font-size: 0.85em; padding: 6px 12px;" onclick="borrarRegistro(${i})">Borrar</button></td></tr>`;
+            const alertClass = (!r.conductor || !r.maquina || !r.odometro || r.odometro.toString().trim() === '') ? 'row-warning' : '';
+            
+            return `<tr class="${alertClass}"><td>${r.parque}</td><td>${r.anio}</td><td>${r.mes}</td><td>${r.dia}</td><td>${r.codProcedencia}</td><td id="area-cell-${i}">${r.area}</td><td>${selMaquina}</td><td>${selConductor}</td><td>${inpOdometro}</td><td>${r.ltsDiesel}</td><td><button class="danger" style="font-size: 0.85em; padding: 6px 12px;" onclick="borrarRegistro(${i})">Borrar</button></td></tr>`;
         }).join('');
-        
         document.getElementById('tablaCuerpo').innerHTML = registrosHtml;
     }
 
@@ -459,28 +369,43 @@
         renderizarTabla(); 
     }
 
-    window.onload = () => { establecerFechaActual(); guardarDatosLocales(); actualizarUI(); document.querySelectorAll('#formIngreso input, #formIngreso select').forEach(input => { input.addEventListener('input', actualizarVistaPrevia); input.addEventListener('change', actualizarVistaPrevia); }); };
+    // --- CONEXIÓN A GOOGLE SHEETS PARA CARGAR CONDUCTORES ---
+    async function cargarConductoresDesdeSheets() {
+        try {
+            const response = await fetch(GOOGLE_SHEETS_URL);
+            if(response.ok) {
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    conductores = data; // Sobrescribe con la lista de la nube
+                    actualizarUI();
+                }
+            }
+        } catch (error) { console.warn("No se pudo cargar la lista de conductores desde la nube. Revisa tu URL de Apps Script."); }
+    }
+
+    window.onload = () => { 
+        establecerFechaActual(); 
+        guardarDatosLocales(); 
+        actualizarUI(); 
+        cargarConductoresDesdeSheets(); // Llamamos a la nube al iniciar
+        document.querySelectorAll('#formIngreso input, #formIngreso select').forEach(input => { input.addEventListener('input', actualizarVistaPrevia); input.addEventListener('change', actualizarVistaPrevia); }); 
+    };
+
     function establecerFechaActual() { const date = new Date(); document.getElementById('anio').value = date.getFullYear(); document.getElementById('dia').value = date.getDate(); const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; document.getElementById('mes').value = meses[date.getMonth()]; }
     function toggleModal(show) { document.getElementById('modalConfig').style.display = show ? 'flex' : 'none'; }
-    function guardarDatosLocales() { localStorage.setItem('areas', JSON.stringify(areas)); localStorage.setItem('maquinas', JSON.stringify(maquinas)); localStorage.setItem('conductores', JSON.stringify(conductores)); }
-    
-    function cambioParqueManual() { 
-        document.getElementById('conductorManual').value = ''; 
-        document.getElementById('areaManual').value = ''; 
-        actualizarUI(); 
-        actualizarVistaPrevia(); 
-    }
+    function guardarDatosLocales() { localStorage.setItem('areas', JSON.stringify(areas)); localStorage.setItem('maquinas', JSON.stringify(maquinas)); }
+    function cambioParqueManual() { document.getElementById('conductorManual').value = ''; document.getElementById('areaManual').value = ''; actualizarUI(); actualizarVistaPrevia(); }
 
     function actualizarUI() {
         maquinas.sort(); conductores.sort((a, b) => a.nombre.localeCompare(b.nombre));
         document.getElementById('listAreas').innerHTML = areas.map((a, i) => `<div class="list-item"><span>${a}</span><button class="danger" style="padding: 4px 10px;" onclick="borrarArea(${i})">X</button></div>`).join('');
         document.getElementById('listMaquinas').innerHTML = maquinas.map((m, i) => `<div class="list-item"><span>${m}</span><button class="danger" style="padding: 4px 10px;" onclick="borrarMaquina(${i})">X</button></div>`).join('');
-        document.getElementById('listConductores').innerHTML = conductores.map((c, i) => `<div class="list-item"><span><b>${c.nombre}</b><br><small style="color:var(--text-muted)">${c.parque} - ${c.area}</small></span><button class="danger" style="padding: 4px 10px;" onclick="borrarConductor(${i})">X</button></div>`).join('');
+        
+        // Conductores (Solo lectura visual ya que vienen de la nube)
+        document.getElementById('listConductores').innerHTML = conductores.map(c => `<div class="list-item"><span><b>${c.nombre}</b><br><small style="color:var(--text-muted)">${c.parque} - ${c.area}</small></span><span style="font-size:0.8em; color:var(--accent)">☁️</span></div>`).join('');
         
         const selectAreaOptions = `<option value="">Seleccione...</option>` + areas.map(a => `<option value="${a}">${a}</option>`).join('');
-        document.getElementById('configCondArea').innerHTML = selectAreaOptions; 
         document.getElementById('areaManual').innerHTML = selectAreaOptions;
-        
         document.getElementById('maquinaManual').innerHTML = `<option value="">Seleccione...</option>` + maquinas.map(m => `<option value="${m}">${m}</option>`).join('');
         
         const pManual = document.getElementById('parqueManual').value;
@@ -491,11 +416,6 @@
     function borrarArea(index) { areas.splice(index, 1); guardarDatosLocales(); actualizarUI(); }
     function addMaquina() { const val = document.getElementById('newMaquina').value.trim().toUpperCase(); if (val && !maquinas.includes(val)) { maquinas.push(val); guardarDatosLocales(); actualizarUI(); document.getElementById('newMaquina').value = ''; } }
     function borrarMaquina(index) { maquinas.splice(index, 1); guardarDatosLocales(); actualizarUI(); }
-    function addConductor() {
-        const nombre = document.getElementById('newConductor').value.trim().toUpperCase(); const area = document.getElementById('configCondArea').value; const parque = document.getElementById('configCondParque').value;
-        if (nombre && area && parque) { const index = conductores.findIndex(c => c.nombre === nombre && c.parque === parque); if(index >= 0) { conductores[index].area = area; } else { conductores.push({nombre, area, parque}); } guardarDatosLocales(); actualizarUI(); document.getElementById('newConductor').value = ''; } else { alert("Complete todos los campos del conductor."); }
-    }
-    function borrarConductor(index) { conductores.splice(index, 1); guardarDatosLocales(); actualizarUI(); }
 
     document.getElementById('conductorManual').addEventListener('change', function() { 
         const pManual = document.getElementById('parqueManual').value;
@@ -533,34 +453,15 @@
     function limpiarTabla() { if(confirm("¿Estás seguro de borrar todos los registros de la tabla?")) { registros = []; renderizarTabla(); } }
 
     function validarRegistrosCompletos() {
-        const incompletos = registros.filter(r => 
-            !r.parque || !r.anio || !r.mes || !r.dia || !r.codProcedencia || 
-            !r.area || !r.maquina || !r.conductor || r.conductor.trim() === "" || 
-            !r.odometro || r.odometro.toString().trim() === "" || !r.ltsDiesel
-        );
-        if (incompletos.length > 0) {
-            alert("❌ No se puede exportar. Hay registros incompletos. Todos los datos (incluyendo Odómetro y Conductor) son obligatorios.");
-            return false;
-        }
+        const incompletos = registros.filter(r => !r.parque || !r.anio || !r.mes || !r.dia || !r.codProcedencia || !r.area || !r.maquina || r.maquina.trim() === "" || !r.conductor || r.conductor.trim() === "" || !r.odometro || r.odometro.toString().trim() === "" || !r.ltsDiesel);
+        if (incompletos.length > 0) { alert("❌ Hay registros incompletos. 'Máquina', 'Conductor' y 'Odómetro' son obligatorios."); return false; }
         return true;
-    }
-
-    function ordenarRegistrosPorFecha() {
-        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-        registros.sort((a, b) => {
-            if (a.anio !== b.anio) return a.anio - b.anio;
-            if (a.mes !== b.mes) return meses.indexOf(a.mes) - meses.indexOf(b.mes);
-            return a.dia - b.dia;
-        });
     }
 
     function exportarExcel() {
         if (registros.length === 0) { alert("Agrega al menos una fila."); return; }
         if (!validarRegistrosCompletos()) return;
-        
-        ordenarRegistrosPorFecha();
         renderizarTabla();
-
         const dataParaExportar = registros.map(r => ({ "Parque": r.parque, "Año": r.anio, "Mes": r.mes, "Dia": r.dia, "Cod.Procedencia": r.codProcedencia, "Area": r.area, "Maquina": r.maquina, "Conductor": r.conductor, "Odometro": r.odometro, "Lts. Diesel": r.ltsDiesel }));
         const hoja = XLSX.utils.json_to_sheet(dataParaExportar, { header: ["Parque", "Año", "Mes", "Dia", "Cod.Procedencia", "Area", "Maquina", "Conductor", "Odometro", "Lts. Diesel"] });
         const libro = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(libro, hoja, "Planilla Combustible");
@@ -569,31 +470,12 @@
 
     function enviarAGoogleSheets() {
         if (registros.length === 0) { alert("No hay datos en la tabla para enviar."); return; }
-        
         if (!validarRegistrosCompletos()) return;
-
-        ordenarRegistrosPorFecha();
         renderizarTabla();
-
-        loadingUI.style.display = "flex";
-        loadingText.innerText = "Enviando a la nube...";
-
-        fetch(GOOGLE_SHEETS_URL, {
-            method: 'POST',
-            mode: 'no-cors', 
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(registros)
-        }).then(() => {
-            loadingUI.style.display = "none";
-            alert("✅ ¡Datos enviados a Google Sheets con éxito!");
-            if(confirm("¿Deseas limpiar la tabla de trabajo ahora?")) {
-                registros = [];
-                renderizarTabla();
-            }
-        }).catch(error => {
-            loadingUI.style.display = "none";
-            alert("Hubo un error de conexión con Google: " + error);
-        });
+        loadingUI.style.display = "flex"; loadingText.innerText = "Enviando a la nube...";
+        fetch(GOOGLE_SHEETS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(registros) })
+        .then(() => { loadingUI.style.display = "none"; alert("✅ ¡Datos enviados a Google Sheets con éxito!"); if(confirm("¿Deseas limpiar la tabla de trabajo ahora?")) { registros = []; renderizarTabla(); } })
+        .catch(error => { loadingUI.style.display = "none"; alert("Hubo un error de conexión: " + error); });
     }
 </script>
 
