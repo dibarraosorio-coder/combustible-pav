@@ -130,16 +130,17 @@
         </div>
         <div class="form-row">
             <div class="form-group col-flex">
-                <label>Conductor (Buscador)</label>
+                <label>Conductor</label>
                 <input type="text" id="conductorManual" list="dl-conductorManual" placeholder="Escribe para buscar..." autocomplete="off">
                 <datalist id="dl-conductorManual"></datalist>
             </div>
             <div class="form-group col-flex">
                 <label>Área</label>
-                <select id="areaManual"></select>
+                <input type="text" id="areaManual" list="dl-areaManual" placeholder="Escribe para buscar..." autocomplete="off">
+                <datalist id="dl-areaManual"></datalist>
             </div>
             <div class="form-group col-flex">
-                <label>Máquina (Buscador)</label>
+                <label>Máquina</label>
                 <input type="text" id="maquinaManual" list="dl-maquinaManual" placeholder="Escribe para buscar..." autocomplete="off">
                 <datalist id="dl-maquinaManual"></datalist>
             </div>
@@ -160,10 +161,10 @@
                 <thead>
                     <tr>
                         <th>Parque</th><th>Año</th><th>Mes</th><th>Día</th><th>Cod.Procedencia</th>
-                        <th>Área</th>
-                        <th style="width: 220px;">Máquina (Editable)</th>
-                        <th style="width: 220px;">Conductor (Editable)</th>
-                        <th style="width: 120px;">Odómetro (Edit)</th>
+                        <th style="width: 200px;">Área</th>
+                        <th style="width: 220px;">Máquina</th>
+                        <th style="width: 220px;">Conductor</th>
+                        <th style="width: 120px;">Odómetro</th>
                         <th>Lts. Diesel</th><th>Acción</th>
                     </tr>
                 </thead>
@@ -196,8 +197,18 @@
             <button class="danger" onclick="toggleModal(false)">Cerrar</button>
         </div>
         <div class="grid-3">
-            <div class="card"><h3 style="margin-top:0; color:var(--text-main);">Áreas</h3><div class="form-group flex"><input type="text" id="newArea" placeholder="Nueva área..." style="flex:1;"><button class="success" onclick="addArea()">Agregar</button></div><div class="list-container" id="listAreas"></div></div>
-            <div class="card"><h3 style="margin-top:0; color:var(--text-main);">Máquinas</h3><div class="form-group flex"><input type="text" id="newMaquina" placeholder="Nueva máquina..." style="flex:1;"><button class="success" onclick="addMaquina()">Agregar</button></div><div class="list-container" id="listMaquinas"></div></div>
+            <div class="card">
+                <h3 style="margin-top:0; color:var(--text-main);">Áreas (Local)</h3>
+                <div class="form-group flex"><input type="text" id="newArea" placeholder="Nueva área..." style="flex:1;"><button class="success" onclick="addArea()">Agregar</button></div>
+                <div class="list-container" id="listAreas"></div>
+            </div>
+            
+            <div class="card">
+                <h3 style="margin-top:0; color:var(--text-main);">Máquinas (En Nube)</h3>
+                <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px;">Para agregar o eliminar máquinas, edita la pestaña <b>MAQUINAS</b> en tu Google Sheet y recarga esta página.</p>
+                <div class="list-container" id="listMaquinas" style="border-top: none; padding-top: 0; margin-top: 0;"></div>
+            </div>
+            
             <div class="card">
                 <h3 style="margin-top:0; color:var(--text-main);">Conductores (En Nube)</h3>
                 <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px;">Para agregar o eliminar conductores, edita la pestaña <b>CONDUCTORES</b> en tu Google Sheet y recarga esta página.</p>
@@ -216,7 +227,7 @@
         localStorage.setItem('theme', newTheme);
     }
 
-    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwKCHxyGNpeJ6ItOPUeDEHm1bi5zkIbLVJ7D3LohY_l7h8Q6AoBV--9vmj8iRcl6TjX/exec";
+    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbyaZM49mcVoq2puY1723sM3CigybHhlSYL95ZM0pL2wdzB3BPtLWykDVpq5VfwSp9Sx/exec";
     
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
@@ -229,15 +240,10 @@
     }
 
     const defaultAreas = ["SEPULTACION", "FORESTACION", "CESPED"];
-    const defaultMaquinas = [ 
-        "RETROEXCAVADORA JCB", "RETRO JCB 1 ", "RETRO JCB 4", 
-        "TRACTOR JD 3036 E", "TRACTOR JD 5075 E", "TRACTOR JD 6", "TRACTOR JD 7", "TRACTOR JD 15", "TRACTOR JD 17", "TRACTOR JD 18", 
-        "TRACTOR KUBOTA 7", "TRACTOR KUBOTA 8", "TRACTOR KUBOTA 9", "TRACTOR KUBOTA 10", "TRACTOR KUBOTA 11", "TRACTOR KUBOTA 12", "TRACTOR KUBOTA 13", "TRACTOR KUBOTA 14", 
-        "CORTADORA JD 4", "CORTADORA JD 750 N° 3", "CORTADORA JD 750 N° 4", "CORTADORA JD 750X", "GENERADOR PAV" 
-    ];
-
     let areas = JSON.parse(localStorage.getItem('areas')) || defaultAreas;
-    let maquinas = JSON.parse(localStorage.getItem('maquinas')) || defaultMaquinas;
+    
+    // Arrays que se llenarán desde Google Sheets
+    let maquinas = []; 
     let conductores = []; 
     let registros = [];
 
@@ -317,7 +323,10 @@
             return "RETROEXCAVADORA JCB";
         }
         if (t.includes("GENERADOR")) return "GENERADOR PAV";
-        return "MÁQUINA NO RECONOCIDA";
+        
+        // Si no detecta, intenta coincidir con alguna máquina nueva descargada
+        const maqNube = maquinas.find(m => t.includes(m));
+        return maqNube ? maqNube : "MÁQUINA NO RECONOCIDA";
     }
 
     function procesarTextoCrudo(texto) {
@@ -350,6 +359,12 @@
         const registrosHtml = registros.map((r, i) => {
             const condParque = conductores.filter(c => c.parque === r.parque);
             
+            // Selector buscable/editable para Área
+            const selArea = `<input type="text" list="dl-area-${i}" class="table-input" value="${r.area}" onchange="updateFila(${i}, 'area', this.value)" placeholder="Buscar área..." autocomplete="off">
+            <datalist id="dl-area-${i}">
+                ${areas.map(a => `<option value="${a}">`).join('')}
+            </datalist>`;
+
             // Selector buscable/editable para Máquina
             const selMaquina = `<input type="text" list="dl-maq-${i}" class="table-input" value="${r.maquina}" onchange="updateFila(${i}, 'maquina', this.value)" placeholder="Buscar máquina..." autocomplete="off">
             <datalist id="dl-maq-${i}">
@@ -365,66 +380,66 @@
             const inpOdometro = `<input type="text" class="table-input odo-input" value="${r.odometro}" onchange="updateFila(${i}, 'odometro', this.value)" onkeydown="navegarOdometro(event, ${i})">`;
             const alertClass = (!r.conductor || !r.maquina || !r.odometro || r.odometro.toString().trim() === '') ? 'row-warning' : '';
             
-            return `<tr class="${alertClass}"><td>${r.parque}</td><td>${r.anio}</td><td>${r.mes}</td><td>${r.dia}</td><td>${r.codProcedencia}</td><td id="area-cell-${i}">${r.area}</td><td>${selMaquina}</td><td>${selConductor}</td><td>${inpOdometro}</td><td>${r.ltsDiesel}</td><td><button class="danger" style="font-size: 0.85em; padding: 6px 12px;" onclick="borrarRegistro(${i})">Borrar</button></td></tr>`;
+            return `<tr class="${alertClass}"><td>${r.parque}</td><td>${r.anio}</td><td>${r.mes}</td><td>${r.dia}</td><td>${r.codProcedencia}</td><td>${selArea}</td><td>${selMaquina}</td><td>${selConductor}</td><td>${inpOdometro}</td><td>${r.ltsDiesel}</td><td><button class="danger" style="font-size: 0.85em; padding: 6px 12px;" onclick="borrarRegistro(${i})">Borrar</button></td></tr>`;
         }).join('');
         document.getElementById('tablaCuerpo').innerHTML = registrosHtml;
     }
 
     function updateFila(index, field, value) {
         registros[index][field] = value;
+        // Si el conductor cambia en la tabla, actualizamos el área automáticamente (si está definida para ese conductor)
         if (field === 'conductor') {
             const condObj = conductores.find(c => c.nombre === value && c.parque === registros[index].parque);
-            registros[index].area = condObj ? condObj.area : "";
+            if (condObj && condObj.area) {
+                registros[index].area = condObj.area;
+            }
         }
         renderizarTabla(); 
     }
 
-    async function cargarConductoresDesdeSheets() {
+    async function cargarDatosDesdeSheets() {
         try {
             const response = await fetch(GOOGLE_SHEETS_URL);
             if(response.ok) {
                 const data = await response.json();
-                if (data && data.length > 0) {
-                    conductores = data;
-                    actualizarUI();
-                }
+                if (data.conductores && data.conductores.length > 0) conductores = data.conductores;
+                if (data.maquinas && data.maquinas.length > 0) maquinas = data.maquinas;
+                actualizarUI();
             }
-        } catch (error) { console.warn("No se pudo cargar la lista de conductores desde la nube. Revisa tu URL de Apps Script."); }
+        } catch (error) { console.warn("No se pudo cargar datos desde la nube. Revisa tu URL de Apps Script."); }
     }
 
     window.onload = () => { 
         establecerFechaActual(); 
         guardarDatosLocales(); 
         actualizarUI(); 
-        cargarConductoresDesdeSheets(); 
+        cargarDatosDesdeSheets(); 
         document.querySelectorAll('#formIngreso input, #formIngreso select').forEach(input => { input.addEventListener('input', actualizarVistaPrevia); input.addEventListener('change', actualizarVistaPrevia); }); 
     };
 
     function establecerFechaActual() { const date = new Date(); document.getElementById('anio').value = date.getFullYear(); document.getElementById('dia').value = date.getDate(); const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; document.getElementById('mes').value = meses[date.getMonth()]; }
     function toggleModal(show) { document.getElementById('modalConfig').style.display = show ? 'flex' : 'none'; }
-    function guardarDatosLocales() { localStorage.setItem('areas', JSON.stringify(areas)); localStorage.setItem('maquinas', JSON.stringify(maquinas)); }
+    function guardarDatosLocales() { localStorage.setItem('areas', JSON.stringify(areas)); }
     function cambioParqueManual() { document.getElementById('conductorManual').value = ''; document.getElementById('areaManual').value = ''; actualizarUI(); actualizarVistaPrevia(); }
 
     function actualizarUI() {
         maquinas.sort(); conductores.sort((a, b) => a.nombre.localeCompare(b.nombre));
-        document.getElementById('listAreas').innerHTML = areas.map((a, i) => `<div class="list-item"><span>${a}</span><button class="danger" style="padding: 4px 10px;" onclick="borrarArea(${i})">X</button></div>`).join('');
-        document.getElementById('listMaquinas').innerHTML = maquinas.map((m, i) => `<div class="list-item"><span>${m}</span><button class="danger" style="padding: 4px 10px;" onclick="borrarMaquina(${i})">X</button></div>`).join('');
         
+        // Modal UI
+        document.getElementById('listAreas').innerHTML = areas.map((a, i) => `<div class="list-item"><span>${a}</span><button class="danger" style="padding: 4px 10px;" onclick="borrarArea(${i})">X</button></div>`).join('');
+        document.getElementById('listMaquinas').innerHTML = maquinas.map(m => `<div class="list-item"><span>${m}</span><span style="font-size:0.8em; color:var(--accent)">☁️</span></div>`).join('');
         document.getElementById('listConductores').innerHTML = conductores.map(c => `<div class="list-item"><span><b>${c.nombre}</b><br><small style="color:var(--text-muted)">${c.parque} - ${c.area}</small></span><span style="font-size:0.8em; color:var(--accent)">☁️</span></div>`).join('');
         
-        const selectAreaOptions = `<option value="">Seleccione...</option>` + areas.map(a => `<option value="${a}">${a}</option>`).join('');
-        document.getElementById('areaManual').innerHTML = selectAreaOptions;
-        
-        // Llenar datalists del formulario manual
+        // Formulario UI Datalists
+        document.getElementById('dl-areaManual').innerHTML = areas.map(a => `<option value="${a}">`).join('');
         document.getElementById('dl-maquinaManual').innerHTML = maquinas.map(m => `<option value="${m}">`).join('');
+        
         const pManual = document.getElementById('parqueManual').value;
         document.getElementById('dl-conductorManual').innerHTML = conductores.filter(c => c.parque === pManual).map(c => `<option value="${c.nombre}">`).join('');
     }
 
     function addArea() { const val = document.getElementById('newArea').value.trim().toUpperCase(); if (val && !areas.includes(val)) { areas.push(val); guardarDatosLocales(); actualizarUI(); document.getElementById('newArea').value = ''; } }
     function borrarArea(index) { areas.splice(index, 1); guardarDatosLocales(); actualizarUI(); }
-    function addMaquina() { const val = document.getElementById('newMaquina').value.trim().toUpperCase(); if (val && !maquinas.includes(val)) { maquinas.push(val); guardarDatosLocales(); actualizarUI(); document.getElementById('newMaquina').value = ''; } }
-    function borrarMaquina(index) { maquinas.splice(index, 1); guardarDatosLocales(); actualizarUI(); }
 
     document.getElementById('conductorManual').addEventListener('change', function() { 
         const pManual = document.getElementById('parqueManual').value;
@@ -462,8 +477,8 @@
     function limpiarTabla() { if(confirm("¿Estás seguro de borrar todos los registros de la tabla?")) { registros = []; renderizarTabla(); } }
 
     function validarRegistrosCompletos() {
-        const incompletos = registros.filter(r => !r.parque || !r.anio || !r.mes || !r.dia || !r.codProcedencia || !r.area || !r.maquina || r.maquina.trim() === "" || !r.conductor || r.conductor.trim() === "" || !r.odometro || r.odometro.toString().trim() === "" || !r.ltsDiesel);
-        if (incompletos.length > 0) { alert("❌ Hay registros incompletos. 'Máquina', 'Conductor' y 'Odómetro' son obligatorios."); return false; }
+        const incompletos = registros.filter(r => !r.parque || !r.anio || !r.mes || !r.dia || !r.codProcedencia || !r.area || r.area.trim() === "" || !r.maquina || r.maquina.trim() === "" || !r.conductor || r.conductor.trim() === "" || !r.odometro || r.odometro.toString().trim() === "" || !r.ltsDiesel);
+        if (incompletos.length > 0) { alert("❌ Hay registros incompletos. 'Área', 'Máquina', 'Conductor' y 'Odómetro' son obligatorios."); return false; }
         return true;
     }
 
