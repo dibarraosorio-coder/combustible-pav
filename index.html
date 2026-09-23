@@ -72,7 +72,8 @@
             background-image: radial-gradient(circle at top right, rgba(16, 185, 129, 0.03), transparent 40%), radial-gradient(circle at bottom left, rgba(245, 158, 11, 0.03), transparent 40%);
         }
 
-        .container { max-width: 1300px; margin: auto; display: flex; flex-direction: column; gap: 24px; }
+        /* ANCHO MODIFICADO PARA OCUPAR TODA LA PANTALLA */
+        .container { width: 98%; max-width: 1800px; margin: auto; display: flex; flex-direction: column; gap: 24px; }
         
         .bento-card { 
             background: var(--panel-bg); 
@@ -85,9 +86,12 @@
             transition: all 0.3s ease; 
         }
 
-        .header-container { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 10px; }
+        .header-container { display: flex; justify-content: space-between; align-items: flex-start; }
         h1 { color: var(--text-main); margin: 0; font-size: 1.8em; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
         h1 i { color: var(--accent); }
+        
+        /* Contenedor derecho del encabezado */
+        .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
         .header-buttons { display: flex; gap: 10px; }
 
         /* SISTEMA DE BOTONES JERÁRQUICO */
@@ -115,11 +119,37 @@
 
         .btn-icon-only { padding: 10px; border-radius: 50%; }
 
-        /* Zona PDF */
-        #dropZone { border: 2px dashed var(--border); background-color: rgba(0,0,0, 0.01); display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; position: relative; overflow: hidden; transition: 0.2s; min-height: 160px; }
-        #dropZone:hover, #dropZone.dragover { border-color: var(--accent); background-color: rgba(16, 185, 129, 0.03); transform: scale(1.005); }
-        #loadingOverlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--panel-bg); backdrop-filter: blur(8px); font-weight: 600; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1em; z-index: 10; flex-direction: column; gap: 15px; }
-        .spinner { border: 3px solid var(--input-bg); border-top: 3px solid var(--accent); border-radius: 50%; width: 32px; height: 32px; animation: spin 1s linear infinite; }
+        /* NUEVA ZONA PDF COMPACTA */
+        .compact-dropzone { 
+            border: 2px dashed var(--border); 
+            background-color: rgba(0,0,0, 0.01); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            text-align: center; 
+            position: relative; 
+            overflow: hidden; 
+            transition: 0.2s; 
+            padding: 10px 16px;
+            border-radius: 12px;
+            gap: 10px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9em;
+            width: 100%;
+            max-width: 400px;
+        }
+        .compact-dropzone:hover, .compact-dropzone.dragover { 
+            border-color: var(--accent); 
+            background-color: rgba(16, 185, 129, 0.05); 
+            color: var(--accent);
+        }
+        .compact-dropzone i { color: var(--accent); }
+        
+        /* Overlay del Loading actualizado para ser horizontal */
+        #loadingOverlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--panel-bg); backdrop-filter: blur(8px); font-weight: 600; align-items: center; justify-content: center; color: var(--accent); font-size: 1em; z-index: 10; flex-direction: row; gap: 10px; }
+        .spinner { border: 3px solid var(--input-bg); border-top: 3px solid var(--accent); border-radius: 50%; width: 18px; height: 18px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         /* Formulario Manual */
@@ -139,10 +169,11 @@
         .input-group input { border: none; border-radius: 0; box-shadow: none; flex: 1; }
         
         /* Estética de Tabla Avanzada (UX) */
-        .table-responsive { max-height: 500px; overflow-y: auto; overflow-x: auto; border-radius: 12px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+        .table-responsive { max-height: 550px; overflow-y: auto; overflow-x: auto; border-radius: 12px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; white-space: nowrap; } 
         th, td { padding: 12px 14px; text-align: center; vertical-align: middle; border-bottom: 1px solid var(--border); } 
-        /* Sticky Header */
+        
+        /* Sticky Header y COLUMNAS AMPLIADAS */
         th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75em; letter-spacing: 0.5px; background: var(--bg); position: sticky; top: 0; z-index: 2; border-bottom: 2px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         
         .row-preview { background-color: rgba(16, 185, 129, 0.05); color: var(--text-muted); font-style: italic; } 
@@ -174,31 +205,29 @@
     <div class="bento-card">
         <div class="header-container">
             <h1><i data-lucide="fuel"></i> Control de Combustible</h1>
-            <div class="header-buttons">
-                <button class="btn btn-outline btn-icon-only" onclick="toggleTheme()" title="Alternar Día/Noche">
-                    <i data-lucide="moon"></i>
-                </button>
-                <button class="btn btn-outline" onclick="toggleIngresoManual()">
-                    <i data-lucide="pen-line" size="18"></i> Ingreso Manual
-                </button>
-                <button class="btn btn-outline" onclick="toggleModal(true)">
-                    <i data-lucide="settings-2" size="18"></i> Configurar Listas
-                </button>
+            
+            <div class="header-right">
+                <div class="header-buttons">
+                    <button class="btn btn-outline btn-icon-only" onclick="toggleTheme()" title="Alternar Día/Noche">
+                        <i data-lucide="moon"></i>
+                    </button>
+                    <button class="btn btn-outline" onclick="toggleIngresoManual()">
+                        <i data-lucide="pen-line" size="18"></i> Ingreso Manual
+                    </button>
+                    <button class="btn btn-outline" onclick="toggleModal(true)">
+                        <i data-lucide="settings-2" size="18"></i> Configurar Listas
+                    </button>
+                </div>
+                
+                <!-- ZONA DE EXTRACCIÓN PDF REDUCIDA Y REUBICADA -->
+                <div id="dropZone" class="compact-dropzone" tabindex="0">
+                    <div id="loadingOverlay"><div class="spinner"></div><span id="loadingText">Procesando...</span></div>
+                    <i data-lucide="file-up" size="20"></i>
+                    <span>Arrastrar o adjuntar reporte PDF</span>
+                    <input type="file" id="fileInput" accept="application/pdf" style="display: none;">
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- ZONA DE EXTRACCIÓN PDF -->
-    <div class="bento-card" id="dropZone" tabindex="0">
-        <div id="loadingOverlay"><div class="spinner"></div><span id="loadingText">Procesando...</span></div>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-direction: column;">
-            <i data-lucide="file-up" style="width: 54px; height: 54px; color: var(--accent); stroke-width: 1.5;"></i>
-            <div style="text-align: center;">
-                <b style="font-size: 1.3em; color: var(--text-main);">Arrastrar / Adjuntar Reporte</b><br>
-                <span style="font-size: 1em; color: var(--text-muted); margin-top: 6px; display: block;">Arrastra tu archivo <b>.pdf</b> aquí o haz clic para seleccionarlo.</span>
-            </div>
-        </div>
-        <input type="file" id="fileInput" accept="application/pdf" style="display: none;">
     </div>
 
     <!-- FORMULARIO MANUAL -->
@@ -257,10 +286,11 @@
                 <thead>
                     <tr>
                         <th>Parque</th><th>Año</th><th>Mes</th><th>Día</th><th>Cod.Procedencia</th>
-                        <th style="width: 200px;">Área</th>
-                        <th style="width: 220px;">Máquina</th>
-                        <th style="width: 220px;">Conductor</th>
-                        <th style="width: 120px;">Odómetro</th>
+                        <th style="min-width: 160px;">Área</th>
+                        <!-- COLUMNAS AMPLIADAS PARA VER EL NOMBRE COMPLETO -->
+                        <th style="min-width: 280px;">Máquina</th>
+                        <th style="min-width: 280px;">Conductor</th>
+                        <th style="min-width: 130px;">Odómetro</th>
                         <th>Lts. Diesel</th><th>Acción</th>
                     </tr>
                 </thead>
@@ -377,7 +407,7 @@
 
     function procesarArchivoPDF(file) {
         if(file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
-            loadingUI.style.display = "flex"; loadingText.innerText = "Leyendo PDF...";
+            loadingUI.style.display = "flex"; loadingText.innerText = "Leyendo...";
             const fileReader = new FileReader();
             fileReader.onload = async function() {
                 try {
@@ -487,7 +517,7 @@
             </tr>`;
         }).join('');
         document.getElementById('tablaCuerpo').innerHTML = registrosHtml;
-        lucide.createIcons(); // Refrescar iconos en la tabla generada
+        lucide.createIcons();
     }
 
     function updateFila(index, field, value) {
@@ -539,7 +569,7 @@
         const pManual = document.getElementById('parqueManual').value;
         document.getElementById('dl-conductorManual').innerHTML = conductores.filter(c => c.parque === pManual).map(c => `<option value="${c.nombre}">`).join('');
         
-        lucide.createIcons(); // Refrescar iconos en modales y listas
+        lucide.createIcons();
     }
 
     function addArea() { const val = document.getElementById('newArea').value.trim().toUpperCase(); if (val && !areas.includes(val)) { areas.push(val); guardarDatosLocales(); actualizarUI(); document.getElementById('newArea').value = ''; } }
