@@ -51,51 +51,51 @@
             --input-bg: rgba(0, 0, 0, 0.25);
         }
         
-        body { 
-            font-family: 'Plus Jakarta Sans', system-ui, sans-serif; 
-            background-color: var(--bg); 
-            margin: 0; padding: 30px 15px; color: var(--text-main); font-size: 14px; transition: background-color 0.4s ease, color 0.4s ease;
-            background-image: radial-gradient(circle at top right, rgba(16, 185, 129, 0.03), transparent 40%), radial-gradient(circle at bottom left, rgba(245, 158, 11, 0.03), transparent 40%);
-        }
-
+        body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background-color: var(--bg); margin: 0; padding: 30px 15px; color: var(--text-main); font-size: 14px; transition: background-color 0.4s ease, color 0.4s ease; background-image: radial-gradient(circle at top right, rgba(16, 185, 129, 0.03), transparent 40%), radial-gradient(circle at bottom left, rgba(245, 158, 11, 0.03), transparent 40%); }
         .container { width: 98%; max-width: 1800px; margin: auto; display: flex; flex-direction: column; gap: 24px; }
-        
         .bento-card { background: var(--panel-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-drop); padding: 28px 32px; transition: all 0.3s ease; }
-
+        
         .header-container { display: flex; justify-content: space-between; align-items: flex-start; }
         h1 { color: var(--text-main); margin: 0; font-size: 1.8em; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
         h1 i { color: var(--accent); }
-        
         .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
         .header-buttons { display: flex; gap: 10px; }
 
-        /* Botones */
-        .btn { font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 0.95em; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent; backdrop-filter: blur(5px); }
-        .btn:hover { transform: translateY(-2px); }
+        /* Pestañas (Modo) */
+        .tabs-container { display: flex; gap: 10px; padding: 4px; background: var(--border); border-radius: 14px; width: fit-content; }
+        .tab-btn { padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.3s; border: none; display: flex; align-items: center; gap: 8px; font-family: inherit;}
+        .tab-btn.active { background: var(--accent); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+        .tab-btn.inactive { background: transparent; color: var(--text-muted); }
+        .tab-btn.inactive:hover { color: var(--text-main); }
+
+        /* Botones Generales */
+        .btn { font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 0.95em; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; backdrop-filter: blur(5px); }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-outline { background: transparent; color: var(--text-main); border-color: var(--border); }
-        .btn-outline:hover { background: rgba(100, 116, 139, 0.05); border-color: var(--text-muted); }
+        .btn-outline:hover:not(:disabled) { background: rgba(100, 116, 139, 0.05); border-color: var(--text-muted); }
         .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
-        .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3); }
+        .btn-primary:hover:not(:disabled) { background: var(--accent-hover); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3); }
         .btn-ghost-danger { background: transparent; color: var(--danger); border-color: transparent; }
         .btn-ghost-danger:hover { background: rgba(239, 68, 68, 0.1); }
         .btn-icon-only { padding: 10px; border-radius: 50%; }
 
-        /* Zona PDF Compacta */
+        /* Animación Carga Botón */
+        @keyframes lucide-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .spin { animation: lucide-spin 1s linear infinite; }
+
         .compact-dropzone { border: 2px dashed var(--border); background-color: rgba(0,0,0, 0.01); display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; position: relative; overflow: hidden; transition: 0.2s; padding: 10px 16px; border-radius: 12px; gap: 10px; color: var(--text-muted); font-weight: 600; font-size: 0.9em; width: 100%; max-width: 400px; }
-        .compact-dropzone:hover, .compact-dropzone.dragover { border-color: var(--accent); background-color: rgba(16, 185, 129, 0.05); color: var(--accent); }
+        .compact-dropzone:hover { border-color: var(--accent); background-color: rgba(16, 185, 129, 0.05); color: var(--accent); }
         .compact-dropzone i { color: var(--accent); }
         
         #loadingOverlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--panel-bg); backdrop-filter: blur(8px); font-weight: 600; align-items: center; justify-content: center; color: var(--accent); font-size: 1em; z-index: 10; flex-direction: row; gap: 10px; }
-        .spinner { border: 3px solid var(--input-bg); border-top: 3px solid var(--accent); border-radius: 50%; width: 18px; height: 18px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .spinner-circle { border: 3px solid var(--input-bg); border-top: 3px solid var(--accent); border-radius: 50%; width: 18px; height: 18px; animation: lucide-spin 1s linear infinite; }
         
-        /* Formulario Manual */
         .form-section { display: none; animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         .form-row { display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-end; flex-wrap: wrap; } .form-row:last-child { margin-bottom: 0; }
         .form-group { display: flex; flex-direction: column; } 
         .form-group label { margin-bottom: 6px; font-weight: 600; font-size: 0.8em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;}
-        
         input, select { padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 0.95em; outline: none; box-sizing: border-box; background: var(--input-bg); color: var(--text-main); box-shadow: var(--shadow-inner); transition: 0.2s; width: 100%; }
         input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15), var(--shadow-inner); }
         
@@ -104,7 +104,6 @@
         .input-group .prefix { background: rgba(0,0,0,0.03); padding: 12px 15px; color: var(--text-muted); font-weight: 600; user-select: none; border-right: 1px solid var(--border); font-size: 0.95em; } 
         .input-group input { border: none; border-radius: 0; box-shadow: none; flex: 1; }
         
-        /* Tabla */
         .table-responsive { max-height: 550px; overflow-y: auto; overflow-x: auto; border-radius: 12px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; white-space: nowrap; } 
         th, td { padding: 12px 14px; text-align: center; vertical-align: middle; border-bottom: 1px solid var(--border); } 
@@ -119,12 +118,9 @@
         .table-input:hover { background: rgba(100, 116, 139, 0.08); border-color: transparent; }
         .table-input:focus { background: var(--input-bg); border-color: var(--accent); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
 
-        /* Modal Bento */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); z-index: 1000; justify-content: center; align-items: center; animation: fadeIn 0.2s; }
         .modal-content { background: var(--bg); width: 95%; max-width: 900px; padding: 32px; border-radius: 24px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.3); border: 1px solid var(--glass-border); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 24px; }
-        
-        /* Grid 2 Columnas para Modal */
         .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; } 
         .card { background: var(--panel-bg); padding: 24px; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-drop); }
         .list-container { max-height: 250px; overflow-y: auto; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; scrollbar-width: thin; }
@@ -137,7 +133,15 @@
 <div class="container">
     <div class="bento-card">
         <div class="header-container">
-            <h1><i data-lucide="fuel"></i> Control de Combustible</h1>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <h1><i data-lucide="fuel"></i> Control de Combustible</h1>
+                
+                <!-- SELECTOR DE MODO -->
+                <div class="tabs-container">
+                    <button id="tabDiesel" class="tab-btn active" onclick="setModo('DIESEL')"><i data-lucide="droplet" size="18"></i> Diésel</button>
+                    <button id="tabBencina" class="tab-btn inactive" onclick="setModo('BENCINA')"><i data-lucide="flame" size="18"></i> Bencina</button>
+                </div>
+            </div>
             
             <div class="header-right">
                 <div class="header-buttons">
@@ -156,7 +160,7 @@
                 </div>
                 
                 <div id="dropZone" class="compact-dropzone" tabindex="0">
-                    <div id="loadingOverlay"><div class="spinner"></div><span id="loadingText">Procesando...</span></div>
+                    <div id="loadingOverlay"><div class="spinner-circle"></div><span id="loadingText">Procesando...</span></div>
                     <i data-lucide="file-up" size="20"></i>
                     <span>Arrastrar o adjuntar reporte PDF</span>
                     <input type="file" id="fileInput" accept="application/pdf" style="display: none;">
@@ -167,13 +171,12 @@
 
     <!-- FORMULARIO MANUAL -->
     <div class="bento-card form-section" id="formIngreso">
-        <h3 style="margin-top: 0; margin-bottom: 20px; color: var(--text-main); font-size: 1.1em; border-bottom: 1px solid var(--border); padding-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-            <i data-lucide="keyboard" size="18"></i> Ingreso Manual
+        <h3 id="lblTitleForm" style="margin-top: 0; margin-bottom: 20px; color: var(--text-main); font-size: 1.1em; border-bottom: 1px solid var(--border); padding-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="keyboard" size="18"></i> Ingreso Manual (Diésel)
         </h3>
         <div class="form-row">
             <div class="form-group col-fecha">
                 <label>Parque</label>
-                <!-- Se llena dinámicamente con los Parques de la nube -->
                 <select id="parqueManual" onchange="cambioParqueManual()">
                     <option value="">Cargando...</option>
                 </select>
@@ -181,14 +184,15 @@
             <div class="form-group col-fecha"><label>Día</label><input type="number" id="dia" min="1" max="31"></div>
             <div class="form-group col-mes"><label>Mes</label><select id="mes"><option value="Enero">Enero</option><option value="Febrero">Febrero</option><option value="Marzo">Marzo</option><option value="Abril">Abril</option><option value="Mayo">Mayo</option><option value="Junio">Junio</option><option value="Julio">Julio</option><option value="Agosto">Agosto</option><option value="Septiembre">Septiembre</option><option value="Octubre">Octubre</option><option value="Noviembre">Noviembre</option><option value="Diciembre">Diciembre</option></select></div>
             <div class="form-group col-anio"><label>Año</label><input type="number" id="anio"></div>
-            <div class="form-group col-cod">
+            
+            <div class="form-group col-cod" id="wrapperCodProcedencia">
                 <label>Cód. Procedencia</label>
                 <div class="input-group"><span class="prefix">DIAAL-AJ-</span><input type="text" id="codProcedenciaNum" placeholder="00007238"></div>
             </div>
         </div>
         <div class="form-row">
             <div class="form-group col-flex">
-                <label>Conductor</label>
+                <label id="lblConductor">Conductor</label>
                 <input type="text" id="conductorManual" list="dl-conductorManual" placeholder="Buscar..." autocomplete="off">
                 <datalist id="dl-conductorManual"></datalist>
             </div>
@@ -204,8 +208,8 @@
             </div>
         </div>
         <div class="form-row">
-            <div class="form-group col-flex"><label>Odómetro</label><input type="text" id="odometroManual"></div>
-            <div class="form-group col-flex"><label>Lts. Diesel</label><input type="number" id="ltsDieselManual" step="any"></div>
+            <div class="form-group col-flex" id="wrapperOdometro"><label>Odómetro</label><input type="text" id="odometroManual"></div>
+            <div class="form-group col-flex"><label id="lblLitros">Lts. Diésel</label><input type="number" id="ltsDieselManual" step="any"></div>
             <div class="form-group" style="flex: 2; align-items: flex-end; justify-content: flex-end;">
                 <button class="btn btn-outline" style="width: 100%; border-color: var(--accent); color: var(--accent);" onclick="agregarRegistroManual()">
                     <i data-lucide="plus" size="18"></i> Agregar a la tabla
@@ -218,25 +222,29 @@
     <div class="bento-card">
         <div class="table-responsive">
             <table>
-                <thead>
+                <!-- Cabecera DIESEL -->
+                <thead id="theadDiesel">
                     <tr>
                         <th>Parque</th><th>Año</th><th>Mes</th><th>Día</th><th>Cod.Procedencia</th>
                         <th style="min-width: 160px;">Área</th>
-                        <th style="min-width: 280px;">Máquina</th>
-                        <th style="min-width: 280px;">Conductor</th>
-                        <th style="min-width: 130px;">Odómetro</th>
-                        <th>Lts. Diesel</th><th>Acción</th>
+                        <th style="min-width: 250px;">Máquina</th>
+                        <th style="min-width: 250px;">Conductor</th>
+                        <th style="min-width: 120px;">Odómetro</th>
+                        <th>Lts. Diésel</th><th>Acción</th>
                     </tr>
                 </thead>
-                <tbody id="tablaVistaPrevia" style="display: none;">
-                    <tr class="row-preview">
-                        <td id="vp-parque"></td><td id="vp-anio"></td><td id="vp-mes"></td><td id="vp-dia"></td>
-                        <td id="vp-cod">DIAAL-AJ-</td><td id="vp-area"></td><td id="vp-maquina"></td>
-                        <td id="vp-conductor"></td><td id="vp-odometro"></td><td id="vp-lts"></td>
-                        <td><i>...</i></td>
+                <!-- Cabecera BENCINA -->
+                <thead id="theadBencina" style="display:none;">
+                    <tr>
+                        <th style="min-width: 100px;">Parque</th><th style="min-width: 80px;">Año</th><th style="min-width: 100px;">Mes</th><th style="min-width: 80px;">Día</th>
+                        <th style="min-width: 160px;">Área</th>
+                        <th style="min-width: 250px;">Máquina</th>
+                        <th style="min-width: 250px;">Operador</th>
+                        <th>Lts. Bencina</th><th>Acción</th>
                     </tr>
-                </tbody>
+                </thead>
                 <tbody id="tablaCuerpo">
+                    <!-- Registros Inyectados por JS -->
                 </tbody>
             </table>
         </div>
@@ -248,7 +256,7 @@
             <button class="btn btn-outline" onclick="exportarExcel()">
                 <i data-lucide="download" size="18"></i> Bajar Excel
             </button>
-            <button class="btn btn-primary" onclick="enviarAGoogleSheets()">
+            <button id="btnEnviarNube" class="btn btn-primary" onclick="enviarAGoogleSheets()">
                 <i data-lucide="cloud-upload" size="18"></i> Enviar a la Nube
             </button>
         </div>
@@ -269,12 +277,11 @@
         <div class="grid-2">
             <div class="card">
                 <h3 style="margin-top:0; color:var(--text-main); font-size:1.1em; display:flex; gap:6px; align-items:center;">Máquinas <i data-lucide="cloud" size="16" color="var(--accent)"></i></h3>
-                <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px; line-height: 1.4;">Cargadas desde la pestaña <b>MAQUINAS</b>.</p>
+                <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px; line-height: 1.4;">Cargadas desde MAQUINAS PETRÓLEO y MAQUINAS BENCINA.</p>
                 <div class="list-container" id="listMaquinas" style="border-top: none; padding-top: 0; margin-top: 0;"></div>
             </div>
-            
             <div class="card">
-                <h3 style="margin-top:0; color:var(--text-main); font-size:1.1em; display:flex; gap:6px; align-items:center;">Conductores, Parques y Áreas <i data-lucide="cloud" size="16" color="var(--accent)"></i></h3>
+                <h3 style="margin-top:0; color:var(--text-main); font-size:1.1em; display:flex; gap:6px; align-items:center;">Conductores y Áreas <i data-lucide="cloud" size="16" color="var(--accent)"></i></h3>
                 <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px; line-height: 1.4;">Cargados desde la pestaña <b>CONDUCTORES</b>.</p>
                 <div class="list-container" id="listConductores" style="border-top: none; padding-top: 0; margin-top: 0;"></div>
             </div>
@@ -287,30 +294,77 @@
 
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
-    
     function toggleTheme() {
         const newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         document.body.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
     }
 
-    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbySOiyPYFJbjKenKKjCTLdkrFLUwsNJ1yRaq1kwbfqiaIDPqUix2Yeq9Id-dksUD59X/exec";
+    // AQUÍ ESTÁ EL ENLACE REEMPLAZADO CON EL QUE PEDISTE
+    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbyPwhuUCFVJf4quB4rjZoha3TTwWxvYSlKJgCVIWLGYYz6tDCt7fWsa7DOOl3dnf8P-/exec";
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+    // ESTADO DE LA APP
+    let modoActual = 'DIESEL'; // 'DIESEL' o 'BENCINA'
+    let areas = [];
+    let maquinasPetroleo = { PAV: [], PAVII: [] }; 
+    let maquinasBencina = { PAV: [], PAVII: [] }; 
+    let conductores = []; 
+    let parquesDisponibles = [];
+    
+    let registrosDiesel = [];
+    let registrosBencina = [];
+
+    // CAMBIO DE MODO UI
+    function setModo(modo) {
+        modoActual = modo;
+        
+        const tDiesel = document.getElementById('tabDiesel');
+        const tBencina = document.getElementById('tabBencina');
+        const dropZone = document.getElementById('dropZone');
+        const wCod = document.getElementById('wrapperCodProcedencia');
+        const wOdo = document.getElementById('wrapperOdometro');
+        const lCond = document.getElementById('lblConductor');
+        const lLts = document.getElementById('lblLitros');
+        const tHeadD = document.getElementById('theadDiesel');
+        const tHeadB = document.getElementById('theadBencina');
+        const lTitle = document.getElementById('lblTitleForm');
+
+        if (modo === 'DIESEL') {
+            tDiesel.classList.replace('inactive', 'active');
+            tBencina.classList.replace('active', 'inactive');
+            dropZone.style.display = 'flex';
+            wCod.style.display = 'flex';
+            wOdo.style.display = 'flex';
+            lCond.innerText = 'Conductor';
+            lLts.innerText = 'Lts. Diésel';
+            lTitle.innerHTML = '<i data-lucide="keyboard" size="18"></i> Ingreso Manual (Diésel)';
+            tHeadD.style.display = 'table-header-group';
+            tHeadB.style.display = 'none';
+        } else {
+            tBencina.classList.replace('inactive', 'active');
+            tDiesel.classList.replace('active', 'inactive');
+            dropZone.style.display = 'none'; // Bencina no usa PDF
+            wCod.style.display = 'none';
+            wOdo.style.display = 'none';
+            lCond.innerText = 'Operador';
+            lLts.innerText = 'Lts. Bencina';
+            lTitle.innerHTML = '<i data-lucide="keyboard" size="18"></i> Ingreso Manual (Bencina)';
+            tHeadB.style.display = 'table-header-group';
+            tHeadD.style.display = 'none';
+        }
+        
+        actualizarUI();
+        renderizarTabla();
+        lucide.createIcons();
+    }
 
     function toggleIngresoManual() {
         const form = document.getElementById('formIngreso');
-        const preview = document.getElementById('tablaVistaPrevia');
-        if (form.style.display === 'none' || form.style.display === '') {
-            form.style.display = 'block'; preview.style.display = 'table-row-group'; actualizarVistaPrevia();
-        } else { form.style.display = 'none'; preview.style.display = 'none'; }
+        form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
     }
 
-    // VARIABLES DINÁMICAS (Ya no hay datos quemados)
-    let areas = [];
-    let maquinas = []; 
-    let conductores = []; 
-    let registros = [];
-
+    // LOGICA PDF (Solo Diésel)
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const loadingUI = document.getElementById('loadingOverlay');
@@ -319,10 +373,12 @@
     dropZone.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) procesarArchivoPDF(e.target.files[0]); fileInput.value = ''; });
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'); });
     dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); if (e.dataTransfer.files.length > 0) procesarArchivoPDF(e.dataTransfer.files[0]); });
 
     function procesarArchivoPDF(file) {
+        if (modoActual !== 'DIESEL') setModo('DIESEL'); // Forzar modo diésel si se sube PDF
+        
         if(file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
             loadingUI.style.display = "flex"; loadingText.innerText = "Leyendo...";
             const fileReader = new FileReader();
@@ -344,12 +400,11 @@
         } else { alert("Por favor, selecciona un archivo PDF válido."); }
     }
 
-    // DETECCIÓN DINÁMICA DE MÁQUINA BASADA EN LA NUBE
-    function detectarMaquina(t) {
+    function detectarMaquinaPetroleo(t) {
         t = t.toUpperCase().replace(/\s+/g, ' ');
-        // Ordena las máquinas de la más larga a la más corta para evitar falsos positivos (ej. "Tractor 1" vs "Tractor 10")
-        const maquinasOrdenadas = [...maquinas].sort((a, b) => b.length - a.length);
-        const maqNube = maquinasOrdenadas.find(m => t.includes(m));
+        const mqP = [...maquinasPetroleo.PAV, ...maquinasPetroleo.PAVII];
+        const ordenadas = [...new Set(mqP)].sort((a, b) => b.length - a.length);
+        const maqNube = ordenadas.find(m => t.includes(m));
         return maqNube ? maqNube : "MÁQUINA NO RECONOCIDA";
     }
 
@@ -363,11 +418,99 @@
             const textToAnalyze = match[5].toUpperCase();
             let p = (textToAnalyze.includes("PAV II") || textToAnalyze.includes("PAVII") || textToAnalyze.includes("PV2")) ? "PAVII" : "PAV";
 
-            registros.push({ parque: p, anio: anio, mes: meses[parseInt(match[2]) - 1], dia: parseInt(match[1]), codProcedencia: match[4], maquina: detectarMaquina(match[5]), area: "", conductor: "", odometro: "", ltsDiesel: match[6] });
+            registrosDiesel.push({ parque: p, anio: anio, mes: meses[parseInt(match[2]) - 1], dia: parseInt(match[1]), codProcedencia: match[4], maquina: detectarMaquinaPetroleo(match[5]), area: "", conductor: "", odometro: "", ltsDiesel: match[6] });
             contador++;
         }
         if (contador > 0) { renderizarTabla(); alert(`✅ Se extrajeron ${contador} consumos del PDF.`); } 
-        else { alert("⚠️️ No se detectaron consumos válidos en este PDF."); }
+        else { alert("⚠️ No se detectaron consumos válidos en este PDF."); }
+    }
+
+    // RENDERIZADO DINÁMICO DE TABLA
+    function renderizarTabla() {
+        const arr = modoActual === 'DIESEL' ? registrosDiesel : registrosBencina;
+        let html = '';
+        
+        if (modoActual === 'DIESEL') {
+            html = arr.map((r, i) => {
+                const condParque = conductores.filter(c => c.parque === r.parque);
+                const maqList = maquinasPetroleo[r.parque] || [];
+                
+                const selArea = `<input type="text" list="dl-area-d-${i}" class="table-input" value="${r.area}" onchange="updateFila(${i}, 'area', this.value)" placeholder="...">
+                <datalist id="dl-area-d-${i}">${areas.map(a => `<option value="${a}">`).join('')}</datalist>`;
+
+                const selMaquina = `<input type="text" list="dl-maq-d-${i}" class="table-input" value="${r.maquina}" onchange="updateFila(${i}, 'maquina', this.value)" placeholder="...">
+                <datalist id="dl-maq-d-${i}">${maqList.map(m => `<option value="${m}">`).join('')}</datalist>`;
+                
+                const selConductor = `<input type="text" list="dl-cond-d-${i}" class="table-input" value="${r.conductor}" onchange="updateFila(${i}, 'conductor', this.value)" placeholder="...">
+                <datalist id="dl-cond-d-${i}">${condParque.map(c => `<option value="${c.nombre}">`).join('')}</datalist>`;
+
+                const inpOdometro = `<input type="text" class="table-input odo-input" value="${r.odometro}" onchange="updateFila(${i}, 'odometro', this.value)" onkeydown="navegarOdometro(event, ${i})" placeholder="...">`;
+                
+                const alertClass = (!r.conductor || !r.maquina || !r.odometro || r.odometro.toString().trim() === '') ? 'row-warning' : '';
+                
+                return `<tr class="${alertClass}">
+                    <td>${r.parque}</td><td>${r.anio}</td><td>${r.mes}</td><td>${r.dia}</td><td style="font-family: monospace; color: var(--text-muted);">${r.codProcedencia}</td>
+                    <td>${selArea}</td><td>${selMaquina}</td><td>${selConductor}</td><td>${inpOdometro}</td>
+                    <td style="font-weight: 600;">${r.ltsDiesel}</td>
+                    <td><button class="btn btn-ghost-danger btn-icon-only" onclick="borrarRegistro(${i})" title="Borrar Fila"><i data-lucide="x" size="16"></i></button></td>
+                </tr>`;
+            }).join('');
+        } else {
+            // MODO BENCINA (Todo 100% Editable)
+            const mesesStr = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            
+            html = arr.map((r, i) => {
+                const condParque = conductores.filter(c => c.parque === r.parque);
+                const maqList = maquinasBencina[r.parque] || [];
+                
+                const selParque = `<select class="table-input" onchange="updateFila(${i}, 'parque', this.value)">
+                    ${parquesDisponibles.map(p => `<option value="${p}" ${r.parque===p?'selected':''}>${p}</option>`).join('')}
+                </select>`;
+                
+                const inpAnio = `<input type="number" class="table-input" value="${r.anio}" onchange="updateFila(${i}, 'anio', this.value)">`;
+                const selMes = `<select class="table-input" onchange="updateFila(${i}, 'mes', this.value)">` + mesesStr.map(m => `<option value="${m}" ${r.mes===m?'selected':''}>${m}</option>`).join('') + `</select>`;
+                const inpDia = `<input type="number" class="table-input" value="${r.dia}" onchange="updateFila(${i}, 'dia', this.value)">`;
+                
+                const selArea = `<input type="text" list="dl-area-b-${i}" class="table-input" value="${r.area}" onchange="updateFila(${i}, 'area', this.value)" placeholder="...">
+                <datalist id="dl-area-b-${i}">${areas.map(a => `<option value="${a}">`).join('')}</datalist>`;
+
+                const selMaquina = `<input type="text" list="dl-maq-b-${i}" class="table-input" value="${r.maquina}" onchange="updateFila(${i}, 'maquina', this.value)" placeholder="...">
+                <datalist id="dl-maq-b-${i}">${maqList.map(m => `<option value="${m}">`).join('')}</datalist>`;
+                
+                const selConductor = `<input type="text" list="dl-cond-b-${i}" class="table-input" value="${r.operador}" onchange="updateFila(${i}, 'operador', this.value)" placeholder="...">
+                <datalist id="dl-cond-b-${i}">${condParque.map(c => `<option value="${c.nombre}">`).join('')}</datalist>`;
+
+                const inpLitros = `<input type="number" step="any" class="table-input" value="${r.litros}" onchange="updateFila(${i}, 'litros', this.value)" style="font-weight: 600;">`;
+                
+                const alertClass = (!r.operador || !r.maquina || !r.litros || r.litros.toString().trim() === '') ? 'row-warning' : '';
+                
+                return `<tr class="${alertClass}">
+                    <td>${selParque}</td><td>${inpAnio}</td><td>${selMes}</td><td>${inpDia}</td>
+                    <td>${selArea}</td><td>${selMaquina}</td><td>${selConductor}</td><td>${inpLitros}</td>
+                    <td><button class="btn btn-ghost-danger btn-icon-only" onclick="borrarRegistro(${i})" title="Borrar Fila"><i data-lucide="x" size="16"></i></button></td>
+                </tr>`;
+            }).join('');
+        }
+        
+        document.getElementById('tablaCuerpo').innerHTML = html;
+        lucide.createIcons();
+    }
+
+    function updateFila(index, field, value) {
+        if (modoActual === 'DIESEL') {
+            registrosDiesel[index][field] = value;
+            if (field === 'conductor') {
+                const condObj = conductores.find(c => c.nombre === value && c.parque === registrosDiesel[index].parque);
+                if (condObj && condObj.area) registrosDiesel[index].area = condObj.area;
+            }
+        } else {
+            registrosBencina[index][field] = value;
+            if (field === 'operador') {
+                const condObj = conductores.find(c => c.nombre === value && c.parque === registrosBencina[index].parque);
+                if (condObj && condObj.area) registrosBencina[index].area = condObj.area;
+            }
+        }
+        renderizarTabla(); 
     }
 
     function navegarOdometro(e, index) {
@@ -379,51 +522,14 @@
         }
     }
 
-    function renderizarTabla() {
-        const registrosHtml = registros.map((r, i) => {
-            const condParque = conductores.filter(c => c.parque === r.parque);
-            
-            const selArea = `<input type="text" list="dl-area-${i}" class="table-input" value="${r.area}" onchange="updateFila(${i}, 'area', this.value)" placeholder="..." autocomplete="off">
-            <datalist id="dl-area-${i}">${areas.map(a => `<option value="${a}">`).join('')}</datalist>`;
-
-            const selMaquina = `<input type="text" list="dl-maq-${i}" class="table-input" value="${r.maquina}" onchange="updateFila(${i}, 'maquina', this.value)" placeholder="..." autocomplete="off">
-            <datalist id="dl-maq-${i}">${maquinas.map(m => `<option value="${m}">`).join('')}</datalist>`;
-            
-            const selConductor = `<input type="text" list="dl-cond-${i}" class="table-input" value="${r.conductor}" onchange="updateFila(${i}, 'conductor', this.value)" placeholder="..." autocomplete="off">
-            <datalist id="dl-cond-${i}">${condParque.map(c => `<option value="${c.nombre}">`).join('')}</datalist>`;
-
-            const inpOdometro = `<input type="text" class="table-input odo-input" value="${r.odometro}" onchange="updateFila(${i}, 'odometro', this.value)" onkeydown="navegarOdometro(event, ${i})" placeholder="...">`;
-            const alertClass = (!r.conductor || !r.maquina || !r.odometro || r.odometro.toString().trim() === '') ? 'row-warning' : '';
-            
-            return `<tr class="${alertClass}">
-                <td>${r.parque}</td><td>${r.anio}</td><td>${r.mes}</td><td>${r.dia}</td><td style="font-family: monospace; color: var(--text-muted);">${r.codProcedencia}</td>
-                <td>${selArea}</td><td>${selMaquina}</td><td>${selConductor}</td><td>${inpOdometro}</td>
-                <td style="font-weight: 600;">${r.ltsDiesel}</td>
-                <td><button class="btn btn-ghost-danger btn-icon-only" onclick="borrarRegistro(${i})" title="Borrar Fila"><i data-lucide="x" size="16"></i></button></td>
-            </tr>`;
-        }).join('');
-        document.getElementById('tablaCuerpo').innerHTML = registrosHtml;
-        lucide.createIcons();
-    }
-
-    function updateFila(index, field, value) {
-        registros[index][field] = value;
-        if (field === 'conductor') {
-            const condObj = conductores.find(c => c.nombre === value && c.parque === registros[index].parque);
-            if (condObj && condObj.area) {
-                registros[index].area = condObj.area;
-            }
-        }
-        renderizarTabla(); 
-    }
-
     async function cargarDatosDesdeSheets() {
         try {
             const response = await fetch(GOOGLE_SHEETS_URL);
             if(response.ok) {
                 const data = await response.json();
-                if (data.conductores && data.conductores.length > 0) conductores = data.conductores;
-                if (data.maquinas && data.maquinas.length > 0) maquinas = data.maquinas;
+                if (data.conductores) conductores = data.conductores;
+                if (data.maquinasPetroleo) maquinasPetroleo = data.maquinasPetroleo;
+                if (data.maquinasBencina) maquinasBencina = data.maquinasBencina;
                 actualizarUI();
             }
         } catch (error) { console.warn("No se pudo cargar datos desde la nube."); }
@@ -432,39 +538,37 @@
     window.onload = () => { 
         establecerFechaActual(); 
         cargarDatosDesdeSheets(); 
-        document.querySelectorAll('#formIngreso input, #formIngreso select').forEach(input => { input.addEventListener('input', actualizarVistaPrevia); input.addEventListener('change', actualizarVistaPrevia); }); 
     };
 
     function establecerFechaActual() { const date = new Date(); document.getElementById('anio').value = date.getFullYear(); document.getElementById('dia').value = date.getDate(); const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; document.getElementById('mes').value = meses[date.getMonth()]; }
     
     function toggleModal(show) { document.getElementById('modalConfig').style.display = show ? 'flex' : 'none'; }
-    function cambioParqueManual() { document.getElementById('conductorManual').value = ''; document.getElementById('areaManual').value = ''; actualizarUI(); actualizarVistaPrevia(); }
+    function cambioParqueManual() { document.getElementById('conductorManual').value = ''; document.getElementById('areaManual').value = ''; actualizarUI(); }
 
     function actualizarUI() {
-        maquinas.sort(); 
         conductores.sort((a, b) => a.nombre.localeCompare(b.nombre));
-        
-        // Extracción automática de Áreas y Parques desde Conductores
         areas = [...new Set(conductores.map(c => c.area))].filter(Boolean).sort();
-        const parquesUnicos = [...new Set(conductores.map(c => c.parque))].filter(Boolean).sort();
+        parquesDisponibles = [...new Set(conductores.map(c => c.parque))].filter(Boolean).sort();
 
-        // Actualizar Select de Parque Manual
         const parqueSelect = document.getElementById('parqueManual');
         const currentParque = parqueSelect.value;
-        if (parquesUnicos.length > 0) {
-            parqueSelect.innerHTML = parquesUnicos.map(p => `<option value="${p}">${p}</option>`).join('');
-            if (parquesUnicos.includes(currentParque)) parqueSelect.value = currentParque;
+        if (parquesDisponibles.length > 0) {
+            parqueSelect.innerHTML = parquesDisponibles.map(p => `<option value="${p}">${p}</option>`).join('');
+            if (parquesDisponibles.includes(currentParque)) parqueSelect.value = currentParque;
         }
 
-        // Llenar Modal de Visualización
-        document.getElementById('listMaquinas').innerHTML = maquinas.map(m => `<div class="list-item"><span>${m}</span><i data-lucide="cloud" size="14" color="var(--text-muted)"></i></div>`).join('');
-        document.getElementById('listConductores').innerHTML = conductores.map(c => `<div class="list-item"><span><b>${c.nombre}</b><br><small style="color:var(--text-muted)">${c.parque} - ${c.area}</small></span><i data-lucide="cloud" size="14" color="var(--text-muted)"></i></div>`).join('');
-        
-        // Llenar Buscadores (Datalists)
-        document.getElementById('dl-areaManual').innerHTML = areas.map(a => `<option value="${a}">`).join('');
-        document.getElementById('dl-maquinaManual').innerHTML = maquinas.map(m => `<option value="${m}">`).join('');
         const pManual = document.getElementById('parqueManual').value;
+        const maquinasForm = modoActual === 'DIESEL' ? (maquinasPetroleo[pManual] || []) : (maquinasBencina[pManual] || []);
+
+        document.getElementById('dl-areaManual').innerHTML = areas.map(a => `<option value="${a}">`).join('');
+        document.getElementById('dl-maquinaManual').innerHTML = maquinasForm.map(m => `<option value="${m}">`).join('');
         document.getElementById('dl-conductorManual').innerHTML = conductores.filter(c => c.parque === pManual).map(c => `<option value="${c.nombre}">`).join('');
+        
+        // Modal UI
+        const mqTodas = [...(maquinasPetroleo.PAV||[]), ...(maquinasPetroleo.PAVII||[]), ...(maquinasBencina.PAV||[]), ...(maquinasBencina.PAVII||[])];
+        const mqUnicas = [...new Set(mqTodas)].sort();
+        document.getElementById('listMaquinas').innerHTML = mqUnicas.map(m => `<div class="list-item"><span>${m}</span><i data-lucide="cloud" size="14" color="var(--text-muted)"></i></div>`).join('');
+        document.getElementById('listConductores').innerHTML = conductores.map(c => `<div class="list-item"><span><b>${c.nombre}</b><br><small style="color:var(--text-muted)">${c.parque} - ${c.area}</small></span><i data-lucide="cloud" size="14" color="var(--text-muted)"></i></div>`).join('');
         
         lucide.createIcons();
     }
@@ -472,62 +576,130 @@
     document.getElementById('conductorManual').addEventListener('change', function() { 
         const pManual = document.getElementById('parqueManual').value;
         const condObj = conductores.find(c => c.nombre === this.value && c.parque === pManual); 
-        if (condObj) { document.getElementById('areaManual').value = condObj.area; actualizarVistaPrevia(); } 
+        if (condObj) document.getElementById('areaManual').value = condObj.area;
     });
 
-    function actualizarVistaPrevia() {
-        if (document.getElementById('formIngreso').style.display === 'none') return;
-        document.getElementById('vp-parque').textContent = document.getElementById('parqueManual').value; 
-        document.getElementById('vp-anio').textContent = document.getElementById('anio').value; 
-        document.getElementById('vp-mes').textContent = document.getElementById('mes').value; 
-        document.getElementById('vp-dia').textContent = document.getElementById('dia').value;
-        const codNum = document.getElementById('codProcedenciaNum').value; 
-        document.getElementById('vp-cod').textContent = codNum ? "DIAAL-AJ-" + codNum : "DIAAL-AJ-...";
-        document.getElementById('vp-area').textContent = document.getElementById('areaManual').value; 
-        document.getElementById('vp-maquina').textContent = document.getElementById('maquinaManual').value; 
-        document.getElementById('vp-conductor').textContent = document.getElementById('conductorManual').value; 
-        document.getElementById('vp-odometro').textContent = document.getElementById('odometroManual').value; 
-        document.getElementById('vp-lts').textContent = document.getElementById('ltsDieselManual').value;
-    }
-
     function agregarRegistroManual() {
-        const parque = document.getElementById('parqueManual').value; const anio = document.getElementById('anio').value; const mes = document.getElementById('mes').value; const dia = document.getElementById('dia').value;
-        const codNum = document.getElementById('codProcedenciaNum').value.trim(); const codProcedencia = codNum ? "DIAAL-AJ-" + codNum : "";
-        const conductor = document.getElementById('conductorManual').value; const area = document.getElementById('areaManual').value; const maquina = document.getElementById('maquinaManual').value;
-        const odometro = document.getElementById('odometroManual').value; const ltsDiesel = document.getElementById('ltsDieselManual').value;
-        if (!dia || !conductor || !maquina || !codNum) { alert("Faltan datos clave en el formulario."); return; }
-        registros.push({ parque, anio, mes, dia, codProcedencia, area, maquina, conductor, odometro, ltsDiesel });
+        const parque = document.getElementById('parqueManual').value; 
+        const anio = document.getElementById('anio').value; 
+        const mes = document.getElementById('mes').value; 
+        const dia = document.getElementById('dia').value;
+        const area = document.getElementById('areaManual').value.trim(); 
+        const maquina = document.getElementById('maquinaManual').value.trim();
+        const persona = document.getElementById('conductorManual').value.trim(); 
+        const lts = document.getElementById('ltsDieselManual').value;
+
+        if (!dia || !persona || !maquina) { alert("Faltan datos clave en el formulario."); return; }
+
+        if (modoActual === 'DIESEL') {
+            const codNum = document.getElementById('codProcedenciaNum').value.trim(); 
+            const codProcedencia = codNum ? "DIAAL-AJ-" + codNum : "";
+            const odometro = document.getElementById('odometroManual').value; 
+            if (!codNum) { alert("El código de procedencia es obligatorio para Diésel."); return; }
+            registrosDiesel.push({ parque, anio, mes, dia, codProcedencia, area, maquina, conductor: persona, odometro, ltsDiesel: lts });
+            
+            document.getElementById('odometroManual').value = ''; 
+            document.getElementById('codProcedenciaNum').value = ''; 
+            document.getElementById('codProcedenciaNum').focus();
+        } else {
+            if (!lts) { alert("Agrega la cantidad de litros."); return; }
+            registrosBencina.push({ parque, anio, mes, dia, area, maquina, operador: persona, litros: lts });
+            document.getElementById('conductorManual').focus();
+        }
+        
         renderizarTabla();
-        document.getElementById('conductorManual').value = ''; document.getElementById('areaManual').value = ''; document.getElementById('maquinaManual').value = ''; document.getElementById('odometroManual').value = ''; document.getElementById('ltsDieselManual').value = ''; document.getElementById('codProcedenciaNum').value = ''; document.getElementById('codProcedenciaNum').focus(); actualizarVistaPrevia();
+        document.getElementById('conductorManual').value = ''; 
+        document.getElementById('areaManual').value = ''; 
+        document.getElementById('maquinaManual').value = ''; 
+        document.getElementById('ltsDieselManual').value = ''; 
     }
 
-    function borrarRegistro(index) { registros.splice(index, 1); renderizarTabla(); }
-    function limpiarTabla() { if(confirm("¿Estás seguro de borrar todos los registros de la tabla?")) { registros = []; renderizarTabla(); } }
+    function borrarRegistro(index) { 
+        if (modoActual === 'DIESEL') registrosDiesel.splice(index, 1); 
+        else registrosBencina.splice(index, 1);
+        renderizarTabla(); 
+    }
+    
+    function limpiarTabla() { 
+        if(confirm(`¿Borrar todos los registros de ${modoActual}?`)) { 
+            if (modoActual === 'DIESEL') registrosDiesel = []; else registrosBencina = [];
+            renderizarTabla(); 
+        } 
+    }
 
     function validarRegistrosCompletos() {
-        const incompletos = registros.filter(r => !r.parque || !r.anio || !r.mes || !r.dia || !r.codProcedencia || !r.area || r.area.trim() === "" || !r.maquina || r.maquina.trim() === "" || !r.conductor || r.conductor.trim() === "" || !r.odometro || r.odometro.toString().trim() === "" || !r.ltsDiesel);
-        if (incompletos.length > 0) { alert("❌ Hay registros incompletos. 'Área', 'Máquina', 'Conductor' y 'Odómetro' son obligatorios."); return false; }
+        const arr = modoActual === 'DIESEL' ? registrosDiesel : registrosBencina;
+        let inc = [];
+        if (modoActual === 'DIESEL') {
+            inc = arr.filter(r => !r.parque || !r.anio || !r.mes || !r.dia || !r.codProcedencia || !r.area || !r.maquina || !r.conductor || r.odometro.toString().trim() === "" || !r.ltsDiesel);
+        } else {
+            inc = arr.filter(r => !r.parque || !r.anio || !r.mes || !r.dia || !r.area || !r.maquina || !r.operador || !r.litros);
+        }
+        if (inc.length > 0) { alert("❌ Hay registros incompletos en la tabla."); return false; }
         return true;
     }
 
     function exportarExcel() {
-        if (registros.length === 0) { alert("Agrega al menos una fila."); return; }
+        const arr = modoActual === 'DIESEL' ? registrosDiesel : registrosBencina;
+        if (arr.length === 0) { alert("Agrega al menos una fila."); return; }
         if (!validarRegistrosCompletos()) return;
         renderizarTabla();
-        const dataParaExportar = registros.map(r => ({ "Parque": r.parque, "Año": r.anio, "Mes": r.mes, "Dia": r.dia, "Cod.Procedencia": r.codProcedencia, "Area": r.area, "Maquina": r.maquina, "Conductor": r.conductor, "Odometro": r.odometro, "Lts. Diesel": r.ltsDiesel }));
-        const hoja = XLSX.utils.json_to_sheet(dataParaExportar, { header: ["Parque", "Año", "Mes", "Dia", "Cod.Procedencia", "Area", "Maquina", "Conductor", "Odometro", "Lts. Diesel"] });
-        const libro = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(libro, hoja, "Planilla Combustible");
-        XLSX.writeFile(libro, `Combustible_${document.getElementById('mes').value}.xlsx`);
+        
+        let dataParaExportar, headers;
+        if (modoActual === 'DIESEL') {
+            dataParaExportar = arr.map(r => ({ "Parque": r.parque, "Año": r.anio, "Mes": r.mes, "Dia": r.dia, "Cod.Procedencia": r.codProcedencia, "Area": r.area, "Maquina": r.maquina, "Conductor": r.conductor, "Odometro": r.odometro, "Lts. Diesel": r.ltsDiesel }));
+            headers = ["Parque", "Año", "Mes", "Dia", "Cod.Procedencia", "Area", "Maquina", "Conductor", "Odometro", "Lts. Diesel"];
+        } else {
+            dataParaExportar = arr.map(r => ({ "Parque": r.parque, "Año": r.anio, "Mes": r.mes, "Dia": r.dia, "Area": r.area, "Maquina": r.maquina, "Operador": r.operador, "Lts. Bencina": r.litros }));
+            headers = ["Parque", "Año", "Mes", "Dia", "Area", "Maquina", "Operador", "Lts. Bencina"];
+        }
+        
+        const hoja = XLSX.utils.json_to_sheet(dataParaExportar, { header: headers });
+        const libro = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(libro, hoja, `Planilla ${modoActual}`);
+        XLSX.writeFile(libro, `Combustible_${modoActual}_${document.getElementById('mes').value}.xlsx`);
     }
 
-    function enviarAGoogleSheets() {
-        if (registros.length === 0) { alert("No hay datos en la tabla para enviar."); return; }
+    // BOTÓN DE ENVÍO CON BLOQUEO (Anti-Doble Clic)
+    async function enviarAGoogleSheets() {
+        const arr = modoActual === 'DIESEL' ? registrosDiesel : registrosBencina;
+        if (arr.length === 0) { alert("No hay datos en la tabla para enviar."); return; }
         if (!validarRegistrosCompletos()) return;
-        renderizarTabla();
-        loadingUI.style.display = "flex"; loadingText.innerText = "Enviando a la nube...";
-        fetch(GOOGLE_SHEETS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(registros) })
-        .then(() => { loadingUI.style.display = "none"; alert("✅ ¡Datos enviados a Google Sheets con éxito!"); if(confirm("¿Deseas limpiar la tabla de trabajo ahora?")) { registros = []; renderizarTabla(); } })
-        .catch(error => { loadingUI.style.display = "none"; alert("Hubo un error de conexión: " + error); });
+        
+        const btn = document.getElementById('btnEnviarNube');
+        btn.disabled = true; // Bloquea el botón al primer clic
+        btn.innerHTML = `<i data-lucide="loader-2" class="spinner-circle"></i> Enviando...`;
+        lucide.createIcons();
+        
+        loadingUI.style.display = "flex"; 
+        loadingText.innerText = "Sincronizando con Google...";
+
+        // Agregar el flag de tipo para que el Backend sepa a qué hoja enviarlo
+        const dataToSend = arr.map(r => ({ ...r, tipo: modoActual }));
+
+        try {
+            const response = await fetch(GOOGLE_SHEETS_URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                body: JSON.stringify(dataToSend) 
+            });
+            
+            loadingUI.style.display = "none"; 
+            alert(`✅ ¡Datos de ${modoActual} enviados a Google Sheets con éxito!`); 
+            
+            if(confirm("¿Deseas limpiar la tabla de trabajo ahora?")) { 
+                if (modoActual === 'DIESEL') registrosDiesel = []; else registrosBencina = [];
+                renderizarTabla(); 
+            } 
+        } catch (error) {
+            loadingUI.style.display = "none"; 
+            alert("Hubo un error de conexión: " + error);
+        } finally {
+            // Se restaura el botón siempre, incluso si hay error
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="cloud-upload" size="18"></i> Enviar a la Nube`;
+            lucide.createIcons();
+        }
     }
 </script>
 
