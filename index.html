@@ -85,7 +85,7 @@
         .spin { animation: lucide-spin 1s linear infinite; }
 
         .compact-dropzone { border: 2px dashed var(--border); background-color: rgba(0,0,0, 0.01); display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; position: relative; overflow: hidden; transition: 0.2s; padding: 10px 16px; border-radius: 12px; gap: 10px; color: var(--text-muted); font-weight: 600; font-size: 0.9em; width: 100%; max-width: 400px; }
-        .compact-dropzone:hover { border-color: var(--accent); background-color: rgba(16, 185, 129, 0.05); color: var(--accent); }
+        .compact-dropzone:hover, .compact-dropzone.dragover { border-color: var(--accent); background-color: rgba(16, 185, 129, 0.05); color: var(--accent); }
         .compact-dropzone i { color: var(--accent); }
         
         #loadingOverlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--panel-bg); backdrop-filter: blur(8px); font-weight: 600; align-items: center; justify-content: center; color: var(--accent); font-size: 1em; z-index: 10; flex-direction: row; gap: 10px; }
@@ -300,7 +300,6 @@
         localStorage.setItem('theme', newTheme);
     }
 
-    // AQUÍ ESTÁ EL ENLACE REEMPLAZADO CON EL QUE PEDISTE
     const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbyPwhuUCFVJf4quB4rjZoha3TTwWxvYSlKJgCVIWLGYYz6tDCt7fWsa7DOOl3dnf8P-/exec";
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
@@ -344,7 +343,7 @@
         } else {
             tBencina.classList.replace('inactive', 'active');
             tDiesel.classList.replace('active', 'inactive');
-            dropZone.style.display = 'none'; // Bencina no usa PDF
+            dropZone.style.display = 'none'; 
             wCod.style.display = 'none';
             wOdo.style.display = 'none';
             lCond.innerText = 'Operador';
@@ -364,20 +363,35 @@
         form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
     }
 
-    // LOGICA PDF (Solo Diésel)
+    // LOGICA PDF CORREGIDA
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const loadingUI = document.getElementById('loadingOverlay');
     const loadingText = document.getElementById('loadingText');
 
     dropZone.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) procesarArchivoPDF(e.target.files[0]); fileInput.value = ''; });
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'); });
-    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); if (e.dataTransfer.files.length > 0) procesarArchivoPDF(e.dataTransfer.files[0]); });
+    
+    fileInput.addEventListener('change', (e) => { 
+        if (e.target.files.length > 0) procesarArchivoPDF(e.target.files[0]); 
+        fileInput.value = ''; 
+    });
+    
+    dropZone.addEventListener('dragover', (e) => { 
+        e.preventDefault(); 
+        dropZone.classList.add('dragover'); 
+    });
+    
+    // Aquí estaba el error de sintaxis previo. Ahora está corregido
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    
+    dropZone.addEventListener('drop', (e) => { 
+        e.preventDefault(); 
+        dropZone.classList.remove('dragover'); 
+        if (e.dataTransfer.files.length > 0) procesarArchivoPDF(e.dataTransfer.files[0]); 
+    });
 
     function procesarArchivoPDF(file) {
-        if (modoActual !== 'DIESEL') setModo('DIESEL'); // Forzar modo diésel si se sube PDF
+        if (modoActual !== 'DIESEL') setModo('DIESEL'); 
         
         if(file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
             loadingUI.style.display = "flex"; loadingText.innerText = "Leyendo...";
@@ -402,7 +416,7 @@
 
     function detectarMaquinaPetroleo(t) {
         t = t.toUpperCase().replace(/\s+/g, ' ');
-        const mqP = [...maquinasPetroleo.PAV, ...maquinasPetroleo.PAVII];
+        const mqP = [...(maquinasPetroleo.PAV || []), ...(maquinasPetroleo.PAVII || [])];
         const ordenadas = [...new Set(mqP)].sort((a, b) => b.length - a.length);
         const maqNube = ordenadas.find(m => t.includes(m));
         return maqNube ? maqNube : "MÁQUINA NO RECONOCIDA";
@@ -425,7 +439,6 @@
         else { alert("⚠️ No se detectaron consumos válidos en este PDF."); }
     }
 
-    // RENDERIZADO DINÁMICO DE TABLA
     function renderizarTabla() {
         const arr = modoActual === 'DIESEL' ? registrosDiesel : registrosBencina;
         let html = '';
@@ -456,7 +469,6 @@
                 </tr>`;
             }).join('');
         } else {
-            // MODO BENCINA (Todo 100% Editable)
             const mesesStr = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
             
             html = arr.map((r, i) => {
@@ -564,7 +576,6 @@
         document.getElementById('dl-maquinaManual').innerHTML = maquinasForm.map(m => `<option value="${m}">`).join('');
         document.getElementById('dl-conductorManual').innerHTML = conductores.filter(c => c.parque === pManual).map(c => `<option value="${c.nombre}">`).join('');
         
-        // Modal UI
         const mqTodas = [...(maquinasPetroleo.PAV||[]), ...(maquinasPetroleo.PAVII||[]), ...(maquinasBencina.PAV||[]), ...(maquinasBencina.PAVII||[])];
         const mqUnicas = [...new Set(mqTodas)].sort();
         document.getElementById('listMaquinas').innerHTML = mqUnicas.map(m => `<div class="list-item"><span>${m}</span><i data-lucide="cloud" size="14" color="var(--text-muted)"></i></div>`).join('');
@@ -659,21 +670,19 @@
         XLSX.writeFile(libro, `Combustible_${modoActual}_${document.getElementById('mes').value}.xlsx`);
     }
 
-    // BOTÓN DE ENVÍO CON BLOQUEO (Anti-Doble Clic)
     async function enviarAGoogleSheets() {
         const arr = modoActual === 'DIESEL' ? registrosDiesel : registrosBencina;
         if (arr.length === 0) { alert("No hay datos en la tabla para enviar."); return; }
         if (!validarRegistrosCompletos()) return;
         
         const btn = document.getElementById('btnEnviarNube');
-        btn.disabled = true; // Bloquea el botón al primer clic
+        btn.disabled = true; 
         btn.innerHTML = `<i data-lucide="loader-2" class="spinner-circle"></i> Enviando...`;
         lucide.createIcons();
         
         loadingUI.style.display = "flex"; 
         loadingText.innerText = "Sincronizando con Google...";
 
-        // Agregar el flag de tipo para que el Backend sepa a qué hoja enviarlo
         const dataToSend = arr.map(r => ({ ...r, tipo: modoActual }));
 
         try {
@@ -695,7 +704,6 @@
             loadingUI.style.display = "none"; 
             alert("Hubo un error de conexión: " + error);
         } finally {
-            // Se restaura el botón siempre, incluso si hay error
             btn.disabled = false;
             btn.innerHTML = `<i data-lucide="cloud-upload" size="18"></i> Enviar a la Nube`;
             lucide.createIcons();
