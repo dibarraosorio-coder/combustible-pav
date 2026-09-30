@@ -17,24 +17,18 @@
 
     <style>
         :root { 
-            /* Modo Día - Base Marfil Refinada */
+            /* Modo Día */
             --marfil-bg: #F9F8F6; 
             --marfil-card: rgba(255, 255, 255, 0.85);
-            
             --bg: var(--marfil-bg); 
             --panel-bg: var(--marfil-card); 
             --border: rgba(15, 23, 42, 0.08);
             --text-main: #1E293B; 
             --text-muted: #64748B;
-            
-            /* Colores de Acento Profesionales */
             --accent: #059669; 
             --accent-hover: #047857;
             --danger: #EF4444; 
-            --danger-hover: #DC2626;
             --warning: #F59E0B; 
-            
-            /* Efectos Modernos y Suaves */
             --glass-border: rgba(255, 255, 255, 0.9);
             --shadow-drop: 0 10px 40px -10px rgba(0,0,0,0.06);
             --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.02);
@@ -42,19 +36,15 @@
         }
         
         [data-theme="dark"] {
-            /* Modo Noche - Elegancia Oscura */
+            /* Modo Noche */
             --bg: #0B0F19; 
             --panel-bg: rgba(15, 23, 42, 0.6); 
             --border: rgba(255, 255, 255, 0.08);
-            
             --text-main: #F8FAFC; 
             --text-muted: #94A3B8;
-            
             --accent: #10B981; 
             --accent-hover: #34D399;
             --danger: #EF4444; 
-            --danger-hover: #F87171;
-            
             --glass-border: rgba(255, 255, 255, 0.05);
             --shadow-drop: 0 10px 40px -10px rgba(0,0,0,0.4);
             --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.2);
@@ -64,90 +54,37 @@
         body { 
             font-family: 'Plus Jakarta Sans', system-ui, sans-serif; 
             background-color: var(--bg); 
-            margin: 0; 
-            padding: 30px 15px; 
-            color: var(--text-main); 
-            font-size: 14px; 
-            transition: background-color 0.4s ease, color 0.4s ease;
+            margin: 0; padding: 30px 15px; color: var(--text-main); font-size: 14px; transition: background-color 0.4s ease, color 0.4s ease;
             background-image: radial-gradient(circle at top right, rgba(16, 185, 129, 0.03), transparent 40%), radial-gradient(circle at bottom left, rgba(245, 158, 11, 0.03), transparent 40%);
         }
 
-        /* ANCHO MODIFICADO PARA OCUPAR TODA LA PANTALLA */
         .container { width: 98%; max-width: 1800px; margin: auto; display: flex; flex-direction: column; gap: 24px; }
         
-        .bento-card { 
-            background: var(--panel-bg); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px); 
-            border: 1px solid var(--glass-border); 
-            border-radius: 20px; 
-            box-shadow: var(--shadow-drop); 
-            padding: 28px 32px; 
-            transition: all 0.3s ease; 
-        }
+        .bento-card { background: var(--panel-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-drop); padding: 28px 32px; transition: all 0.3s ease; }
 
         .header-container { display: flex; justify-content: space-between; align-items: flex-start; }
         h1 { color: var(--text-main); margin: 0; font-size: 1.8em; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
         h1 i { color: var(--accent); }
         
-        /* Contenedor derecho del encabezado */
         .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
         .header-buttons { display: flex; gap: 10px; }
 
-        /* SISTEMA DE BOTONES JERÁRQUICO */
-        .btn {
-            font-family: inherit;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 0.95em;
-            cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid transparent; backdrop-filter: blur(5px);
-        }
+        /* Botones */
+        .btn { font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 0.95em; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent; backdrop-filter: blur(5px); }
         .btn:hover { transform: translateY(-2px); }
-        .btn:active { transform: translateY(0); }
-        
-        /* Secundario (Borde) */
         .btn-outline { background: transparent; color: var(--text-main); border-color: var(--border); }
         .btn-outline:hover { background: rgba(100, 116, 139, 0.05); border-color: var(--text-muted); }
-        
-        /* Primario (Sólido) */
         .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
         .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3); }
-        
-        /* Fantasma / Peligro */
         .btn-ghost-danger { background: transparent; color: var(--danger); border-color: transparent; }
         .btn-ghost-danger:hover { background: rgba(239, 68, 68, 0.1); }
-
         .btn-icon-only { padding: 10px; border-radius: 50%; }
 
-        /* ZONA PDF COMPACTA */
-        .compact-dropzone { 
-            border: 2px dashed var(--border); 
-            background-color: rgba(0,0,0, 0.01); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            text-align: center; 
-            position: relative; 
-            overflow: hidden; 
-            transition: 0.2s; 
-            padding: 10px 16px;
-            border-radius: 12px;
-            gap: 10px;
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 0.9em;
-            width: 100%;
-            max-width: 400px;
-        }
-        .compact-dropzone:hover, .compact-dropzone.dragover { 
-            border-color: var(--accent); 
-            background-color: rgba(16, 185, 129, 0.05); 
-            color: var(--accent);
-        }
+        /* Zona PDF Compacta */
+        .compact-dropzone { border: 2px dashed var(--border); background-color: rgba(0,0,0, 0.01); display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; position: relative; overflow: hidden; transition: 0.2s; padding: 10px 16px; border-radius: 12px; gap: 10px; color: var(--text-muted); font-weight: 600; font-size: 0.9em; width: 100%; max-width: 400px; }
+        .compact-dropzone:hover, .compact-dropzone.dragover { border-color: var(--accent); background-color: rgba(16, 185, 129, 0.05); color: var(--accent); }
         .compact-dropzone i { color: var(--accent); }
         
-        /* Overlay del Loading */
         #loadingOverlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--panel-bg); backdrop-filter: blur(8px); font-weight: 600; align-items: center; justify-content: center; color: var(--accent); font-size: 1em; z-index: 10; flex-direction: row; gap: 10px; }
         .spinner { border: 3px solid var(--input-bg); border-top: 3px solid var(--accent); border-radius: 50%; width: 18px; height: 18px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -163,29 +100,36 @@
         input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15), var(--shadow-inner); }
         
         .col-fecha { flex: 0 1 90px; } .col-mes { flex: 0 1 140px; } .col-anio { flex: 0 1 100px; } .col-cod { flex: 2; min-width: 220px; } .col-flex { flex: 1; min-width: 160px; }
-        
         .input-group { display: flex; width: 100%; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-inner); border: 1px solid var(--border); } 
         .input-group .prefix { background: rgba(0,0,0,0.03); padding: 12px 15px; color: var(--text-muted); font-weight: 600; user-select: none; border-right: 1px solid var(--border); font-size: 0.95em; } 
         .input-group input { border: none; border-radius: 0; box-shadow: none; flex: 1; }
         
-        /* Estética de Tabla Avanzada (UX) */
+        /* Tabla */
         .table-responsive { max-height: 550px; overflow-y: auto; overflow-x: auto; border-radius: 12px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; white-space: nowrap; } 
         th, td { padding: 12px 14px; text-align: center; vertical-align: middle; border-bottom: 1px solid var(--border); } 
-        
-        /* Sticky Header */
         th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75em; letter-spacing: 0.5px; background: var(--bg); position: sticky; top: 0; z-index: 2; border-bottom: 2px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        
         .row-preview { background-color: rgba(16, 185, 129, 0.05); color: var(--text-muted); font-style: italic; } 
         .row-warning { background-color: rgba(239, 68, 68, 0.04) !important; position: relative; } 
         .row-warning::after { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 3px; background: var(--danger); border-radius: 4px 0 0 4px; }
         tbody#tablaCuerpo tr { transition: background-color 0.2s; }
         tbody#tablaCuerpo tr:hover { background-color: rgba(100, 116, 139, 0.04); }
         
-        /* Inputs invisibles dentro de la tabla */
         .table-input { width: 100%; padding: 8px 10px; border: 1px solid transparent; border-radius: 6px; box-sizing: border-box; background: transparent; color: var(--text-main); transition: 0.2s; font-weight: 500; font-size: 0.95em; box-shadow: none;} 
         .table-input:hover { background: rgba(100, 116, 139, 0.08); border-color: transparent; }
         .table-input:focus { background: var(--input-bg); border-color: var(--accent); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
+
+        /* Modal Bento */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); z-index: 1000; justify-content: center; align-items: center; animation: fadeIn 0.2s; }
+        .modal-content { background: var(--bg); width: 95%; max-width: 900px; padding: 32px; border-radius: 24px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.3); border: 1px solid var(--glass-border); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 24px; }
+        
+        /* Grid 2 Columnas para Modal */
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; } 
+        .card { background: var(--panel-bg); padding: 24px; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-drop); }
+        .list-container { max-height: 250px; overflow-y: auto; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; scrollbar-width: thin; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--border); border-radius: 8px; transition: 0.2s; font-size: 0.9em; } 
+        .list-item:hover { background-color: rgba(100, 116, 139, 0.05); }
     </style>
 </head>
 <body>
@@ -203,14 +147,14 @@
                     <button class="btn btn-outline" onclick="toggleIngresoManual()">
                         <i data-lucide="pen-line" size="18"></i> Ingreso Manual
                     </button>
-                    
-                    <!-- ENLACE NATIVO CORREGIDO PARA GOOGLE SHEETS -->
                     <a href="https://docs.google.com/spreadsheets/d/157ZdigqIywTOXuseC4yGnRn-MFfOGPpmAhUP6jknTSM/edit?usp=drive_link" target="_blank" class="btn btn-outline" style="text-decoration: none;">
-                        <i data-lucide="external-link" size="18"></i> Configurar Listas
+                        <i data-lucide="external-link" size="18"></i> Editar Listas Nube
                     </a>
+                    <button class="btn btn-outline" onclick="toggleModal(true)">
+                        <i data-lucide="eye" size="18"></i> Ver Datos
+                    </button>
                 </div>
                 
-                <!-- ZONA DE EXTRACCIÓN PDF -->
                 <div id="dropZone" class="compact-dropzone" tabindex="0">
                     <div id="loadingOverlay"><div class="spinner"></div><span id="loadingText">Procesando...</span></div>
                     <i data-lucide="file-up" size="20"></i>
@@ -229,9 +173,9 @@
         <div class="form-row">
             <div class="form-group col-fecha">
                 <label>Parque</label>
+                <!-- Se llena dinámicamente con los Parques de la nube -->
                 <select id="parqueManual" onchange="cambioParqueManual()">
-                    <option value="PAVII">PAVII</option>
-                    <option value="PAV">PAV</option>
+                    <option value="">Cargando...</option>
                 </select>
             </div>
             <div class="form-group col-fecha"><label>Día</label><input type="number" id="dia" min="1" max="31"></div>
@@ -286,7 +230,7 @@
                 </thead>
                 <tbody id="tablaVistaPrevia" style="display: none;">
                     <tr class="row-preview">
-                        <td id="vp-parque">PAVII</td><td id="vp-anio"></td><td id="vp-mes"></td><td id="vp-dia"></td>
+                        <td id="vp-parque"></td><td id="vp-anio"></td><td id="vp-mes"></td><td id="vp-dia"></td>
                         <td id="vp-cod">DIAAL-AJ-</td><td id="vp-area"></td><td id="vp-maquina"></td>
                         <td id="vp-conductor"></td><td id="vp-odometro"></td><td id="vp-lts"></td>
                         <td><i>...</i></td>
@@ -311,8 +255,34 @@
     </div>
 </div>
 
+<!-- MODAL VISUALIZADOR DE NUBE -->
+<div class="modal-overlay" id="modalConfig">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 style="color: var(--text-main); margin:0; display:flex; align-items:center; gap:8px;">
+                <i data-lucide="eye" color="var(--accent)"></i> Datos Sincronizados
+            </h2>
+            <button class="btn btn-ghost-danger" onclick="toggleModal(false)">
+                <i data-lucide="x" size="20"></i> Cerrar
+            </button>
+        </div>
+        <div class="grid-2">
+            <div class="card">
+                <h3 style="margin-top:0; color:var(--text-main); font-size:1.1em; display:flex; gap:6px; align-items:center;">Máquinas <i data-lucide="cloud" size="16" color="var(--accent)"></i></h3>
+                <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px; line-height: 1.4;">Cargadas desde la pestaña <b>MAQUINAS</b>.</p>
+                <div class="list-container" id="listMaquinas" style="border-top: none; padding-top: 0; margin-top: 0;"></div>
+            </div>
+            
+            <div class="card">
+                <h3 style="margin-top:0; color:var(--text-main); font-size:1.1em; display:flex; gap:6px; align-items:center;">Conductores, Parques y Áreas <i data-lucide="cloud" size="16" color="var(--accent)"></i></h3>
+                <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px; line-height: 1.4;">Cargados desde la pestaña <b>CONDUCTORES</b>.</p>
+                <div class="list-container" id="listConductores" style="border-top: none; padding-top: 0; margin-top: 0;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Inicializar Lucide Icons
     lucide.createIcons();
 
     const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -324,8 +294,7 @@
         localStorage.setItem('theme', newTheme);
     }
 
-    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbyaZM49mcVoq2puY1723sM3CigybHhlSYL95ZM0pL2wdzB3BPtLWykDVpq5VfwSp9Sx/exec";
-    
+    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbySOiyPYFJbjKenKKjCTLdkrFLUwsNJ1yRaq1kwbfqiaIDPqUix2Yeq9Id-dksUD59X/exec";
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
     function toggleIngresoManual() {
@@ -336,9 +305,8 @@
         } else { form.style.display = 'none'; preview.style.display = 'none'; }
     }
 
-    const defaultAreas = ["SEPULTACION", "FORESTACION", "CESPED"];
-    let areas = JSON.parse(localStorage.getItem('areas')) || defaultAreas;
-    
+    // VARIABLES DINÁMICAS (Ya no hay datos quemados)
+    let areas = [];
     let maquinas = []; 
     let conductores = []; 
     let registros = [];
@@ -349,18 +317,10 @@
     const loadingText = document.getElementById('loadingText');
 
     dropZone.addEventListener('click', () => fileInput.click());
-    
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) procesarArchivoPDF(e.target.files[0]);
-        fileInput.value = ''; 
-    });
-
+    fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) procesarArchivoPDF(e.target.files[0]); fileInput.value = ''; });
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault(); dropZone.classList.remove('dragover');
-        if (e.dataTransfer.files.length > 0) procesarArchivoPDF(e.dataTransfer.files[0]);
-    });
+    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); if (e.dataTransfer.files.length > 0) procesarArchivoPDF(e.dataTransfer.files[0]); });
 
     function procesarArchivoPDF(file) {
         if(file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
@@ -384,43 +344,12 @@
         } else { alert("Por favor, selecciona un archivo PDF válido."); }
     }
 
+    // DETECCIÓN DINÁMICA DE MÁQUINA BASADA EN LA NUBE
     function detectarMaquina(t) {
         t = t.toUpperCase().replace(/\s+/g, ' ');
-        if (t.includes("3036")) return "TRACTOR JD 3036 E";
-        if (t.includes("5075")) return "TRACTOR JD 5075 E";
-        if (t.includes("CORT")) {
-            if (t.includes("750")) {
-                if (/\b3\b/.test(t) || t.includes("3-") || t.includes("N° 3") || t.includes("Nº 3") || t.includes("N°3") || t.includes("Nº3")) return "CORTADORA JD 750 N° 3";
-                if (/\b4\b/.test(t) || t.includes("4-") || t.includes("N° 4") || t.includes("Nº 4") || t.includes("N°4") || t.includes("Nº4")) return "CORTADORA JD 750 N° 4";
-                return "CORTADORA JD 750X";
-            }
-            if (/\b4\b/.test(t)) return "CORTADORA JD 4";
-        }
-        if (t.includes("KUBOTA") || t.includes("T. KUBOTA") || t.includes("T.KUBOTA")) {
-            if (/\b11\b/.test(t) || t.includes("11-") || t.includes("N°11") || t.includes("N° 11") || t.includes("Nº11") || t.includes("Nº 11")) return "TRACTOR KUBOTA 11";
-            if (/\b12\b/.test(t) || t.includes("12-") || t.includes("N°12") || t.includes("N° 12") || t.includes("Nº12") || t.includes("Nº 12")) return "TRACTOR KUBOTA 12";
-            if (/\b13\b/.test(t) || t.includes("13-") || t.includes("N°13") || t.includes("N° 13") || t.includes("Nº13") || t.includes("Nº 13")) return "TRACTOR KUBOTA 13";
-            if (/\b14\b/.test(t) || t.includes("14-") || t.includes("N°14") || t.includes("N° 14") || t.includes("Nº14") || t.includes("Nº 14")) return "TRACTOR KUBOTA 14";
-            if (/\b10\b/.test(t) || t.includes("10-") || t.includes("N°10") || t.includes("N° 10") || t.includes("Nº10") || t.includes("Nº 10")) return "TRACTOR KUBOTA 10";
-            if (/\b9\b/.test(t) || t.includes("9-") || t.includes("N°9") || t.includes("N° 9") || t.includes("Nº9") || t.includes("Nº 9")) return "TRACTOR KUBOTA 9";
-            if (/\b8\b/.test(t) || t.includes("8-") || t.includes("N°8") || t.includes("N° 8") || t.includes("Nº8") || t.includes("Nº 8")) return "TRACTOR KUBOTA 8";
-            if (/\b7\b/.test(t) || t.includes("7-") || t.includes("N°7") || t.includes("N° 7") || t.includes("Nº7") || t.includes("Nº 7")) return "TRACTOR KUBOTA 7";
-        }
-        if (t.includes("JD") || t.includes("TRACT")) {
-            if (/\b18\b/.test(t) || t.includes("18-") || t.includes("N° 18") || t.includes("N°18") || t.includes("Nº 18") || t.includes("Nº18")) return "TRACTOR JD 18";
-            if (/\b17\b/.test(t) || t.includes("17-") || t.includes("N° 17") || t.includes("N°17") || t.includes("Nº 17") || t.includes("Nº17")) return "TRACTOR JD 17";
-            if (/\b15\b/.test(t) || t.includes("15-") || t.includes("N° 15") || t.includes("N°15") || t.includes("Nº 15") || t.includes("Nº15")) return "TRACTOR JD 15";
-            if (/\b7\b/.test(t) || t.includes("7-") || t.includes("N° 7") || t.includes("N°7") || t.includes("Nº 7") || t.includes("Nº7")) return "TRACTOR JD 7";
-            if (/\b6\b/.test(t) || t.includes("6-") || t.includes("N° 6") || t.includes("N°6") || t.includes("Nº 6") || t.includes("Nº6")) return "TRACTOR JD 6";
-        }
-        if (t.includes("RETRO") || t.includes("JBC") || t.includes("JCB")) {
-            if (/\b4\b/.test(t) || t.includes("Nº4") || t.includes("N°4") || t.includes("Nº 4") || t.includes("N° 4")) return "RETRO JCB 4";
-            if (/\b1\b/.test(t) || t.includes("Nº1") || t.includes("N°1") || t.includes("Nº 1") || t.includes("N° 1")) return "RETRO JCB 1 ";
-            return "RETROEXCAVADORA JCB";
-        }
-        if (t.includes("GENERADOR")) return "GENERADOR PAV";
-        
-        const maqNube = maquinas.find(m => t.includes(m));
+        // Ordena las máquinas de la más larga a la más corta para evitar falsos positivos (ej. "Tractor 1" vs "Tractor 10")
+        const maquinasOrdenadas = [...maquinas].sort((a, b) => b.length - a.length);
+        const maqNube = maquinasOrdenadas.find(m => t.includes(m));
         return maqNube ? maqNube : "MÁQUINA NO RECONOCIDA";
     }
 
@@ -438,7 +367,7 @@
             contador++;
         }
         if (contador > 0) { renderizarTabla(); alert(`✅ Se extrajeron ${contador} consumos del PDF.`); } 
-        else { alert("⚠️ No se detectaron consumos válidos en este PDF."); }
+        else { alert("⚠️️ No se detectaron consumos válidos en este PDF."); }
     }
 
     function navegarOdometro(e, index) {
@@ -497,26 +426,43 @@
                 if (data.maquinas && data.maquinas.length > 0) maquinas = data.maquinas;
                 actualizarUI();
             }
-        } catch (error) { console.warn("No se pudo cargar datos desde la nube. Revisa tu URL de Apps Script."); }
+        } catch (error) { console.warn("No se pudo cargar datos desde la nube."); }
     }
 
     window.onload = () => { 
         establecerFechaActual(); 
-        actualizarUI(); 
         cargarDatosDesdeSheets(); 
         document.querySelectorAll('#formIngreso input, #formIngreso select').forEach(input => { input.addEventListener('input', actualizarVistaPrevia); input.addEventListener('change', actualizarVistaPrevia); }); 
     };
 
     function establecerFechaActual() { const date = new Date(); document.getElementById('anio').value = date.getFullYear(); document.getElementById('dia').value = date.getDate(); const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; document.getElementById('mes').value = meses[date.getMonth()]; }
     
+    function toggleModal(show) { document.getElementById('modalConfig').style.display = show ? 'flex' : 'none'; }
     function cambioParqueManual() { document.getElementById('conductorManual').value = ''; document.getElementById('areaManual').value = ''; actualizarUI(); actualizarVistaPrevia(); }
 
     function actualizarUI() {
-        maquinas.sort(); conductores.sort((a, b) => a.nombre.localeCompare(b.nombre));
+        maquinas.sort(); 
+        conductores.sort((a, b) => a.nombre.localeCompare(b.nombre));
         
+        // Extracción automática de Áreas y Parques desde Conductores
+        areas = [...new Set(conductores.map(c => c.area))].filter(Boolean).sort();
+        const parquesUnicos = [...new Set(conductores.map(c => c.parque))].filter(Boolean).sort();
+
+        // Actualizar Select de Parque Manual
+        const parqueSelect = document.getElementById('parqueManual');
+        const currentParque = parqueSelect.value;
+        if (parquesUnicos.length > 0) {
+            parqueSelect.innerHTML = parquesUnicos.map(p => `<option value="${p}">${p}</option>`).join('');
+            if (parquesUnicos.includes(currentParque)) parqueSelect.value = currentParque;
+        }
+
+        // Llenar Modal de Visualización
+        document.getElementById('listMaquinas').innerHTML = maquinas.map(m => `<div class="list-item"><span>${m}</span><i data-lucide="cloud" size="14" color="var(--text-muted)"></i></div>`).join('');
+        document.getElementById('listConductores').innerHTML = conductores.map(c => `<div class="list-item"><span><b>${c.nombre}</b><br><small style="color:var(--text-muted)">${c.parque} - ${c.area}</small></span><i data-lucide="cloud" size="14" color="var(--text-muted)"></i></div>`).join('');
+        
+        // Llenar Buscadores (Datalists)
         document.getElementById('dl-areaManual').innerHTML = areas.map(a => `<option value="${a}">`).join('');
         document.getElementById('dl-maquinaManual').innerHTML = maquinas.map(m => `<option value="${m}">`).join('');
-        
         const pManual = document.getElementById('parqueManual').value;
         document.getElementById('dl-conductorManual').innerHTML = conductores.filter(c => c.parque === pManual).map(c => `<option value="${c.nombre}">`).join('');
         
