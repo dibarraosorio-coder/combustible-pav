@@ -159,12 +159,15 @@
                     </button>
                 </div>
                 
+                <!-- ZONA DE EXTRACCIÓN PDF CORREGIDA -->
                 <div id="dropZone" class="compact-dropzone" tabindex="0">
                     <div id="loadingOverlay"><div class="spinner-circle"></div><span id="loadingText">Procesando...</span></div>
                     <i data-lucide="file-up" size="20"></i>
                     <span>Arrastrar o adjuntar reporte PDF</span>
-                    <input type="file" id="fileInput" accept="application/pdf" style="display: none;">
                 </div>
+                <!-- El input ahora vive afuera de la caja para evitar el bucle infinito -->
+                <input type="file" id="fileInput" accept="application/pdf" style="display: none;">
+
             </div>
         </div>
     </div>
@@ -177,6 +180,7 @@
         <div class="form-row">
             <div class="form-group col-fecha">
                 <label>Parque</label>
+                <!-- Se llena dinámicamente con los Parques de la nube -->
                 <select id="parqueManual" onchange="cambioParqueManual()">
                     <option value="">Cargando...</option>
                 </select>
@@ -363,7 +367,7 @@
         form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
     }
 
-    // LOGICA PDF CORREGIDA
+    // LOGICA PDF CORREGIDA (Sin Bucle de Clics)
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const loadingUI = document.getElementById('loadingOverlay');
@@ -381,7 +385,6 @@
         dropZone.classList.add('dragover'); 
     });
     
-    // Aquí estaba el error de sintaxis previo. Ahora está corregido
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
     
     dropZone.addEventListener('drop', (e) => { 
@@ -448,13 +451,13 @@
                 const condParque = conductores.filter(c => c.parque === r.parque);
                 const maqList = maquinasPetroleo[r.parque] || [];
                 
-                const selArea = `<input type="text" list="dl-area-d-${i}" class="table-input" value="${r.area}" onchange="updateFila(${i}, 'area', this.value)" placeholder="...">
+                const selArea = `<input type="text" list="dl-area-d-${i}" class="table-input" value="${r.area}" onchange="updateFila(${i}, 'area', this.value)" placeholder="..." autocomplete="off">
                 <datalist id="dl-area-d-${i}">${areas.map(a => `<option value="${a}">`).join('')}</datalist>`;
 
-                const selMaquina = `<input type="text" list="dl-maq-d-${i}" class="table-input" value="${r.maquina}" onchange="updateFila(${i}, 'maquina', this.value)" placeholder="...">
+                const selMaquina = `<input type="text" list="dl-maq-d-${i}" class="table-input" value="${r.maquina}" onchange="updateFila(${i}, 'maquina', this.value)" placeholder="..." autocomplete="off">
                 <datalist id="dl-maq-d-${i}">${maqList.map(m => `<option value="${m}">`).join('')}</datalist>`;
                 
-                const selConductor = `<input type="text" list="dl-cond-d-${i}" class="table-input" value="${r.conductor}" onchange="updateFila(${i}, 'conductor', this.value)" placeholder="...">
+                const selConductor = `<input type="text" list="dl-cond-d-${i}" class="table-input" value="${r.conductor}" onchange="updateFila(${i}, 'conductor', this.value)" placeholder="..." autocomplete="off">
                 <datalist id="dl-cond-d-${i}">${condParque.map(c => `<option value="${c.nombre}">`).join('')}</datalist>`;
 
                 const inpOdometro = `<input type="text" class="table-input odo-input" value="${r.odometro}" onchange="updateFila(${i}, 'odometro', this.value)" onkeydown="navegarOdometro(event, ${i})" placeholder="...">`;
@@ -483,13 +486,13 @@
                 const selMes = `<select class="table-input" onchange="updateFila(${i}, 'mes', this.value)">` + mesesStr.map(m => `<option value="${m}" ${r.mes===m?'selected':''}>${m}</option>`).join('') + `</select>`;
                 const inpDia = `<input type="number" class="table-input" value="${r.dia}" onchange="updateFila(${i}, 'dia', this.value)">`;
                 
-                const selArea = `<input type="text" list="dl-area-b-${i}" class="table-input" value="${r.area}" onchange="updateFila(${i}, 'area', this.value)" placeholder="...">
+                const selArea = `<input type="text" list="dl-area-b-${i}" class="table-input" value="${r.area}" onchange="updateFila(${i}, 'area', this.value)" placeholder="..." autocomplete="off">
                 <datalist id="dl-area-b-${i}">${areas.map(a => `<option value="${a}">`).join('')}</datalist>`;
 
-                const selMaquina = `<input type="text" list="dl-maq-b-${i}" class="table-input" value="${r.maquina}" onchange="updateFila(${i}, 'maquina', this.value)" placeholder="...">
+                const selMaquina = `<input type="text" list="dl-maq-b-${i}" class="table-input" value="${r.maquina}" onchange="updateFila(${i}, 'maquina', this.value)" placeholder="..." autocomplete="off">
                 <datalist id="dl-maq-b-${i}">${maqList.map(m => `<option value="${m}">`).join('')}</datalist>`;
                 
-                const selConductor = `<input type="text" list="dl-cond-b-${i}" class="table-input" value="${r.operador}" onchange="updateFila(${i}, 'operador', this.value)" placeholder="...">
+                const selConductor = `<input type="text" list="dl-cond-b-${i}" class="table-input" value="${r.operador}" onchange="updateFila(${i}, 'operador', this.value)" placeholder="..." autocomplete="off">
                 <datalist id="dl-cond-b-${i}">${condParque.map(c => `<option value="${c.nombre}">`).join('')}</datalist>`;
 
                 const inpLitros = `<input type="number" step="any" class="table-input" value="${r.litros}" onchange="updateFila(${i}, 'litros', this.value)" style="font-weight: 600;">`;
@@ -576,6 +579,7 @@
         document.getElementById('dl-maquinaManual').innerHTML = maquinasForm.map(m => `<option value="${m}">`).join('');
         document.getElementById('dl-conductorManual').innerHTML = conductores.filter(c => c.parque === pManual).map(c => `<option value="${c.nombre}">`).join('');
         
+        // Modal UI
         const mqTodas = [...(maquinasPetroleo.PAV||[]), ...(maquinasPetroleo.PAVII||[]), ...(maquinasBencina.PAV||[]), ...(maquinasBencina.PAVII||[])];
         const mqUnicas = [...new Set(mqTodas)].sort();
         document.getElementById('listMaquinas').innerHTML = mqUnicas.map(m => `<div class="list-item"><span>${m}</span><i data-lucide="cloud" size="14" color="var(--text-muted)"></i></div>`).join('');
