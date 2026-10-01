@@ -159,6 +159,7 @@
                     </button>
                 </div>
                 
+                <!-- ZONA DE EXTRACCIÓN PDF -->
                 <div id="dropZone" class="compact-dropzone" tabindex="0">
                     <div id="loadingOverlay"><div class="spinner-circle"></div><span id="loadingText">Procesando...</span></div>
                     <i data-lucide="file-up" size="20"></i>
@@ -305,7 +306,7 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
     // ESTADO DE LA APP
-    let modoActual = 'DIESEL'; // 'DIESEL' o 'BENCINA'
+    let modoActual = 'DIESEL'; 
     let areas = [];
     let maquinasPetroleo = { PAV: [], PAVII: [] }; 
     let maquinasBencina = { PAV: [], PAVII: [] }; 
@@ -364,7 +365,7 @@
         form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
     }
 
-    // LOGICA PDF 
+    // LOGICA PDF
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const loadingUI = document.getElementById('loadingOverlay');
@@ -414,16 +415,33 @@
         } else { alert("Por favor, selecciona un archivo PDF válido."); }
     }
 
-    // DETECCIÓN DINÁMICA: Usa estrictamente las máquinas de la nube (MAQUINAS PETRÓLEO)
-    function detectarMaquinaPetroleo(t) {
-        t = t.toUpperCase().replace(/\s+/g, ' ');
-        // Unimos las máquinas de ambos parques y eliminamos duplicados
+    // NUEVA FUNCIÓN INTELIGENTE PARA DETECTAR MÁQUINAS IGNORANDO SUCIEDAD DEL PDF
+    function detectarMaquinaPetroleo(textoPDF) {
+        // 1. Limpiar el texto del PDF (quitar guiones, puntos y espacios extras)
+        let tLimpio = textoPDF.toUpperCase()
+            .replace(/-/g, ' ')
+            .replace(/\./g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+            
+        // 2. Quitar los sufijos de parque que ensucian la lectura (" PAV", " PAV II", " PV2", etc.)
+        tLimpio = tLimpio.replace(/\bPAV\s?II\b/g, '')
+                         .replace(/\bPAV\s?2\b/g, '')
+                         .replace(/\bPAV\b/g, '')
+                         .trim();
+
         const mqP = [...(maquinasPetroleo.PAV || []), ...(maquinasPetroleo.PAVII || [])];
-        // Ordenamos de mayor a menor longitud para que coincidencias exactas y largas ganen (Ej: TRACTOR KUBOTA 11 vs TRACTOR KUBOTA 1)
+        
+        // 3. Ordenar las máquinas de la nube de la más larga a la más corta
         const ordenadas = [...new Set(mqP)].sort((a, b) => b.length - a.length);
         
-        // Busca si alguna máquina de la lista está contenida en el texto extraído del PDF
-        const maqNube = ordenadas.find(m => t.includes(m));
+        // 4. Buscar coincidencia flexible:
+        // Buscamos si la máquina de la nube (limpia) está contenida dentro del texto del PDF (limpio)
+        const maqNube = ordenadas.find(mNube => {
+            const nubeLimpio = mNube.toUpperCase().replace(/-/g, ' ').replace(/\./g, ' ').replace(/\s+/g, ' ').trim();
+            return tLimpio.includes(nubeLimpio);
+        });
+        
         return maqNube ? maqNube : "MÁQUINA NO RECONOCIDA";
     }
 
@@ -434,10 +452,24 @@
 
         while ((match = regex.exec(texto)) !== null) {
             let anio = parseInt(match[3]); if (anio < 100) anio += 2000;
+            
+            // Detectar el parque basado en el texto sucio original
             const textToAnalyze = match[5].toUpperCase();
             let p = (textToAnalyze.includes("PAV II") || textToAnalyze.includes("PAVII") || textToAnalyze.includes("PV2")) ? "PAVII" : "PAV";
 
-            registrosDiesel.push({ parque: p, anio: anio, mes: meses[parseInt(match[2]) - 1], dia: parseInt(match[1]), codProcedencia: match[4], maquina: detectarMaquinaPetroleo(match[5]), area: "", conductor: "", odometro: "", ltsDiesel: match[6] });
+            // Guardar registro
+            registrosDiesel.push({ 
+                parque: p, 
+                anio: anio, 
+                mes: meses[parseInt(match[2]) - 1], 
+                dia: parseInt(match[1]), 
+                codProcedencia: match[4], 
+                maquina: detectarMaquinaPetroleo(match[5]), // Usar el nuevo detector
+                area: "", 
+                conductor: "", 
+                odometro: "", 
+                ltsDiesel: match[6] 
+            });
             contador++;
         }
         if (contador > 0) { renderizarTabla(); alert(`✅ Se extrajeron ${contador} consumos del PDF.`); } 
