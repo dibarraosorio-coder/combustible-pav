@@ -159,7 +159,6 @@
                     </button>
                 </div>
                 
-                <!-- ZONA DE EXTRACCIÓN PDF -->
                 <div id="dropZone" class="compact-dropzone" tabindex="0">
                     <div id="loadingOverlay"><div class="spinner-circle"></div><span id="loadingText">Procesando...</span></div>
                     <i data-lucide="file-up" size="20"></i>
@@ -415,30 +414,25 @@
         } else { alert("Por favor, selecciona un archivo PDF válido."); }
     }
 
-    // NUEVA FUNCIÓN INTELIGENTE PARA DETECTAR MÁQUINAS IGNORANDO SUCIEDAD DEL PDF
+    // 🔥 DETECTOR INTELIGENTE A PRUEBA DE BALAS 🔥
     function detectarMaquinaPetroleo(textoPDF) {
-        // 1. Limpiar el texto del PDF (quitar guiones, puntos y espacios extras)
-        let tLimpio = textoPDF.toUpperCase()
-            .replace(/-/g, ' ')
-            .replace(/\./g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-            
-        // 2. Quitar los sufijos de parque que ensucian la lectura (" PAV", " PAV II", " PV2", etc.)
-        tLimpio = tLimpio.replace(/\bPAV\s?II\b/g, '')
-                         .replace(/\bPAV\s?2\b/g, '')
-                         .replace(/\bPAV\b/g, '')
-                         .trim();
+        if (!textoPDF) return "MÁQUINA NO RECONOCIDA";
 
+        // Limpiamos TODO el ruido del PDF (espacios, puntos, guiones, y símbolos de grado N°/Nº)
+        const tLimpio = textoPDF.toUpperCase().replace(/[\s\.\-_º°]/g, '');
+
+        // Traemos todas las máquinas de la nube
         const mqP = [...(maquinasPetroleo.PAV || []), ...(maquinasPetroleo.PAVII || [])];
         
-        // 3. Ordenar las máquinas de la nube de la más larga a la más corta
+        // Las ordenamos de más larga a más corta (Para que no confunda KUBOTA 11 con KUBOTA 1)
         const ordenadas = [...new Set(mqP)].sort((a, b) => b.length - a.length);
         
-        // 4. Buscar coincidencia flexible:
-        // Buscamos si la máquina de la nube (limpia) está contenida dentro del texto del PDF (limpio)
+        // Buscamos cuál máquina encaja perfecto ignorando la puntuación
         const maqNube = ordenadas.find(mNube => {
-            const nubeLimpio = mNube.toUpperCase().replace(/-/g, ' ').replace(/\./g, ' ').replace(/\s+/g, ' ').trim();
+            if (!mNube) return false;
+            // Limpiamos el nombre de la nube de la misma manera exacta
+            const nubeLimpio = mNube.toUpperCase().replace(/[\s\.\-_º°]/g, '');
+            // Si el nombre de la nube está contenido dentro del texto del PDF, ¡hace MATCH!
             return tLimpio.includes(nubeLimpio);
         });
         
@@ -452,19 +446,16 @@
 
         while ((match = regex.exec(texto)) !== null) {
             let anio = parseInt(match[3]); if (anio < 100) anio += 2000;
-            
-            // Detectar el parque basado en el texto sucio original
             const textToAnalyze = match[5].toUpperCase();
             let p = (textToAnalyze.includes("PAV II") || textToAnalyze.includes("PAVII") || textToAnalyze.includes("PV2")) ? "PAVII" : "PAV";
 
-            // Guardar registro
             registrosDiesel.push({ 
                 parque: p, 
                 anio: anio, 
                 mes: meses[parseInt(match[2]) - 1], 
                 dia: parseInt(match[1]), 
                 codProcedencia: match[4], 
-                maquina: detectarMaquinaPetroleo(match[5]), // Usar el nuevo detector
+                maquina: detectarMaquinaPetroleo(match[5]), // Llamada a la función inteligente
                 area: "", 
                 conductor: "", 
                 odometro: "", 
