@@ -414,29 +414,11 @@
         } else { alert("Por favor, selecciona un archivo PDF válido."); }
     }
 
-    // 🔥 DETECTOR INTELIGENTE A PRUEBA DE BALAS 🔥
-    function detectarMaquinaPetroleo(textoPDF) {
-        if (!textoPDF) return "MÁQUINA NO RECONOCIDA";
-
-        // Limpiamos TODO el ruido del PDF (espacios, puntos, guiones, y símbolos de grado N°/Nº)
-        const tLimpio = textoPDF.toUpperCase().replace(/[\s\.\-_º°]/g, '');
-
-        // Traemos todas las máquinas de la nube
-        const mqP = [...(maquinasPetroleo.PAV || []), ...(maquinasPetroleo.PAVII || [])];
-        
-        // Las ordenamos de más larga a más corta (Para que no confunda KUBOTA 11 con KUBOTA 1)
-        const ordenadas = [...new Set(mqP)].sort((a, b) => b.length - a.length);
-        
-        // Buscamos cuál máquina encaja perfecto ignorando la puntuación
-        const maqNube = ordenadas.find(mNube => {
-            if (!mNube) return false;
-            // Limpiamos el nombre de la nube de la misma manera exacta
-            const nubeLimpio = mNube.toUpperCase().replace(/[\s\.\-_º°]/g, '');
-            // Si el nombre de la nube está contenido dentro del texto del PDF, ¡hace MATCH!
-            return tLimpio.includes(nubeLimpio);
-        });
-        
-        return maqNube ? maqNube : "MÁQUINA NO RECONOCIDA";
+    // EXTRAER EL TEXTO LITERAL DEL PDF SIN RESTRICCIONES
+    function limpiarNombrePDF(textoPDF) {
+        if (!textoPDF) return "SIN NOMBRE";
+        // Reemplaza los saltos de línea y múltiples espacios por un solo espacio, dejando el texto literal.
+        return textoPDF.replace(/\r?\n|\r/g, ' ').replace(/\s+/g, ' ').trim().toUpperCase();
     }
 
     function procesarTextoCrudo(texto) {
@@ -447,6 +429,8 @@
         while ((match = regex.exec(texto)) !== null) {
             let anio = parseInt(match[3]); if (anio < 100) anio += 2000;
             const textToAnalyze = match[5].toUpperCase();
+            
+            // Detección automática del parque basada en cómo termina o qué contiene la descripción de la máquina
             let p = (textToAnalyze.includes("PAV II") || textToAnalyze.includes("PAVII") || textToAnalyze.includes("PV2")) ? "PAVII" : "PAV";
 
             registrosDiesel.push({ 
@@ -455,7 +439,7 @@
                 mes: meses[parseInt(match[2]) - 1], 
                 dia: parseInt(match[1]), 
                 codProcedencia: match[4], 
-                maquina: detectarMaquinaPetroleo(match[5]), // Llamada a la función inteligente
+                maquina: limpiarNombrePDF(match[5]), // Solo extraemos y mostramos
                 area: "", 
                 conductor: "", 
                 odometro: "", 
@@ -487,7 +471,7 @@
 
                 const inpOdometro = `<input type="text" class="table-input odo-input" value="${r.odometro}" onchange="updateFila(${i}, 'odometro', this.value)" onkeydown="navegarOdometro(event, ${i})" placeholder="...">`;
                 
-                const alertClass = (!r.conductor || !r.maquina || !r.odometro || r.odometro.toString().trim() === '' || r.maquina === "MÁQUINA NO RECONOCIDA") ? 'row-warning' : '';
+                const alertClass = (!r.conductor || !r.maquina || !r.odometro || r.odometro.toString().trim() === '') ? 'row-warning' : '';
                 
                 return `<tr class="${alertClass}">
                     <td>${r.parque}</td><td>${r.anio}</td><td>${r.mes}</td><td>${r.dia}</td><td style="font-family: monospace; color: var(--text-muted);">${r.codProcedencia}</td>
@@ -522,7 +506,7 @@
 
                 const inpLitros = `<input type="number" step="any" class="table-input" value="${r.litros}" onchange="updateFila(${i}, 'litros', this.value)" style="font-weight: 600;">`;
                 
-                const alertClass = (!r.operador || !r.maquina || !r.litros || r.litros.toString().trim() === '' || r.maquina === "MÁQUINA NO RECONOCIDA") ? 'row-warning' : '';
+                const alertClass = (!r.operador || !r.maquina || !r.litros || r.litros.toString().trim() === '') ? 'row-warning' : '';
                 
                 return `<tr class="${alertClass}">
                     <td>${selParque}</td><td>${inpAnio}</td><td>${selMes}</td><td>${inpDia}</td>
@@ -671,11 +655,12 @@
         const arr = modoActual === 'DIESEL' ? registrosDiesel : registrosBencina;
         let inc = [];
         if (modoActual === 'DIESEL') {
-            inc = arr.filter(r => !r.parque || !r.anio || !r.mes || !r.dia || !r.codProcedencia || !r.area || !r.maquina || r.maquina === "MÁQUINA NO RECONOCIDA" || !r.conductor || r.odometro.toString().trim() === "" || !r.ltsDiesel);
+            // Ya no falla si la máquina no existe en la nube
+            inc = arr.filter(r => !r.parque || !r.anio || !r.mes || !r.dia || !r.codProcedencia || !r.area || !r.maquina || !r.conductor || r.odometro.toString().trim() === "" || !r.ltsDiesel);
         } else {
-            inc = arr.filter(r => !r.parque || !r.anio || !r.mes || !r.dia || !r.area || !r.maquina || r.maquina === "MÁQUINA NO RECONOCIDA" || !r.operador || !r.litros);
+            inc = arr.filter(r => !r.parque || !r.anio || !r.mes || !r.dia || !r.area || !r.maquina || !r.operador || !r.litros);
         }
-        if (inc.length > 0) { alert("❌ Hay registros incompletos o máquinas no reconocidas en la tabla."); return false; }
+        if (inc.length > 0) { alert("❌ Hay registros incompletos en la tabla."); return false; }
         return true;
     }
 
