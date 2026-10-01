@@ -177,7 +177,6 @@
         <div class="form-row">
             <div class="form-group col-fecha">
                 <label>Parque</label>
-                <!-- Se llena dinámicamente con los Parques de la nube -->
                 <select id="parqueManual" onchange="cambioParqueManual()">
                     <option value="">Cargando...</option>
                 </select>
@@ -304,7 +303,6 @@
     const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbyPwhuUCFVJf4quB4rjZoha3TTwWxvYSlKJgCVIWLGYYz6tDCt7fWsa7DOOl3dnf8P-/exec";
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-    // ESTADO DE LA APP
     let modoActual = 'DIESEL'; 
     let areas = [];
     let maquinasPetroleo = { PAV: [], PAVII: [] }; 
@@ -315,7 +313,6 @@
     let registrosDiesel = [];
     let registrosBencina = [];
 
-    // CAMBIO DE MODO UI
     function setModo(modo) {
         modoActual = modo;
         
@@ -364,7 +361,6 @@
         form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
     }
 
-    // LOGICA PDF
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const loadingUI = document.getElementById('loadingOverlay');
@@ -414,24 +410,57 @@
         } else { alert("Por favor, selecciona un archivo PDF válido."); }
     }
 
-    // EXTRAER EL TEXTO LITERAL DEL PDF SIN RESTRICCIONES
-    function limpiarNombrePDF(textoPDF) {
-        if (!textoPDF) return "SIN NOMBRE";
-        // Reemplaza los saltos de línea y múltiples espacios por un solo espacio, dejando el texto literal.
-        return textoPDF.replace(/\r?\n|\r/g, ' ').replace(/\s+/g, ' ').trim().toUpperCase();
+    // EXTRAER EL TEXTO LITERAL DEL PDF EXCLUYENDO EL TEXTO BASURA
+    function limpiarNombrePDF(textoExtraido) {
+        if (!textoExtraido) return "SIN NOMBRE";
+        
+        // El texto a veces trae "PETROLEO DIESEL VEHICULOS PAV" al final por culpa de cómo lee la tabla.
+        // Cortamos la cadena si detectamos esas palabras clave para quedarnos solo con la máquina.
+        let nombreLimpio = textoExtraido.toUpperCase();
+        
+        const indexPetroleo = nombreLimpio.indexOf("PETRÓLEO");
+        if (indexPetroleo !== -1) nombreLimpio = nombreLimpio.substring(0, indexPetroleo);
+        
+        const indexPetroleo2 = nombreLimpio.indexOf("PETROLEO");
+        if (indexPetroleo2 !== -1) nombreLimpio = nombreLimpio.substring(0, indexPetroleo2);
+        
+        const indexVehiculos = nombreLimpio.indexOf("VEHICULOS");
+        if (indexVehiculos !== -1) nombreLimpio = nombreLimpio.substring(0, indexVehiculos);
+        
+        return nombreLimpio.replace(/\r?\n|\r/g, ' ').replace(/\s+/g, ' ').trim();
     }
 
     function procesarTextoCrudo(texto) {
-        const regex = /(\d{2})\/(\d{2})\/(\d{2}|\d{4})[\s\S]*?(DIAAL-AJ-\d+)([\s\S]*?)negativo[\s\S]*?-\s*(\d+(?:\.\d+)?)/gi;
+        // La expresión regular ahora busca específicamente PETROLEO o VEHICULOS después del nombre de la máquina.
+        // Esto evita capturar las celdas incorrectas del PDF.
+        const regex = /(\d{2})\/(\d{2})\/(\d{2}|\d{4})[\s\S]*?(DIAAL-AJ-\d+)[\s\S]*?COMPETO\s*\d+\s*(PETROLEO|VEHICULOS)[\s\S]*?(?:TR\.|RE\.|OP\.)\s*([A-Z0-9\sº°\.\-]+?)(?=PETR[OÓ]LEO\s*DI[EÉ]SEL|VEHICULOS)[\s\S]*?negativo[\s\S]*?-\s*(\d+(?:\.\d+)?)/gi;
+        
+        // Como el formato del PDF que mostraste varía un poco, si la regex estricta no funciona, 
+        // usamos una más flexible y limpiamos con la función de arriba.
+        const regexFlexible = /(\d{2})\/(\d{2})\/(\d{2}|\d{4})[\s\S]*?(DIAAL-AJ-\d+)([\s\S]*?)negativo[\s\S]*?-\s*(\d+(?:\.\d+)?)/gi;
+        
         let match; let contador = 0;
         const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
-        while ((match = regex.exec(texto)) !== null) {
+        while ((match = regexFlexible.exec(texto)) !== null) {
             let anio = parseInt(match[3]); if (anio < 100) anio += 2000;
             const textToAnalyze = match[5].toUpperCase();
             
-            // Detección automática del parque basada en cómo termina o qué contiene la descripción de la máquina
+            // Detección automática del parque
             let p = (textToAnalyze.includes("PAV II") || textToAnalyze.includes("PAVII") || textToAnalyze.includes("PV2")) ? "PAVII" : "PAV";
+
+            let maquinaExtraida = limpiarNombrePDF(match[5]);
+            
+            // Filtro de seguridad: Si la maquina extraida es basura como "COMPETO 001", la ignoramos.
+            if(maquinaExtraida.includes("COMPETO 001")) {
+                // Si capturó basura, intentamos rescatar el nombre de la máquina que está justo después.
+                const partes = textToAnalyze.split(/TR\.|RE\.|OP\./);
+                if(partes.length > 1) {
+                    maquinaExtraida = limpiarNombrePDF(partes[1]);
+                } else {
+                    maquinaExtraida = "MÁQUINA NO RECONOCIDA";
+                }
+            }
 
             registrosDiesel.push({ 
                 parque: p, 
@@ -439,7 +468,7 @@
                 mes: meses[parseInt(match[2]) - 1], 
                 dia: parseInt(match[1]), 
                 codProcedencia: match[4], 
-                maquina: limpiarNombrePDF(match[5]), // Solo extraemos y mostramos
+                maquina: maquinaExtraida, // Literal limpio
                 area: "", 
                 conductor: "", 
                 odometro: "", 
@@ -655,7 +684,6 @@
         const arr = modoActual === 'DIESEL' ? registrosDiesel : registrosBencina;
         let inc = [];
         if (modoActual === 'DIESEL') {
-            // Ya no falla si la máquina no existe en la nube
             inc = arr.filter(r => !r.parque || !r.anio || !r.mes || !r.dia || !r.codProcedencia || !r.area || !r.maquina || !r.conductor || r.odometro.toString().trim() === "" || !r.ltsDiesel);
         } else {
             inc = arr.filter(r => !r.parque || !r.anio || !r.mes || !r.dia || !r.area || !r.maquina || !r.operador || !r.litros);
