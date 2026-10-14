@@ -52,9 +52,11 @@
         }
         
         body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background-color: var(--bg); margin: 0; padding: 30px 15px; color: var(--text-main); font-size: 14px; transition: background-color 0.4s ease, color 0.4s ease; background-image: radial-gradient(circle at top right, rgba(16, 185, 129, 0.03), transparent 40%), radial-gradient(circle at bottom left, rgba(245, 158, 11, 0.03), transparent 40%); }
-        .container { width: 98%; max-width: 1800px; margin: auto; display: flex; flex-direction: column; gap: 24px; }
-        .bento-card { background: var(--panel-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-drop); padding: 28px 32px; transition: all 0.3s ease; }
+        .container { width: 98%; max-width: 1800px; margin: auto; display: flex; flex-direction: column; gap: 20px; }
         
+        .bento-card { background: var(--panel-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-drop); padding: 28px 32px; transition: all 0.3s ease; }
+        .bento-bar { background: var(--panel-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 16px; box-shadow: var(--shadow-drop); padding: 18px 24px; transition: all 0.3s ease; animation: fadeIn 0.3s ease; }
+
         .header-container { display: flex; justify-content: space-between; align-items: flex-start; }
         h1 { color: var(--text-main); margin: 0; font-size: 1.8em; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
         h1 i { color: var(--accent); }
@@ -80,7 +82,6 @@
         .btn-ghost-danger:hover { background: rgba(239, 68, 68, 0.1); }
         .btn-icon-only { padding: 10px; border-radius: 50%; }
 
-        /* Animación Carga Botón */
         @keyframes lucide-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .spin { animation: lucide-spin 1s linear infinite; }
 
@@ -105,7 +106,7 @@
         .input-group input { border: none; border-radius: 0; box-shadow: none; flex: 1; }
         
         /* Tablas */
-        .table-responsive { max-height: 600px; overflow-y: auto; overflow-x: auto; border-radius: 12px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+        .table-responsive { max-height: 550px; overflow-y: auto; overflow-x: auto; border-radius: 12px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; white-space: nowrap; } 
         th, td { padding: 12px 14px; text-align: center; vertical-align: middle; border-bottom: 1px solid var(--border); } 
         th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75em; letter-spacing: 0.5px; background: var(--bg); position: sticky; top: 0; z-index: 2; border-bottom: 2px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
@@ -150,7 +151,8 @@
                     <button class="btn btn-outline btn-icon-only" onclick="toggleTheme()" title="Alternar Día/Noche">
                         <i data-lucide="moon"></i>
                     </button>
-                    <button class="btn btn-outline" onclick="toggleIngresoManual()">
+                    <!-- El botón de Opciones de Ingreso desaparecerá en modo Bencina -->
+                    <button id="btnToggleIngreso" class="btn btn-outline" onclick="toggleIngresoManual()">
                         <i data-lucide="pen-line" size="18"></i> Opciones de Ingreso
                     </button>
                     <a href="https://docs.google.com/spreadsheets/d/157ZdigqIywTOXuseC4yGnRn-MFfOGPpmAhUP6jknTSM/edit?usp=drive_link" target="_blank" class="btn btn-outline" style="text-decoration: none;">
@@ -171,13 +173,33 @@
         </div>
     </div>
 
-    <!-- FORMULARIO MANUAL / CONTROLES GLOBALES -->
+    <!-- NUEVA BARRA DEDICADA SÓLO PARA BENCINA (FIJA Y RÁPIDA) -->
+    <div id="bencinaToolbar" class="bento-bar" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <label style="font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.85em;"><i data-lucide="calendar" size="16"></i> Fecha de Carga:</label>
+                <input type="number" id="diaB" class="table-input" style="width: 70px; border: 1px solid var(--border); background: var(--input-bg);" min="1" max="31">
+                <select id="mesB" class="table-input" style="width: 130px; border: 1px solid var(--border); background: var(--input-bg);">
+                    <option value="Enero">Enero</option><option value="Febrero">Febrero</option><option value="Marzo">Marzo</option><option value="Abril">Abril</option><option value="Mayo">Mayo</option><option value="Junio">Junio</option><option value="Julio">Julio</option><option value="Agosto">Agosto</option><option value="Septiembre">Septiembre</option><option value="Octubre">Octubre</option><option value="Noviembre">Noviembre</option><option value="Diciembre">Diciembre</option>
+                </select>
+                <input type="number" id="anioB" class="table-input" style="width: 80px; border: 1px solid var(--border); background: var(--input-bg);">
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <label style="font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.85em;"><i data-lucide="map-pin" size="16"></i> Generar Planilla por Parque:</label>
+                <!-- Los botones de parque se inyectan aquí dinámicamente -->
+                <div id="bencinaParkButtons" style="display: flex; gap: 10px;">
+                    <span style="color: var(--text-muted); font-size: 0.9em;">Cargando parques...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMULARIO MANUAL DIESEL -->
     <div class="bento-card form-section" id="formIngreso">
         <h3 id="lblTitleForm" style="margin-top: 0; margin-bottom: 20px; color: var(--text-main); font-size: 1.1em; border-bottom: 1px solid var(--border); padding-bottom: 12px; display: flex; align-items: center; gap: 8px;">
             <i data-lucide="keyboard" size="18"></i> Ingreso Manual (Diésel)
         </h3>
-        
-        <!-- Fila 1: Datos Globales -->
         <div class="form-row">
             <div class="form-group col-fecha">
                 <label>Parque</label>
@@ -193,19 +215,10 @@
                 <label>Cód. Procedencia</label>
                 <div class="input-group"><span class="prefix">DIAAL-AJ-</span><input type="text" id="codProcedenciaNum" placeholder="00007238"></div>
             </div>
-            
-            <!-- Botón exclusivo para Bencina -->
-            <div id="bencinaControls" class="form-group" style="flex: 2; align-items: flex-end; justify-content: flex-end; display: none;">
-                <button class="btn btn-primary" style="width: 100%;" onclick="generarListaBencina()">
-                    <i data-lucide="list-checks" size="18"></i> Cargar Máquinas del Parque
-                </button>
-            </div>
         </div>
-
-        <!-- Fila 2: Inputs específicos (Solo visibles en Diésel) -->
-        <div class="form-row" id="manualFormRow2">
+        <div class="form-row">
             <div class="form-group col-flex">
-                <label>Conductor</label>
+                <label id="lblConductor">Conductor</label>
                 <input type="text" id="conductorManual" list="dl-conductorManual" placeholder="Buscar..." autocomplete="off">
                 <datalist id="dl-conductorManual"></datalist>
             </div>
@@ -220,11 +233,9 @@
                 <datalist id="dl-maquinaManual"></datalist>
             </div>
         </div>
-
-        <!-- Fila 3: Inputs numéricos y Agregar (Solo visibles en Diésel) -->
-        <div class="form-row" id="manualFormRow3">
-            <div class="form-group col-flex"><label>Odómetro</label><input type="text" id="odometroManual"></div>
-            <div class="form-group col-flex"><label>Lts. Diésel</label><input type="number" id="ltsDieselManual" step="any"></div>
+        <div class="form-row">
+            <div class="form-group col-flex" id="wrapperOdometro"><label>Odómetro</label><input type="text" id="odometroManual"></div>
+            <div class="form-group col-flex"><label id="lblLitros">Lts. Diésel</label><input type="number" id="ltsDieselManual" step="any"></div>
             <div class="form-group" style="flex: 2; align-items: flex-end; justify-content: flex-end;">
                 <button class="btn btn-outline" style="width: 100%; border-color: var(--accent); color: var(--accent);" onclick="agregarRegistroManual()">
                     <i data-lucide="plus" size="18"></i> Agregar a la tabla
@@ -248,10 +259,10 @@
                         <th>Lts. Diésel</th><th>Acción</th>
                     </tr>
                 </thead>
-                <!-- Cabecera BENCINA (Formato solicitado) -->
+                <!-- Cabecera BENCINA -->
                 <thead id="theadBencina" style="display:none;">
                     <tr>
-                        <th style="min-width: 100px;">Parque</th><th style="min-width: 80px;">Año</th><th style="min-width: 100px;">Mes</th><th style="min-width: 80px;">Día</th>
+                        <th style="min-width: 100px;">Parque</th><th style="min-width: 80px;">Año</th><th style="min-width: 110px;">Mes</th><th style="min-width: 80px;">Día</th>
                         <th style="min-width: 160px;">Área</th>
                         <th style="min-width: 280px;">Máquina</th>
                         <th style="min-width: 280px;">Operador</th>
@@ -297,7 +308,7 @@
             </div>
             <div class="card">
                 <h3 style="margin-top:0; color:var(--text-main); font-size:1.1em; display:flex; gap:6px; align-items:center;">Conductores y Áreas <i data-lucide="cloud" size="16" color="var(--accent)"></i></h3>
-                <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px; line-height: 1.4;">Cargados desde la pestaña CONDUCTORES.</p>
+                <p style="font-size:0.85em; color:var(--text-muted); margin-bottom: 15px; line-height: 1.4;">Cargados desde la pestaña <b>CONDUCTORES</b>.</p>
                 <div class="list-container" id="listConductores" style="border-top: none; padding-top: 0; margin-top: 0;"></div>
             </div>
         </div>
@@ -328,48 +339,35 @@
     let registrosDiesel = [];
     let registrosBencina = [];
 
-    // CAMBIO DE MODO
     function setModo(modo) {
         modoActual = modo;
         
         const tDiesel = document.getElementById('tabDiesel');
         const tBencina = document.getElementById('tabBencina');
         const dropZone = document.getElementById('dropZone');
-        const lTitle = document.getElementById('lblTitleForm');
-        
-        const manualFormRow2 = document.getElementById('manualFormRow2');
-        const manualFormRow3 = document.getElementById('manualFormRow3');
-        const bencinaControls = document.getElementById('bencinaControls');
-        const codProcedencia = document.getElementById('wrapperCodProcedencia');
+        const btnToggleIngreso = document.getElementById('btnToggleIngreso');
+        const formIngreso = document.getElementById('formIngreso');
+        const bencinaToolbar = document.getElementById('bencinaToolbar');
+        const tHeadD = document.getElementById('theadDiesel');
+        const tHeadB = document.getElementById('theadBencina');
 
         if (modo === 'DIESEL') {
             tDiesel.classList.replace('inactive', 'active');
             tBencina.classList.replace('active', 'inactive');
             dropZone.style.display = 'flex';
-            
-            // Mostrar formulario manual completo para Diésel
-            manualFormRow2.style.display = 'flex';
-            manualFormRow3.style.display = 'flex';
-            codProcedencia.style.display = 'flex';
-            bencinaControls.style.display = 'none';
-            
-            lTitle.innerHTML = '<i data-lucide="keyboard" size="18"></i> Ingreso Manual (Diésel)';
-            document.getElementById('theadDiesel').style.display = 'table-header-group';
-            document.getElementById('theadBencina').style.display = 'none';
+            btnToggleIngreso.style.display = 'flex';
+            bencinaToolbar.style.display = 'none';
+            tHeadD.style.display = 'table-header-group';
+            tHeadB.style.display = 'none';
         } else {
             tBencina.classList.replace('inactive', 'active');
             tDiesel.classList.replace('active', 'inactive');
             dropZone.style.display = 'none'; 
-            
-            // Ocultar partes del formulario manual y mostrar botón de auto-carga
-            manualFormRow2.style.display = 'none';
-            manualFormRow3.style.display = 'none';
-            codProcedencia.style.display = 'none';
-            bencinaControls.style.display = 'flex';
-            
-            lTitle.innerHTML = '<i data-lucide="list-checks" size="18"></i> Carga de Bencina por Parque';
-            document.getElementById('theadBencina').style.display = 'table-header-group';
-            document.getElementById('theadDiesel').style.display = 'none';
+            btnToggleIngreso.style.display = 'none';
+            formIngreso.style.display = 'none'; // Se oculta totalmente el formulario manual de Diésel
+            bencinaToolbar.style.display = 'block'; // Se muestra la barra rápida de Bencina
+            tHeadB.style.display = 'table-header-group';
+            tHeadD.style.display = 'none';
         }
         
         actualizarUI();
@@ -382,25 +380,28 @@
         form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
     }
 
-    // LOGICA DE CARGA DE MAQUINAS PARA BENCINA
-    function generarListaBencina() {
-        const p = document.getElementById('parqueManual').value;
-        const a = document.getElementById('anio').value;
-        const m = document.getElementById('mes').value;
-        const d = document.getElementById('dia').value;
+    // NUEVA LÓGICA DE CARGA RÁPIDA DE BENCINA (1 CLIC)
+    function generarListaBencina(p) {
+        const a = document.getElementById('anioB').value;
+        const m = document.getElementById('mesB').value;
+        const d = document.getElementById('diaB').value;
         
-        if (!p || !a || !m || !d) {
-            alert("Por favor, asegúrate de tener seleccionado el Parque y la Fecha completa arriba.");
+        if (!a || !m || !d) {
+            alert("Por favor, revisa que la fecha en la barra superior esté completa.");
             return;
         }
 
         if (registrosBencina.length > 0) {
-            if (!confirm(`¿Borrar la tabla actual y cargar todas las máquinas de ${p}?`)) return;
+            if (!confirm(`¿Borrar la tabla actual y cargar la planilla de máquinas para ${p}?`)) return;
         }
 
         const maqList = maquinasBencina[p] || [];
         
-        // Crea una fila por cada máquina que exista en el Excel para ese parque
+        if(maqList.length === 0) {
+            alert(`No hay máquinas de Bencina registradas para el parque ${p} en la nube.`);
+            return;
+        }
+
         registrosBencina = maqList.map(maq => ({
             parque: p,
             anio: a,
@@ -415,7 +416,6 @@
         renderizarTabla();
     }
 
-    // LOGICA PDF (Solo Diésel)
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const loadingUI = document.getElementById('loadingOverlay');
@@ -451,7 +451,6 @@
         } else { alert("Por favor, selecciona un archivo PDF válido."); }
     }
 
-    // EL DETECTOR 100% FIEL AL TEXTO DE LA BASE DE DATOS
     function detectarMaquinaExacta(textoPDF) {
         if (!textoPDF) return "MÁQUINA NO RECONOCIDA";
 
@@ -459,7 +458,6 @@
         const mqP = [...(maquinasPetroleo.PAV || []), ...(maquinasPetroleo.PAVII || [])];
         const ordenadas = [...new Set(mqP)].sort((a, b) => b.length - a.length);
         
-        // Busca si alguna máquina de tu excel está metida literalmente en el PDF
         for (let mNube of ordenadas) {
             if (!mNube) continue;
             const nubeLimpio = mNube.toUpperCase().replace(/\s+/g, ' ').trim();
@@ -530,7 +528,6 @@
                 </tr>`;
             }).join('');
         } else {
-            // RENDERIZADO BENCINA: Cada celda es editable, precargada y con sus datalists.
             const mesesStr = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
             
             html = arr.map((r, i) => {
@@ -542,7 +539,7 @@
                 </select>`;
                 
                 const inpAnio = `<input type="number" class="table-input" value="${r.anio}" onchange="updateFila(${i}, 'anio', this.value)" style="width:75px;">`;
-                const selMes = `<select class="table-input" onchange="updateFila(${i}, 'mes', this.value)" style="width:110px;">` + mesesStr.map(m => `<option value="${m}" ${r.mes===m?'selected':''}>${m}</option>`).join('') + `</select>`;
+                const selMes = `<select class="table-input" onchange="updateFila(${i}, 'mes', this.value)" style="width:120px;">` + mesesStr.map(m => `<option value="${m}" ${r.mes===m?'selected':''}>${m}</option>`).join('') + `</select>`;
                 const inpDia = `<input type="number" class="table-input" value="${r.dia}" onchange="updateFila(${i}, 'dia', this.value)" style="width:65px;">`;
                 
                 const selArea = `<input type="text" list="dl-area-b-${i}" class="table-input" value="${r.area}" onchange="updateFila(${i}, 'area', this.value)" placeholder="..." autocomplete="off">
@@ -556,11 +553,10 @@
 
                 const inpLitros = `<input type="number" step="any" class="table-input" value="${r.litros}" onchange="updateFila(${i}, 'litros', this.value)" placeholder="0.0" style="font-weight: 600; color: var(--accent);">`;
                 
-                // Efecto visual: Si la fila tiene litros, revisa que esté completa. Si no tiene litros, queda neutral.
                 let alertClass = '';
                 if (r.litros && parseFloat(r.litros) > 0) {
                     if (!r.operador || !r.maquina || !r.area) alertClass = 'row-warning';
-                    else alertClass = 'row-active'; // Fila lista para ser enviada
+                    else alertClass = 'row-active'; 
                 }
                 
                 return `<tr class="${alertClass}">
@@ -592,15 +588,6 @@
         renderizarTabla(); 
     }
 
-    function navegarOdometro(e, index) {
-        if (e.key === 'Tab') {
-            e.preventDefault();
-            const inputs = document.querySelectorAll('.odo-input');
-            let targetIndex = e.shiftKey ? index - 1 : index + 1;
-            if (targetIndex >= 0 && targetIndex < inputs.length) inputs[targetIndex].focus();
-        }
-    }
-
     async function cargarDatosDesdeSheets() {
         try {
             const response = await fetch(GOOGLE_SHEETS_URL);
@@ -619,26 +606,48 @@
         cargarDatosDesdeSheets(); 
     };
 
-    function establecerFechaActual() { const date = new Date(); document.getElementById('anio').value = date.getFullYear(); document.getElementById('dia').value = date.getDate(); const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; document.getElementById('mes').value = meses[date.getMonth()]; }
+    function establecerFechaActual() { 
+        const date = new Date(); 
+        const anio = date.getFullYear();
+        const dia = date.getDate();
+        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; 
+        const mes = meses[date.getMonth()];
+        
+        // Fecha para Diésel
+        document.getElementById('anio').value = anio; 
+        document.getElementById('dia').value = dia; 
+        document.getElementById('mes').value = mes; 
+        
+        // Fecha para Bencina
+        document.getElementById('anioB').value = anio; 
+        document.getElementById('diaB').value = dia; 
+        document.getElementById('mesB').value = mes; 
+    }
     
     function toggleModal(show) { document.getElementById('modalConfig').style.display = show ? 'flex' : 'none'; }
-    
-    function cambioParqueManual() { 
-        document.getElementById('conductorManual').value = ''; 
-        document.getElementById('areaManual').value = ''; 
-        actualizarUI(); 
-    }
+    function cambioParqueManual() { document.getElementById('conductorManual').value = ''; document.getElementById('areaManual').value = ''; actualizarUI(); }
 
     function actualizarUI() {
         conductores.sort((a, b) => a.nombre.localeCompare(b.nombre));
         areas = [...new Set(conductores.map(c => c.area))].filter(Boolean).sort();
         parquesDisponibles = [...new Set(conductores.map(c => c.parque))].filter(Boolean).sort();
 
+        // Diésel Parque Manual Update
         const parqueSelect = document.getElementById('parqueManual');
         const currentParque = parqueSelect.value;
         if (parquesDisponibles.length > 0) {
             parqueSelect.innerHTML = parquesDisponibles.map(p => `<option value="${p}">${p}</option>`).join('');
             if (parquesDisponibles.includes(currentParque)) parqueSelect.value = currentParque;
+        }
+
+        // Bencina Generación de Botones (1 Clic)
+        const btnContainer = document.getElementById('bencinaParkButtons');
+        if (parquesDisponibles.length > 0) {
+            btnContainer.innerHTML = parquesDisponibles.map(p => 
+                `<button class="btn btn-outline" style="border-color: var(--accent); color: var(--accent);" onclick="generarListaBencina('${p}')">
+                    <i data-lucide="layout-list" size="18"></i> Cargar ${p}
+                </button>`
+            ).join('');
         }
 
         const pManual = document.getElementById('parqueManual').value;
@@ -664,7 +673,6 @@
     });
 
     function agregarRegistroManual() {
-        // Esta función solo se expone en la UI en el modo Diésel.
         const parque = document.getElementById('parqueManual').value; 
         const anio = document.getElementById('anio').value; 
         const mes = document.getElementById('mes').value; 
@@ -710,7 +718,6 @@
             const inc = registrosDiesel.filter(r => !r.parque || !r.anio || !r.mes || !r.dia || !r.codProcedencia || !r.area || !r.maquina || r.maquina === "MÁQUINA NO RECONOCIDA" || !r.conductor || r.odometro.toString().trim() === "" || !r.ltsDiesel);
             if (inc.length > 0) { alert("❌ Hay registros de Diésel incompletos o máquinas no reconocidas en la tabla."); return false; }
         } else {
-            // En Bencina, solo validamos las filas que el usuario decidió llenar con litros
             const filasConLitros = registrosBencina.filter(r => r.litros && parseFloat(r.litros) > 0);
             if (filasConLitros.length === 0) { alert("❌ No has ingresado litros a ninguna máquina."); return false; }
             
@@ -723,7 +730,6 @@
     function exportarExcel() {
         let arr = modoActual === 'DIESEL' ? registrosDiesel : registrosBencina;
         if (modoActual === 'BENCINA') {
-            // Solo exportamos las máquinas que efectivamente consumieron bencina
             arr = arr.filter(r => r.litros && parseFloat(r.litros) > 0);
         }
 
@@ -749,7 +755,6 @@
         let arr = modoActual === 'DIESEL' ? registrosDiesel : registrosBencina;
         
         if (modoActual === 'BENCINA') {
-            // Filtro Inteligente: Solo enviamos al Sheets las filas donde se ingresaron Litros
             arr = arr.filter(r => r.litros && parseFloat(r.litros) > 0);
         }
 
@@ -757,7 +762,7 @@
         if (!validarRegistrosCompletos()) return;
         
         const btn = document.getElementById('btnEnviarNube');
-        btn.disabled = true; // BLOQUEO ANTI DOBLE CLIC
+        btn.disabled = true; 
         btn.innerHTML = `<i data-lucide="loader-2" class="spinner-circle"></i> Enviando...`;
         lucide.createIcons();
         
@@ -785,7 +790,6 @@
             loadingUI.style.display = "none"; 
             alert("Hubo un error de conexión: " + error);
         } finally {
-            // RESTAURAMOS EL BOTÓN DESPUES DE ENVIAR
             btn.disabled = false;
             btn.innerHTML = `<i data-lucide="cloud-upload" size="18"></i> Enviar a la Nube`;
             lucide.createIcons();
