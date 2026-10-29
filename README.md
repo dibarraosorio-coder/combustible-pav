@@ -1,6 +1,7 @@
 # ⛽ Sistema Web de Control de Combustible y Flota
 
-*(Coloca aquí una captura de pantalla de la aplicación, idealmente mostrando los campos de ingreso o la función de búsqueda).*
+<img width="1868" height="449" alt="image" src="https://github.com/user-attachments/assets/97363030-aebe-4526-90d3-ab3f73a608e1" />
+
 
 **Aplicación web en la nube para la trazabilidad, registro y auditoría del consumo de diésel y gasolina de flotas y maquinarias pesadas en múltiples centros operativos.**
 
