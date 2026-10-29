@@ -19,5 +19,3 @@ El control del combustible es un área crítica para el presupuesto logístico. 
 * **Base de Datos & Almacenamiento:** Google Sheets y orquestación automática de carpetas en Google Drive.
 * **Procesamiento Integrado:** Lógica de parseo y cruce de datos con reportes en formato PDF.
 
-### 📸 Vistas del Sistema
-*(Agrega 2 capturas pequeñas: una del formulario de ingreso de litros/odómetro y otra de la base de datos sincronizada o la carpeta mensual generada).*
